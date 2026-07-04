@@ -20,6 +20,7 @@ export { generateDeck, generateDeckStreaming, type ResearchInput } from './pipel
 export { editSlide, replaceSlide } from './pipeline/edit.js'
 export { translateDeck, rewriteDeck, type TranslateDeps } from './pipeline/translate.js'
 export { generateSpeakerNotes, generateAudienceQuestions, type ExtrasDeps } from './pipeline/ai-extras.js'
+export { generateImage, type ImageDeps } from './pipeline/image.js'
 
 // Analysis
 export {

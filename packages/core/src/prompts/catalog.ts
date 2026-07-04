@@ -115,6 +115,23 @@ designIntent(이 슬라이드를 어떤 의도·구성으로 만들지)와 conte
 - 고유명사·브랜드명·숫자·단위는 보존하고, 문맥에 맞는 자연스러운 {targetLanguage}로.
 - 발표 자료 톤(간결·명료)을 유지하세요.`,
   },
+  image_svg_system: {
+    description: '개념을 표현하는 SVG 일러스트/그래픽 생성(claude -p 기반, 무키)',
+    category: 'edit',
+    variables: ['concept', 'width', 'height', 'palette'],
+    content: `깔끔하고 현대적인 프레젠테이션용 SVG 벡터 일러스트를 생성하세요.
+
+표현할 개념: {concept}
+캔버스: viewBox="0 0 {width} {height}"
+사용할 색상 팔레트(가능하면 이 색들로): {palette}
+
+규칙:
+- svg 필드에 **완결된 유효한 SVG 마크업만** 반환하세요(<svg ...>...</svg>). 설명·마크다운·코드펜스 금지.
+- 반드시 width="{width}" height="{height}" viewBox="0 0 {width} {height}" 속성을 포함하세요.
+- 단순 도형(rect/circle/path/line/polygon)과 위 팔레트 색으로 구성. 외부 이미지/폰트/스크립트 참조 금지.
+- 텍스트는 최소화(라벨 정도). 배경은 투명 또는 옅은 색.
+- 개념을 상징적으로 표현하는 아이콘/다이어그램 스타일(사진 아님).`,
+  },
   speaker_notes_system: {
     description: '슬라이드 내용을 바탕으로 발표자 스피커 노트 생성',
     category: 'edit',

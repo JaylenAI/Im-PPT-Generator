@@ -61,6 +61,7 @@ function EditorPage() {
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
   const [presenting, setPresenting] = useState(false)
+  const [imgGen, setImgGen] = useState(false)
   // undo/redo 히스토리
   const [hist, setHist] = useState<{ stack: Deck[]; idx: number }>({ stack: [], idx: -1 })
   const { ref, width } = useWidth<HTMLDivElement>()
@@ -297,11 +298,22 @@ function EditorPage() {
                     <span className="mr-1 text-xs text-muted-foreground">추가</span>
                     <button data-testid="add-text" onClick={() => { const el = newElement('text'); commit(addElement(deck, slide.id, el)); setSelectedId(el.id) }}
                       className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><TypeIcon className="h-3.5 w-3.5" /> 텍스트</button>
-                    <button data-testid="add-image" onClick={() => {
-                      const url = window.prompt('이미지 URL')
-                      if (!url) return
-                      const el = newElement('image', { src: url }); commit(addElement(deck, slide.id, el)); setSelectedId(el.id)
-                    }} className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><ImageIcon className="h-3.5 w-3.5" /> 이미지</button>
+                    <button data-testid="add-image" disabled={imgGen} onClick={async () => {
+                      const concept = window.prompt('AI로 만들 이미지 설명(예: 상승 그래프 아이콘). 비우고 확인하면 URL 입력')
+                      if (concept === null) return
+                      if (concept.trim() === '') {
+                        const url = window.prompt('이미지 URL')
+                        if (!url) return
+                        const el = newElement('image', { src: url }); commit(addElement(deck, slide.id, el)); setSelectedId(el.id)
+                        return
+                      }
+                      setImgGen(true)
+                      try {
+                        const { dataUri } = await api.generateImage(concept.trim(), deck.themeId)
+                        const el = newElement('image', { src: dataUri }); commit(addElement(deck, slide.id, el)); setSelectedId(el.id)
+                      } finally { setImgGen(false) }
+                    }} className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary disabled:opacity-50">
+                      {imgGen ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />} 이미지</button>
                     <button data-testid="add-shape" onClick={() => { const el = newElement('shape'); commit(addElement(deck, slide.id, el)); setSelectedId(el.id) }}
                       className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><Square className="h-3.5 w-3.5" /> 도형</button>
                   </div>
