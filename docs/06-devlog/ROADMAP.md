@@ -73,9 +73,9 @@
 
 - ✅ 차트 export 확인: 7종 차트(bar/line/pie/donut 등)가 PptxGenJS native chart로 export(기존 배선)
 - ✅ **프로세스 다이어그램 레이아웃**: 순차 단계를 카드+화살표로(2~5단계). LLM 선택 가능. 실 E2E(로드맵 프롬프트→process 선택→PPTX 유효 export)
+- ✅ **슬라이드당 디자인 변형 N개**: `generateVariants` — 슬라이드 제목/요약을 뽑아 다른 콘텐츠 레이아웃 3종으로 병렬 재생성. POST /decks/:id/slides/:slideId/variants. 실 claude E2E(bullets→two-col/stat/quote)
 - ❌ AI 이미지 생성(Gemini/DALL-E, 키 필요) + Pexels 스톡 폴백
 - ❌ 차트 고도화(워터폴/Mekko), 추가 다이어그램(퍼널/타임라인/조직도/2×2)
-- ❌ 슬라이드당 디자인 변형 N개 제시→선택
 
 ## P9 — 발표 + 출력 확장 🔄 (발표 모드 완료)
 
