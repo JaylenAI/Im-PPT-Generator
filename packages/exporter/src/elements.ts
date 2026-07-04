@@ -61,6 +61,8 @@ export function addElement(
           valign: 'top',
           lineSpacingMultiple: el.style.lineHeight,
           transparency,
+          // 오버플로 자동수정 — PowerPoint가 넘칠 때 텍스트 축소(native shrink-to-fit)
+          fit: 'shrink',
         }),
       )
       break
@@ -79,7 +81,7 @@ export function addElement(
       }))
       slide.addText(
         runs,
-        clean<pptxgen.TextPropsOptions>({ ...p, valign: 'top', lineSpacingMultiple: el.style.lineHeight }),
+        clean<pptxgen.TextPropsOptions>({ ...p, valign: 'top', lineSpacingMultiple: el.style.lineHeight, fit: 'shrink' }),
       )
       break
     }
