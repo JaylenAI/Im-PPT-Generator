@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, checkAccessibility, checkGhostDeck, translateDeck, rewriteDeck, generateVariants, generateSpeakerNotes, generateAudienceQuestions, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, checkGhostDeck, diagnoseDeck, translateDeck, rewriteDeck, generateVariants, generateSpeakerNotes, generateAudienceQuestions, type ResearchInput } from '@im-ppt/core'
 import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
@@ -128,6 +128,12 @@ export function deckRoutes(deps: AppDeps) {
         return c.json({ error: { code: 'NO_OUTLINE', message: '아웃라인이 없는 덱입니다' } }, 400)
       }
       return c.json({ data: checkGhostDeck(deck.outline) })
+    })
+    // Deck Doctor — 슬라이드 레벨 품질 진단(텍스트 과밀·데이터 스토리·빈 슬라이드 등)
+    .get('/:id/doctor', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      return c.json({ data: diagnoseDeck(deck) })
     })
     // 예상 청중 질문(P10)
     .get('/:id/questions', async (c) => {

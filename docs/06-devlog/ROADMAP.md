@@ -112,6 +112,7 @@
 - ✅ **발표 유형 시스템**(ADR-010): PT면접·컨설팅·IR·학술·세일즈·일반 6종 레시피(서사 골격+톤+디자인). 데이터 카탈로그(SSOT)→outline `renderScaffold` 주입, `/presentation-types` API, 생성 폼 `PresentationTypePicker`(선택 시 권장 슬라이드 수 제안). 실 claude E2E로 유형별 구조 차별화 확인(interview=STAR, ir_pitch=Kawasaki) + 스키마 4·Playwright 1
 - ✅ **유형별 디자인 자동 매칭**(ADR-010 확장, P0.6): 각 유형에 `defaultThemeId`(6종↔6테마 1:1). 테마 우선순위=명시>템플릿>유형기본>폴백(사용자 선택 항상 우선), `hasTheme` 안전폴백, 선택기 카드에 테마 색 점. 실 E2E: interview→deep-navy·ir_pitch→coral-energy 자동 적용+명시 override 확인
 - ✅ **데이터 스토리텔링 + 레이아웃 다양성**(ADR-011): 차트 `highlightIndex`(핵심 데이터 포인트만 accent 강조, 나머지 흐리게 — 렌더러+익스포터 단일시리즈 포인트별 색), insight 'so what' 주석 강제(레이아웃 사이드카드), outline 레이아웃 리듬(2연속 금지). 실 claude E2E로 highlightIndex+insight 자동 생성·PPTX 6페이지 LibreOffice 렌더 확인(Action Title+차트+인사이트 카드 3요소)
+- ✅ **Deck Doctor 품질 진단**(ADR-012): 덱 JSON을 베스트프랙티스로 스캔하는 순수 함수 `diagnoseDeck`(6x6 글머리·텍스트벽·차트 스토리 누락·요소 과밀·빈 슬라이드), 점수(0~100)+슬라이드별 개선점·제안. `GET /decks/:id/doctor`, 에디터 "품질 진단" 뷰. 생성→진단→개선 품질 루프 완성. 실 E2E: 정상덱 97점, 나쁜 슬라이드 주입 PATCH→78점 4이슈 포착 + 단위6·Playwright1
 
 ## 이후 후보 (v2)
 

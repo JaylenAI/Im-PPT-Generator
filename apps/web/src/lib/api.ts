@@ -127,6 +127,15 @@ export const api = {
       `/decks/${id}/ghost-deck`,
     ),
 
+  // Deck Doctor — 슬라이드 레벨 품질 진단(점수 + 이슈 목록)
+  doctor: (id: string) =>
+    req<{
+      score: number
+      slideCount: number
+      clean: boolean
+      issues: Array<{ slideId: string; slideIndex: number; kind: string; severity: 'high' | 'medium' | 'low'; message: string; suggestion: string }>
+    }>(`/decks/${id}/doctor`),
+
   // AI 이미지 생성(P8) — claude -p로 SVG 그래픽 → data URI
   generateImage: (concept: string, themeId?: string) =>
     req<{ dataUri: string; chars: number }>('/images/generate', {
