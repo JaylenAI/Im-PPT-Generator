@@ -15,12 +15,15 @@ const contentSchema = z.object({
       .max(4),
   }),
   insight: z.string().max(140).optional(),
+  /** 데이터 스토리텔링(ADR-011) — 강조할 데이터 포인트 인덱스(labels 기준, 0부터). 그 값만 부각 */
+  highlightIndex: z.number().int().min(0).optional(),
 })
 
 export const chartLayout: LayoutDefinition<typeof contentSchema> = {
   key: 'chart',
   name: '차트',
-  description: '데이터 시각화 장. 수치 팩트를 차트로. insight에 한 줄 해석 추가 가능.',
+  description:
+    '데이터 시각화 장. 수치 팩트를 차트로. insight에 "그래서 무엇을 말하는가" 한 줄 해석을, highlightIndex에 가장 중요한 데이터 포인트 인덱스를 넣어 스토리텔링.',
   contentSchema,
   build: (c) => {
     const chartEl: SlideElement = {
@@ -31,7 +34,11 @@ export const chartLayout: LayoutDefinition<typeof contentSchema> = {
       frame: c.insight
         ? { x: MARGIN, y: 190, w: 720, h: 440 }
         : { x: MARGIN, y: 190, w: CONTENT_W, h: 440 },
-      options: { showLegend: c.data.series.length > 1, showValues: false },
+      options: {
+        showLegend: c.data.series.length > 1,
+        showValues: false,
+        ...(c.highlightIndex !== undefined ? { highlightIndex: c.highlightIndex } : {}),
+      },
       citationIds: [],
       rotation: 0,
       opacity: 1,

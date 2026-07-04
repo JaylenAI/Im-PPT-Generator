@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
-import type { Slide } from '@im-ppt/schema'
+import type { Slide, ChartElement } from '@im-ppt/schema'
 import { getLayout, getTheme } from '@im-ppt/templates'
 import { SlideView } from '../src/index.js'
 
@@ -68,5 +68,45 @@ describe('SlideView (SSR 렌더)', () => {
     const slide = slideFrom('title', { title: 'T' })
     const html = renderToStaticMarkup(<SlideView slide={slide} theme={getTheme('deep-navy')} />)
     expect(html).not.toContain('token:colors')
+  })
+
+  it('데이터 스토리텔링(ADR-011): 강조 데이터 포인트는 accent 색, 나머지는 흐리게', () => {
+    const chartEl: ChartElement = {
+      id: 'c1',
+      type: 'chart',
+      chartType: 'bar',
+      frame: { x: 100, y: 100, w: 400, h: 300 },
+      rotation: 0,
+      opacity: 1,
+      locked: false,
+      data: { labels: ['Q1', 'Q2', 'Q3'], series: [{ name: '매출', values: [10, 20, 55] }] },
+      options: { showLegend: false, showValues: false, highlightIndex: 2 },
+      citationIds: [],
+    }
+    const slide: Slide = {
+      id: 's1', layoutType: 'chart', elements: [chartEl], notes: '', citationIds: [], status: 'draft',
+    }
+    const html = renderToStaticMarkup(<SlideView slide={slide} theme={theme} />)
+    // 강조 색(accent)이 강조 막대에 사용됨
+    expect(html.toLowerCase()).toContain(theme.tokens.colors.accent.toLowerCase())
+    // 비강조 막대는 흐리게(opacity 0.35)
+    expect(html).toContain('0.35')
+  })
+
+  it('데이터 스토리텔링: 차트 레이아웃이 highlightIndex를 element로 전달', () => {
+    const slide = slideFrom('chart', {
+      title: '전기차 판매',
+      chartType: 'bar',
+      data: { labels: ['2022', '2023', '2024'], series: [{ name: '판매량', values: [30, 55, 120] }] },
+      insight: '2024년 판매가 급증했다',
+      highlightIndex: 2,
+    })
+    const chart = slide.elements.find((e) => e.type === 'chart') as ChartElement
+    expect(chart.options.highlightIndex).toBe(2)
+    const html = renderToStaticMarkup(<SlideView slide={slide} theme={theme} />)
+    // 레이아웃 insight 사이드카드(텍스트 요소)
+    expect(html).toContain('2024년 판매가 급증했다')
+    // accent 강조
+    expect(html.toLowerCase()).toContain(theme.tokens.colors.accent.toLowerCase())
   })
 })
