@@ -1,13 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import tsconfigPaths from 'vite-tsconfig-paths'
+import { tanstackRouter } from '@tanstack/router-plugin/vite'
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    tsconfigPaths(),
+    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
+    react(),
+    tailwindcss(),
+  ],
   server: {
     port: 5273,
-    // 개발 시 API(8787)로 프록시 — CORS 없이 /api 호출
-    proxy: {
-      '/api': 'http://localhost:8787',
-    },
+    proxy: { '/api': 'http://localhost:8787' },
   },
 })

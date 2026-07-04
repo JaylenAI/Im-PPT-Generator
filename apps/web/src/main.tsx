@@ -1,12 +1,21 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { App } from './App.js'
+import { RouterProvider, createRouter } from '@tanstack/react-router'
+import { routeTree } from './routeTree.gen'
 import './styles.css'
 
-const root = document.getElementById('root')
-if (!root) throw new Error('#root 없음')
-createRoot(root).render(
+const router = createRouter({ routeTree, scrollRestoration: true })
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+
+const el = document.getElementById('root')
+if (!el) throw new Error('#root 없음')
+createRoot(el).render(
   <StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </StrictMode>,
 )

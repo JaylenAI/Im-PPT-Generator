@@ -1,0 +1,223 @@
+import { useEffect, useRef, useState } from 'react'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import {
+  Sparkles, Send, Download, Play, Plus, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
+} from 'lucide-react'
+import type { Deck, Theme } from '@im-ppt/schema'
+import { SlideView, ScaledSlide } from '@im-ppt/renderer'
+import { AppSidebar } from '@/components/AppSidebar'
+import { useAppStore } from '@/lib/store'
+import { api } from '@/lib/api'
+import { makeId, type ChatMessage } from '@/lib/types'
+import { cn } from '@/lib/utils'
+
+export const Route = createFileRoute('/editor/$id')({
+  component: EditorPage,
+})
+
+function useWidth<T extends HTMLElement>() {
+  const ref = useRef<T>(null)
+  const [w, setW] = useState(0)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const ro = new ResizeObserver(([e]) => e && setW(e.contentRect.width))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return { ref, width: w }
+}
+
+function EditorPage() {
+  const { id } = Route.useParams()
+  const navigate = useNavigate()
+  const storeDeck = useAppStore((s) => s.getDeck(id))
+  const themeFor = useAppStore((s) => s.themeFor)
+  const loadThemes = useAppStore((s) => s.loadThemes)
+  const addDeck = useAppStore((s) => s.addDeck)
+
+  const [deck, setDeck] = useState<Deck | undefined>(storeDeck)
+  const [theme, setTheme] = useState<Theme | undefined>(storeDeck ? themeFor(storeDeck) : undefined)
+  const [active, setActive] = useState(0)
+  const [downloading, setDownloading] = useState(false)
+  const [chat, setChat] = useState<ChatMessage[]>([])
+  const [input, setInput] = useState('')
+  const [tab, setTab] = useState<'chat' | 'search'>('chat')
+  const { ref, width } = useWidth<HTMLDivElement>()
+
+  // 스토어에 없으면(새로고침/직접 URL) 백엔드에서 로드
+  useEffect(() => {
+    let alive = true
+    ;(async () => {
+      const themes = await loadThemes()
+      let d = storeDeck
+      if (!d) {
+        try {
+          d = await api.getDeck(id)
+          if (alive && d) addDeck(d)
+        } catch {
+          /* not found */
+        }
+      }
+      if (alive && d) {
+        setDeck(d)
+        setTheme(themes.find((t) => t.id === d!.themeId))
+      }
+    })()
+    return () => { alive = false }
+  }, [id])
+
+  if (!deck || !theme) {
+    return (
+      <div className="flex h-screen items-center justify-center gap-2 text-muted-foreground">
+        <Loader2 className="h-5 w-5 animate-spin" /> 불러오는 중…
+      </div>
+    )
+  }
+
+  const slide = deck.slides[active] ?? deck.slides[0]
+
+  const download = async () => {
+    setDownloading(true)
+    try {
+      const { exportId } = await api.createExport(deck.id)
+      window.location.href = api.downloadUrl(exportId)
+    } finally {
+      setDownloading(false)
+    }
+  }
+
+  const send = () => {
+    if (!input.trim()) return
+    const text = input.trim()
+    setInput('')
+    setChat((c) => [
+      ...c,
+      { id: makeId(), role: 'user', content: text, createdAt: Date.now() },
+      {
+        id: makeId(),
+        role: 'assistant',
+        content: '페이지 단위 AI 수정은 다음 단계(P4)에서 연결됩니다. 지금은 슬라이드 보기와 PPTX 다운로드가 가능합니다.',
+        createdAt: Date.now(),
+      },
+    ])
+  }
+
+  return (
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <AppSidebar />
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Toolbar */}
+        <header className="flex h-16 shrink-0 items-center gap-4 border-b border-border bg-card px-6">
+          <button onClick={() => navigate({ to: '/' })} className="text-muted-foreground hover:text-foreground">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="font-display text-lg font-bold text-primary">{deck.title}</span>
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              onClick={download}
+              disabled={downloading}
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
+            >
+              {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
+            </button>
+            <button className="flex items-center gap-1.5 rounded-lg bg-gradient-brand px-4 py-1.5 text-sm font-semibold text-white shadow-brand">
+              <Play className="h-4 w-4" /> 발표
+            </button>
+          </div>
+        </header>
+
+        <div className="flex flex-1 overflow-hidden">
+          {/* Canvas + thumbnails */}
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex flex-1 flex-col overflow-hidden p-6">
+              <div className="mb-3 flex items-center justify-between text-sm">
+                <span className="font-mono text-muted-foreground">슬라이드 {active + 1} / {deck.slides.length}</span>
+                <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{deck.aspectRatio}</span>
+              </div>
+              <div className="flex flex-1 items-center justify-center">
+                <div ref={ref} className="w-full max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                  {width > 0 && slide && (
+                    <ScaledSlide width={width} aspectRatio={deck.aspectRatio}>
+                      <SlideView slide={slide} theme={theme} aspectRatio={deck.aspectRatio} />
+                    </ScaledSlide>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Thumbnail strip */}
+            <div className="flex shrink-0 gap-3 overflow-x-auto border-t border-border bg-card/60 p-4">
+              {deck.slides.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => setActive(i)}
+                  className={cn(
+                    'relative block w-40 shrink-0 overflow-hidden rounded-lg border-2 transition-all',
+                    i === active ? 'border-primary shadow-brand' : 'border-border hover:border-primary/40',
+                  )}
+                >
+                  <ScaledSlide width={160} aspectRatio={deck.aspectRatio}>
+                    <SlideView slide={s} theme={theme} aspectRatio={deck.aspectRatio} />
+                  </ScaledSlide>
+                  <span className="absolute left-1.5 top-1.5 rounded bg-black/50 px-1.5 font-mono text-[10px] text-white">{i + 1}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* AI Copilot */}
+          <aside className="flex w-[380px] shrink-0 flex-col border-l border-border bg-sidebar text-sidebar-foreground">
+            <div className="border-b border-sidebar-border p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-white">
+                <Sparkles className="h-4 w-4 text-teal" /> AI COPILOT
+              </div>
+              <p className="mt-1 text-xs text-sidebar-foreground/60">"{slide?.layoutType}" 슬라이드 편집 — 무엇이든 물어보세요.</p>
+              <div className="mt-3 flex gap-1 rounded-lg bg-sidebar-accent p-1">
+                {([['chat', MessageSquare, '채팅'], ['search', SearchIcon, '딥서치']] as const).map(([k, Icon, label]) => (
+                  <button
+                    key={k}
+                    onClick={() => setTab(k)}
+                    className={cn('flex flex-1 items-center justify-center gap-1.5 rounded-md py-1.5 text-xs font-medium', tab === k ? 'bg-gradient-brand text-white' : 'text-sidebar-foreground/60')}
+                  >
+                    <Icon className="h-3.5 w-3.5" /> {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex-1 space-y-4 overflow-y-auto p-4">
+              {chat.length === 0 && (
+                <div className="rounded-xl border border-sidebar-border bg-sidebar-accent/50 p-4 text-sm text-sidebar-foreground/70">
+                  예: "이 슬라이드를 Gen Z 중심으로", "성장 통계 추가", "더 자신감 있는 톤으로" (P4에서 연결)
+                </div>
+              )}
+              {chat.map((m) => (
+                <div key={m.id} className={cn('flex', m.role === 'user' ? 'justify-end' : 'justify-start')}>
+                  <div className={cn('max-w-[85%] rounded-2xl px-4 py-3 text-sm', m.role === 'user' ? 'bg-gradient-brand text-white' : 'bg-sidebar-accent text-sidebar-foreground')}>
+                    {m.content}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-sidebar-border p-4">
+              <div className="relative">
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && send()}
+                  placeholder="요청을 입력하세요…"
+                  className="w-full rounded-xl border border-sidebar-border bg-sidebar-accent py-3 pl-4 pr-11 text-sm text-white outline-none placeholder:text-sidebar-foreground/40 focus:border-primary"
+                />
+                <button onClick={send} disabled={!input.trim()} className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-brand p-2 text-white disabled:opacity-40">
+                  <Send className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+  )
+}
