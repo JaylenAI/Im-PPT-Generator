@@ -38,6 +38,16 @@ export function settingsRoutes(deps: AppDeps) {
     .get('/catalog', (c) =>
       c.json({ data: { app: { fields: APP_SETTINGS_CATALOG, values: deps.settings.getApp() } } }),
     )
+    // 브랜드킷(P6) — 색/폰트 오버라이드. 다음 생성부터 덱 테마에 반영
+    .get('/brand-kit', (c) => c.json({ data: deps.settings.getBrandKit() }))
+    .patch('/brand-kit', async (c) => {
+      const body = await c.req.json().catch(() => null)
+      try {
+        return c.json({ data: await deps.settings.setBrandKit(body ?? {}) })
+      } catch (e) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: (e as Error).message } }, 400)
+      }
+    })
     // 앱 기본값 — 조회/부분 갱신(영속). 다음 생성부터 반영
     .get('/app', (c) => c.json({ data: deps.settings.getApp() }))
     .patch('/app', async (c) => {

@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Upload, Check, Type as TypeIcon } from "lucide-react";
+import { Upload, Check, Type as TypeIcon, Loader2 } from "lucide-react";
 import { AppShell } from "@/components/AppShell";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/brand-kit")({
@@ -27,6 +28,34 @@ function BrandKitPage() {
   const [palette, setPalette] = useState(0);
   const [heading, setHeading] = useState("Space Grotesk");
   const [body, setBody] = useState("Inter");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    api.getBrandKit().then((kit) => {
+      if (!kit) return;
+      if (kit.fonts?.heading) setHeading(kit.fonts.heading);
+      if (kit.fonts?.body) setBody(kit.fonts.body);
+      const idx = PALETTES.findIndex((p) => p.colors[0]?.toLowerCase() === kit.colors?.primary?.toLowerCase());
+      if (idx >= 0) setPalette(idx);
+    }).catch(() => {});
+  }, []);
+
+  const save = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      const c = PALETTES[palette]!.colors;
+      await api.patchBrandKit({
+        colors: { primary: c[0], accent: c[1], background: c[2], textPrimary: c[3] },
+        fonts: { heading, body },
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <AppShell>
@@ -106,9 +135,16 @@ function BrandKitPage() {
           </div>
         </section>
 
-        <div className="mt-8 flex justify-end">
-          <button className="rounded-xl bg-gradient-brand px-6 py-3 text-sm font-semibold text-white shadow-brand transition-transform hover:-translate-y-0.5">
-            Save Brand Kit
+        <div className="mt-8 flex items-center justify-end gap-3">
+          {saved && <span className="text-sm text-teal">저장됨 — 다음 생성부터 적용됩니다</span>}
+          <button
+            onClick={save}
+            disabled={saving}
+            data-testid="brand-save"
+            className="flex items-center gap-2 rounded-xl bg-gradient-brand px-6 py-3 text-sm font-semibold text-white shadow-brand transition-transform hover:-translate-y-0.5 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : null}
+            브랜드킷 저장
           </button>
         </div>
       </div>

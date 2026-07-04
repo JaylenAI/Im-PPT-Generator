@@ -22,7 +22,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ themes })
     return themes
   },
-  themeFor: (deck) => get().themes.find((t) => t.id === deck.themeId),
+  // 브랜드킷 오버라이드가 있으면 덱 자체 테마(인라인 토큰) 사용, 없으면 빌트인
+  themeFor: (deck) =>
+    deck.themeOverride
+      ? { id: `${deck.themeId}-brand`, name: 'Brand', tokens: deck.themeOverride }
+      : get().themes.find((t) => t.id === deck.themeId),
   addDeck: (deck) => set((s) => ({ decks: [deck, ...s.decks.filter((d) => d.id !== deck.id)] })),
   getDeck: (id) => get().decks.find((d) => d.id === id),
   generate: async (input) => {
