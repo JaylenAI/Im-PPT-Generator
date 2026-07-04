@@ -8,6 +8,7 @@ import type { Deck, Theme } from '@im-ppt/schema'
 import { SlideView, ScaledSlide, type EditHandlers } from '@im-ppt/renderer'
 import { AppSidebar } from '@/components/AppSidebar'
 import { PropertyPanel } from '@/components/PropertyPanel'
+import { PresentMode } from '@/components/PresentMode'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { editText, editListItem, updateFrame, updateTextStyle, deleteElement } from '@/lib/deck-edit'
@@ -57,6 +58,7 @@ function EditorPage() {
   const [selectedId, setSelectedId] = useState<string | undefined>()
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [presenting, setPresenting] = useState(false)
   // undo/redo 히스토리
   const [hist, setHist] = useState<{ stack: Deck[]; idx: number }>({ stack: [], idx: -1 })
   const { ref, width } = useWidth<HTMLDivElement>()
@@ -180,6 +182,9 @@ function EditorPage() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
+      {presenting && (
+        <PresentMode deck={deck} theme={theme} active={active} setActive={setActive} onExit={() => setPresenting(false)} />
+      )}
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Toolbar */}
@@ -227,7 +232,8 @@ function EditorPage() {
             >
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
             </button>
-            <button className="flex items-center gap-1.5 rounded-lg bg-gradient-brand px-4 py-1.5 text-sm font-semibold text-white shadow-brand">
+            <button onClick={() => setPresenting(true)} data-testid="present-btn"
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-brand px-4 py-1.5 text-sm font-semibold text-white shadow-brand">
               <Play className="h-4 w-4" /> 발표
             </button>
           </div>
