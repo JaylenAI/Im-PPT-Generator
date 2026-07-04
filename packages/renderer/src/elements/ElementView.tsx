@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react'
 import type { SlideElement } from '@im-ppt/schema'
+import { fitFontSize } from '@im-ppt/schema'
 import { resolveCssColor, fontSizePx, fontFamily, useThemeTokens } from '../theme-context.js'
 import { ChartView } from './ChartView.js'
 
@@ -61,7 +62,14 @@ export function ElementView({ el, edit }: { el: SlideElement; edit?: EditHandler
           onBlur={edit ? (e) => edit.onEditText(el.id, e.currentTarget.textContent ?? '') : undefined}
           style={{
             ...base,
-            fontSize: fontSizePx(tokens, el.role, el.style.fontSize),
+            // 오버플로 자동수정 — 프레임을 넘치면 폰트 축소해 맞춤(PPTX fit:shrink와 일치)
+            fontSize: fitFontSize({
+              text: el.content,
+              frameW: el.frame.w,
+              frameH: el.frame.h,
+              fontSize: fontSizePx(tokens, el.role, el.style.fontSize),
+              lineHeight: el.style.lineHeight ?? 1.3,
+            }),
             fontFamily: fontFamily(tokens, el.role),
             fontWeight: WEIGHT[el.style.fontWeight ?? 'regular'],
             color: resolveCssColor(el.style.color ?? 'token:colors.textPrimary', tokens),
@@ -83,7 +91,14 @@ export function ElementView({ el, edit }: { el: SlideElement; edit?: EditHandler
             margin: 0,
             paddingLeft: 24,
             listStyleType: el.marker === 'number' ? 'decimal' : el.marker === 'dash' ? 'none' : 'disc',
-            fontSize: fontSizePx(tokens, undefined, el.style.fontSize),
+            // 오버플로 자동수정 — 항목 전체가 프레임을 넘치면 폰트 축소(불릿 들여쓰기 감안)
+            fontSize: fitFontSize({
+              text: el.items.join('\n'),
+              frameW: el.frame.w - 28,
+              frameH: el.frame.h,
+              fontSize: fontSizePx(tokens, undefined, el.style.fontSize),
+              lineHeight: el.style.lineHeight ?? 1.6,
+            }),
             fontFamily: tokens.fonts.body,
             color: resolveCssColor(el.style.color ?? 'token:colors.textPrimary', tokens),
             lineHeight: el.style.lineHeight ?? 1.6,

@@ -64,6 +64,19 @@ describe('SlideView (SSR 렌더)', () => {
     expect(html).toContain('정확도')
   })
 
+  it('오버플로 자동수정: 좁은 프레임의 긴 텍스트는 폰트가 축소된다', () => {
+    const long = '이것은 아주 길고 장황해서 좁은 상자에는 원래 크기로 절대 들어갈 수 없는 매우 긴 한국어 문장입니다. '.repeat(5)
+    const mk = (w: number, h: number): Slide => ({
+      id: 's1', layoutType: 'bullets', notes: '', citationIds: [], status: 'draft',
+      elements: [{ id: 't', type: 'text', role: 'body', content: long, frame: { x: 40, y: 40, w, h }, rotation: 0, opacity: 1, locked: false, style: {} }],
+    })
+    const maxFont = (html: string) => Math.max(...[...html.matchAll(/font-size:(\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1])))
+    const bigFont = maxFont(renderToStaticMarkup(<SlideView slide={mk(1000, 500)} theme={theme} />))
+    const smallFont = maxFont(renderToStaticMarkup(<SlideView slide={mk(300, 90)} theme={theme} />))
+    // 같은 텍스트라도 좁은 프레임에서는 폰트가 더 작게 축소됨
+    expect(smallFont).toBeLessThan(bigFont)
+  })
+
   it('다크 테마도 배경 토큰을 해석', () => {
     const slide = slideFrom('title', { title: 'T' })
     const html = renderToStaticMarkup(<SlideView slide={slide} theme={getTheme('deep-navy')} />)
@@ -103,9 +116,11 @@ describe('SlideView (SSR 렌더)', () => {
     const slide: Slide = { id: 's1', layoutType: 'chart', elements: [chartEl], notes: '', citationIds: [], status: 'draft' }
     const html = renderToStaticMarkup(<SlideView slide={slide} theme={theme} />).toLowerCase()
     expect(html).toContain('<rect')
-    // 증가(success)·감소(error)·총계(primary) 색이 모두 등장
-    expect(html).toContain(theme.tokens.colors.success.toLowerCase())
-    expect(html).toContain(theme.tokens.colors.error.toLowerCase())
+    // 증가(success)·감소(error)·총계(primary) 색이 모두 등장(stitch-indigo는 이 토큰들을 정의)
+    expect(theme.tokens.colors.success).toBeDefined()
+    expect(theme.tokens.colors.error).toBeDefined()
+    expect(html).toContain(theme.tokens.colors.success!.toLowerCase())
+    expect(html).toContain(theme.tokens.colors.error!.toLowerCase())
     expect(html).toContain(theme.tokens.colors.primary.toLowerCase())
   })
 
