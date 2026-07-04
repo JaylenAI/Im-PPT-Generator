@@ -1,6 +1,6 @@
 import type { Citation, Deck, Fact, GenerationConfig, GenerationEvent, Outline, Slide, Source } from '@im-ppt/schema'
-import { CANVAS_SIZES } from '@im-ppt/schema'
-import { TEMPLATES, getLayout, getTheme } from '@im-ppt/templates'
+import { CANVAS_SIZES, getPresentationType } from '@im-ppt/schema'
+import { TEMPLATES, getLayout, getTheme, hasTheme } from '@im-ppt/templates'
 import { buildCitations } from '@im-ppt/research'
 import { generateOutline } from './outline.js'
 import { generateSlide, type SlideDeps } from './slide.js'
@@ -45,12 +45,20 @@ function nextDeckId(): string {
   return `deck_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
 }
 
-/** config.templateId → 템플릿, 미지정 시 기본(corporate-indigo). 테마도 함께 resolve */
+/**
+ * config.templateId → 템플릿, 미지정 시 기본. 테마도 함께 resolve.
+ * 테마 우선순위: 명시 themeId > (사용자가 템플릿 선택시 그 테마) > 발표 유형 기본 테마 > 템플릿 기본.
+ * 발표 유형(ADR-010/P0.6)이 장르에 맞는 시각 정체성을 자동 부여 — 단, 사용자의 명시 선택은 언제나 우선.
+ */
 function resolveTemplate(config: GenerationConfig): { templateId: string; themeId: string } {
   const explicit = config.templateId ? TEMPLATES.find((t) => t.id === config.templateId) : undefined
   const template = explicit ?? TEMPLATES[0]
   if (!template) throw new Error('사용 가능한 템플릿이 없습니다')
-  return { templateId: template.id, themeId: config.themeId ?? template.themeId }
+  const typeTheme = getPresentationType(config.presentationType).defaultThemeId
+  const themeId =
+    config.themeId ??
+    (explicit ? template.themeId : hasTheme(typeTheme) ? typeTheme : template.themeId)
+  return { templateId: template.id, themeId }
 }
 
 function assembleDeck(

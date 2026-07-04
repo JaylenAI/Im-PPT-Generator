@@ -14,6 +14,10 @@ test('발표 유형 선택: 유형 선택 시 서사·권장 슬라이드 수 �
   const slideInput = page.locator('input[type="number"]')
   await expect(page.getByTestId('ptype-desc')).toContainText('두괄식')
 
+  // 유형별 기본 테마 색 점(P0.6) — 장르 시각 정체성
+  await expect(page.getByTestId('ptype-accent-interview')).toBeVisible()
+  await expect(page.getByTestId('ptype-desc')).toContainText('테마 자동 적용')
+
   // PT 면접 선택 → 서사(STAR) + 권장 슬라이드 6
   await page.getByTestId('ptype-interview').click()
   await expect(page.getByTestId('ptype-interview')).toHaveAttribute('aria-pressed', 'true')

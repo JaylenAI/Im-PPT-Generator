@@ -73,6 +73,11 @@ export function listThemes(): Theme[] {
   return [...THEMES.values()]
 }
 
+/** themeId가 등록된 테마인지 — throw 없이 안전하게 검사(발표 유형 기본 테마 폴백용) */
+export function hasTheme(id: string): boolean {
+  return THEMES.has(id)
+}
+
 const EXTRA_TEMPLATES: TemplateMeta[] = [
   { id: 'template-forest-green', name: 'Forest Green', category: 'business', themeId: 'forest-green', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
   { id: 'template-coral-energy', name: 'Coral Energy', category: 'creative', themeId: 'coral-energy', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },

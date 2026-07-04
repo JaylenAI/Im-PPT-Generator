@@ -77,3 +77,17 @@ PresentationType = {
 
 - **프롬프트에 유형별 if 분기**: 코드 비대·유형 추가마다 코드 수정 → 데이터 카탈로그로 대체
 - **유형별 별도 프롬프트 템플릿**: 중복 다수·유지보수 부담 → 단일 프롬프트 + 스캐폴드 주입
+
+## 확장 (P0.6, 2026-07-04) — 유형별 디자인 자동 매칭
+
+발표 유형이 서사 구조뿐 아니라 **시각 정체성**도 갖도록 각 유형에 `defaultThemeId`를 추가.
+6종을 6개 빌트인 테마에 1:1 매칭(general=stitch-indigo, interview=deep-navy,
+consulting=mono-slate, ir_pitch=coral-energy, academic=forest-green, sales=royal-purple).
+
+- **테마 우선순위**(`deck.ts::resolveTemplate`): 명시 themeId > (사용자가 템플릿 선택 시 그
+  테마) > 발표 유형 기본 테마 > 템플릿 기본. **사용자의 명시 선택은 언제나 우선** — 유형
+  기본은 "아무것도 안 골랐을 때"의 빈칸만 채운다.
+- `hasTheme(id)`로 안전 검사(미등록 테마면 템플릿 기본으로 폴백).
+- 웹 선택기: 각 유형 카드에 기본 테마 accent 색 점 표시(장르 시각 미리보기).
+- 검증: 유형↔테마 교차검증 단위 2(core), 실 claude E2E — interview→deep-navy,
+  ir_pitch→coral-energy, consulting→mono-slate 자동 적용 + themeId 명시 시 override 확인.

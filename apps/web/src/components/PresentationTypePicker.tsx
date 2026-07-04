@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Presentation, GraduationCap, TrendingUp, Briefcase, UserCheck, LayoutGrid } from 'lucide-react'
-import type { PresentationType, PresentationTypeId } from '@im-ppt/schema'
+import type { PresentationType, PresentationTypeId, Theme } from '@im-ppt/schema'
 import { api } from '@/lib/api'
 
 /** 유형별 아이콘 — id로 매핑(없으면 기본) */
@@ -25,9 +25,17 @@ export function PresentationTypePicker({
   onChange: (id: PresentationTypeId, type: PresentationType) => void
 }) {
   const [types, setTypes] = useState<PresentationType[]>([])
+  const [accents, setAccents] = useState<Record<string, string>>({})
 
   useEffect(() => {
     api.listPresentationTypes().then(setTypes).catch(() => {})
+    // 유형별 기본 테마의 accent 색을 점으로 노출 — 장르별 시각 정체성 미리보기
+    api
+      .listThemes()
+      .then((themes: Theme[]) =>
+        setAccents(Object.fromEntries(themes.map((t) => [t.id, t.tokens.colors.accent]))),
+      )
+      .catch(() => {})
   }, [])
 
   if (types.length === 0) return null
@@ -54,6 +62,14 @@ export function PresentationTypePicker({
             >
               <Icon className="h-5 w-5" />
               <span className="text-xs font-medium leading-tight">{t.label}</span>
+              {accents[t.defaultThemeId] && (
+                <span
+                  className="h-1.5 w-6 rounded-full"
+                  style={{ backgroundColor: accents[t.defaultThemeId] }}
+                  title="장르 기본 테마 색"
+                  data-testid={`ptype-accent-${t.id}`}
+                />
+              )}
             </button>
           )
         })}
@@ -61,6 +77,7 @@ export function PresentationTypePicker({
       {active && (
         <p className="mt-2 text-xs text-muted-foreground" data-testid="ptype-desc">
           {active.description} · <span className="text-teal">{active.narrative}</span>
+          <span className="text-muted-foreground"> · 테마 자동 적용(미선택 시)</span>
         </p>
       )}
     </div>
