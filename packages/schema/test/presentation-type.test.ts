@@ -9,9 +9,13 @@ import {
 } from '../src/index.js'
 
 describe('발표 유형 카탈로그(ADR-010)', () => {
-  it('핵심 6종을 정의하고 각 항목이 스키마를 만족한다', () => {
+  it('발표 유형 카탈로그의 각 항목이 스키마를 만족한다', () => {
     const ids = PRESENTATION_TYPES.map((t) => t.id)
-    expect(ids).toEqual(['general', 'interview', 'consulting', 'ir_pitch', 'academic', 'sales'])
+    // 핵심 6종 + 확장 4종
+    expect(ids).toEqual([
+      'general', 'interview', 'consulting', 'ir_pitch', 'academic', 'sales',
+      'lecture', 'workshop', 'business_review', 'product_demo',
+    ])
     for (const t of PRESENTATION_TYPES) {
       expect(() => presentationTypeSchema.parse(t)).not.toThrow()
       // 골격은 최소 3비트 이상, defaultSlides는 범위 안

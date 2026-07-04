@@ -13,8 +13,9 @@ describe('발표 유형 기본 테마 매칭', () => {
     }
   })
 
-  it('유형별로 서로 다른 테마를 배정(장르 시각 차별화)', () => {
+  it('테마가 충분히 다양하게 배정됨(장르 시각 차별화, 재사용 허용)', () => {
     const themes = PRESENTATION_TYPES.map((t) => t.defaultThemeId)
-    expect(new Set(themes).size).toBe(themes.length)
+    // 유형 수가 테마 수를 넘으면 재사용은 자연스러움 — 다만 최소 4종 이상 다양하게
+    expect(new Set(themes).size).toBeGreaterThanOrEqual(4)
   })
 })

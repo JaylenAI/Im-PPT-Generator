@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Presentation, GraduationCap, TrendingUp, Briefcase, UserCheck, LayoutGrid } from 'lucide-react'
+import { Presentation, GraduationCap, TrendingUp, Briefcase, UserCheck, LayoutGrid, BookOpen, Users, BarChart3, Rocket } from 'lucide-react'
 import type { PresentationType, PresentationTypeId, Theme } from '@im-ppt/schema'
 import { api } from '@/lib/api'
 
@@ -11,6 +11,10 @@ const ICONS: Record<string, typeof Presentation> = {
   ir_pitch: TrendingUp,
   academic: GraduationCap,
   sales: Presentation,
+  lecture: BookOpen,
+  workshop: Users,
+  business_review: BarChart3,
+  product_demo: Rocket,
 }
 
 /**
