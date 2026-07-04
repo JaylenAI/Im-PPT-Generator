@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RecentRouteImport } from './routes/recent'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as BrandKitRouteImport } from './routes/brand-kit'
@@ -20,6 +21,11 @@ import { Route as EditorIdRouteImport } from './routes/editor.$id'
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
   path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecentRoute = RecentRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/brand-kit': typeof BrandKitRoute
   '/create': typeof CreateRoute
   '/recent': typeof RecentRoute
+  '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/brand-kit': typeof BrandKitRoute
   '/create': typeof CreateRoute
   '/recent': typeof RecentRoute
+  '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/brand-kit': typeof BrandKitRoute
   '/create': typeof CreateRoute
   '/recent': typeof RecentRoute
+  '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
   '/share/$id': typeof ShareIdRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/brand-kit'
     | '/create'
     | '/recent'
+    | '/settings'
     | '/templates'
     | '/editor/$id'
     | '/share/$id'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/brand-kit'
     | '/create'
     | '/recent'
+    | '/settings'
     | '/templates'
     | '/editor/$id'
     | '/share/$id'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/brand-kit'
     | '/create'
     | '/recent'
+    | '/settings'
     | '/templates'
     | '/editor/$id'
     | '/share/$id'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   BrandKitRoute: typeof BrandKitRoute
   CreateRoute: typeof CreateRoute
   RecentRoute: typeof RecentRoute
+  SettingsRoute: typeof SettingsRoute
   TemplatesRoute: typeof TemplatesRoute
   EditorIdRoute: typeof EditorIdRoute
   ShareIdRoute: typeof ShareIdRoute
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/templates'
       fullPath: '/templates'
       preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recent': {
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   BrandKitRoute: BrandKitRoute,
   CreateRoute: CreateRoute,
   RecentRoute: RecentRoute,
+  SettingsRoute: SettingsRoute,
   TemplatesRoute: TemplatesRoute,
   EditorIdRoute: EditorIdRoute,
   ShareIdRoute: ShareIdRoute,

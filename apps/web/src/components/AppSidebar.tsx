@@ -15,6 +15,7 @@ const NAV = [
   { title: "My Files", to: "/", icon: FolderClosed },
   { title: "Templates", to: "/templates", icon: LayoutTemplate },
   { title: "Brand Kit", to: "/brand-kit", icon: Palette },
+  { title: "AI 설정", to: "/settings", icon: Settings },
   { title: "Recent Projects", to: "/recent", icon: History },
 ];
 
