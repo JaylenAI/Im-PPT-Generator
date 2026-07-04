@@ -10,7 +10,13 @@ import { useAppStore } from '@/lib/store'
 import type { TemplateMeta, Outline, Source, Fact, SlidePlan, PresentationTypeId } from '@im-ppt/schema'
 import { api, type GenerateInput, type UserSource } from '@/lib/api'
 
-export const Route = createFileRoute('/create')({ component: CreatePage })
+export const Route = createFileRoute('/create')({
+  // 템플릿 갤러리에서 넘어온 template=<id> 파라미터 허용
+  validateSearch: (s: Record<string, unknown>): { template?: string } => ({
+    template: typeof s.template === 'string' ? s.template : undefined,
+  }),
+  component: CreatePage,
+})
 
 type Preset = NonNullable<GenerateInput['preset']>
 const PRESETS: Array<{ id: Preset; label: string; desc: string }> = [
@@ -56,9 +62,15 @@ function CreatePage() {
   const [error, setError] = useState<string | null>(null)
   const logRef = useRef<HTMLDivElement>(null)
 
+  const search = Route.useSearch()
   useEffect(() => {
-    api.listTemplates().then((t) => { setTemplates(t); setTemplateId(t[0]?.id ?? '') }).catch(() => {})
-  }, [])
+    api.listTemplates().then((t) => {
+      setTemplates(t)
+      // 갤러리에서 넘어온 템플릿이 있으면 그것을, 없으면 첫 번째를 선택
+      const picked = search.template && t.some((x) => x.id === search.template) ? search.template : t[0]?.id ?? ''
+      setTemplateId(picked)
+    }).catch(() => {})
+  }, [search.template])
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }) }, [log])
 
   const input = (): GenerateInput => ({
