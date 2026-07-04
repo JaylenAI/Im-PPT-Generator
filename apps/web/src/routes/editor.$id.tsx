@@ -12,6 +12,7 @@ import { PropertyPanel } from '@/components/PropertyPanel'
 import { PresentMode } from '@/components/PresentMode'
 import { GhostDeckView } from '@/components/GhostDeckView'
 import { DeckDoctorView } from '@/components/DeckDoctorView'
+import { AiToolsMenu } from '@/components/AiToolsMenu'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement } from '@/lib/deck-edit'
@@ -282,6 +283,7 @@ function EditorPage() {
             >
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
             </button>
+            <AiToolsMenu deck={deck} onDeckUpdate={commit} />
             <button onClick={() => setGhostOpen(true)} data-testid="ghost-btn"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary">
               <ListChecks className="h-4 w-4" /> 제목 점검
