@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# builds
+dist/
+.next/
+.turbo/
+out/
+
+# env & secrets
+.env
+.env.*
+!.env.example
+
+# test & coverage
+coverage/
+playwright-report/
+test-results/
+
+# os / editor
+.DS_Store
+*.log
+.idea/
+.vscode/*
+!.vscode/extensions.json

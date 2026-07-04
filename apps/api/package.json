@@ -1,0 +1,22 @@
+{
+  "name": "@im-ppt/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsx watch src/index.ts",
+    "test": "vitest run",
+    "lint": "eslint src test"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.0",
+    "@im-ppt/schema": "workspace:*",
+    "hono": "^4.8.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.20.0"
+  }
+}
