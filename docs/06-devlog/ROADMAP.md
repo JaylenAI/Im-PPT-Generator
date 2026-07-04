@@ -11,7 +11,7 @@
 - ✅ `apps/api`: Hono 스켈레톤(앱 팩토리, zod env, 구조화 로거, 표준 에러 포맷) (단위 4)
 - 🔄 첫 커밋 + dev 분기 (사용자 확인 대기)
 
-## P1 — 세로 슬라이스 MVP: 프롬프트→아웃라인→생성→렌더→PPTX ❌
+## P1 — 세로 슬라이스 MVP: 프롬프트→아웃라인→생성→렌더→PPTX ✅ 완료(2026-07-04)
 
 - `packages/templates`: 테마 2종(Stitch 토큰 이식) + 레이아웃 변형 8종(title/agenda/bullets/two-col/stat/quote/chart/closing) — 레이아웃=코드, AI는 선택+채움만
 - `packages/core`: 프롬프트 카탈로그(prompts-as-data) + LLM 프로바이더 레지스트리(작업별 라우팅, Claude 우선) + 아웃라인 생성 + 슬라이드 JSON 생성(스키마 검증 실패 시 재시도 루프)
