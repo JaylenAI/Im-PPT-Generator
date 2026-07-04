@@ -223,7 +223,7 @@ function EditorPage() {
         <PresentMode deck={deck} theme={theme} active={active} setActive={setActive} onExit={() => setPresenting(false)} />
       )}
       {ghostOpen && <GhostDeckView deckId={deck.id} onClose={() => setGhostOpen(false)} />}
-      {doctorOpen && <DeckDoctorView deckId={deck.id} onClose={() => setDoctorOpen(false)} />}
+      {doctorOpen && <DeckDoctorView deckId={deck.id} onClose={() => setDoctorOpen(false)} onFixed={commit} />}
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Toolbar */}

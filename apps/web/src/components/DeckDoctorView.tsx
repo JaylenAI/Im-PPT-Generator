@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
-import { X, Stethoscope, AlertTriangle, Check, Info } from 'lucide-react'
+import { X, Stethoscope, AlertTriangle, Check, Info, Wand2, Loader2 } from 'lucide-react'
 import { api } from '@/lib/api'
+import type { Deck } from '@im-ppt/schema'
 
 interface Issue {
   slideId: string
@@ -34,13 +35,39 @@ function scoreColor(score: number): string {
  * Deck Doctor — 슬라이드 레벨 품질 진단 뷰. 점수 + 슬라이드별 개선점(심각도·제안).
  * Ghost Deck이 "제목 논리"라면 Doctor는 "각 장이 발표 보조물로 적절한가".
  */
-export function DeckDoctorView({ deckId, onClose }: { deckId: string; onClose: () => void }) {
+export function DeckDoctorView({
+  deckId,
+  onClose,
+  onFixed,
+}: {
+  deckId: string
+  onClose: () => void
+  onFixed?: (deck: Deck) => void
+}) {
   const [diag, setDiag] = useState<Diagnosis | null>(null)
   const [err, setErr] = useState<string | null>(null)
+  const [fixing, setFixing] = useState(false)
+  const [fixMsg, setFixMsg] = useState<string | null>(null)
 
   useEffect(() => {
     api.doctor(deckId).then(setDiag).catch((e) => setErr((e as Error).message))
   }, [deckId])
+
+  const runFix = async () => {
+    setFixing(true)
+    setErr(null)
+    setFixMsg(null)
+    try {
+      const r = await api.doctorFix(deckId)
+      setDiag(r.after as unknown as Diagnosis)
+      setFixMsg(`AI가 ${r.fixedSlides}개 슬라이드를 개선했습니다 · 점수 ${r.before.score} → ${r.after.score}`)
+      if (r.fixedSlides > 0) onFixed?.(r.deck)
+    } catch (e) {
+      setErr((e as Error).message)
+    } finally {
+      setFixing(false)
+    }
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-6" onClick={onClose}>
@@ -48,10 +75,26 @@ export function DeckDoctorView({ deckId, onClose }: { deckId: string; onClose: (
         <div className="flex items-center gap-2 border-b border-border p-4">
           <Stethoscope className="h-5 w-5 text-primary" />
           <span className="font-display text-lg font-bold">품질 진단 (Deck Doctor)</span>
-          <button onClick={onClose} className="ml-auto text-muted-foreground hover:text-foreground" data-testid="doctor-close"><X className="h-5 w-5" /></button>
+          {diag && !diag.clean && (
+            <button
+              onClick={runFix}
+              disabled={fixing}
+              data-testid="doctor-fix-btn"
+              className="ml-auto flex items-center gap-1.5 rounded-lg bg-gradient-brand px-3 py-1.5 text-sm font-semibold text-white shadow-brand disabled:opacity-60"
+            >
+              {fixing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+              {fixing ? '개선 중…' : 'AI 자동 수정'}
+            </button>
+          )}
+          <button onClick={onClose} className={`text-muted-foreground hover:text-foreground ${diag && !diag.clean ? 'ml-2' : 'ml-auto'}`} data-testid="doctor-close"><X className="h-5 w-5" /></button>
         </div>
         <div className="max-h-[64vh] overflow-y-auto p-5">
           {err && <p className="text-sm text-destructive">{err}</p>}
+          {fixMsg && (
+            <div className="mb-4 flex items-center gap-2 rounded-xl bg-teal/10 px-4 py-2.5 text-sm text-teal" data-testid="doctor-fix-msg">
+              <Check className="h-4 w-4" /> {fixMsg}
+            </div>
+          )}
           {diag && (
             <>
               <div className="mb-4 flex items-center gap-4 rounded-xl border border-border bg-muted/20 px-5 py-4">
