@@ -37,18 +37,15 @@ function applyTexts(slide: Slide, translated: string[]): Slide {
   return { ...slide, elements }
 }
 
-/** 슬라이드 1장 번역 — 텍스트 개수 불일치 시 원문 유지(안전) */
-async function translateSlide(
+/** 슬라이드 1장 텍스트 변환(번역/리라이트 공용) — 개수 불일치 시 원문 유지(안전) */
+async function transformSlide(
   slide: Slide,
-  targetLanguage: string,
+  buildPrompt: (numberedTexts: string) => string,
   deps: TranslateDeps,
 ): Promise<Slide> {
   const texts = collectTexts(slide)
   if (texts.length === 0) return slide
-  const prompt = deps.prompts.get('translate_system', {
-    targetLanguage,
-    texts: texts.map((t, i) => `${i + 1}. ${t}`).join('\n'),
-  })
+  const prompt = buildPrompt(texts.map((t, i) => `${i + 1}. ${t}`).join('\n'))
   const { data } = await deps.registry.generateStructured('edit', prompt, translateDraftSchema)
   if (data.translations.length !== texts.length) return slide // 개수 불일치 → 원문 유지
   return applyTexts(slide, data.translations)
@@ -63,13 +60,23 @@ export async function translateDeck(
   targetLanguage: string,
   deps: TranslateDeps,
 ): Promise<Deck> {
-  const slides = await Promise.all(deck.slides.map((s) => translateSlide(s, targetLanguage, deps)))
-  return {
-    ...deck,
-    id: newDeckId(),
-    title: deck.title, // 제목은 원본 유지(원하면 후속에서 번역)
-    language: targetLanguage,
-    slides,
-    version: 1,
-  }
+  const slides = await Promise.all(
+    deck.slides.map((s) =>
+      transformSlide(s, (texts) => deps.prompts.get('translate_system', { targetLanguage, texts }), deps),
+    ),
+  )
+  return { ...deck, id: newDeckId(), language: targetLanguage, slides, version: 1 }
+}
+
+/**
+ * 덱 전체 리라이트(P10) — 톤/길이 등 지시를 모든 슬라이드 텍스트에 적용. 구조 불변.
+ * 원본 보존(새 덱). 예: "더 간결하게", "임원 대상 격식체로".
+ */
+export async function rewriteDeck(deck: Deck, instruction: string, deps: TranslateDeps): Promise<Deck> {
+  const slides = await Promise.all(
+    deck.slides.map((s) =>
+      transformSlide(s, (texts) => deps.prompts.get('rewrite_system', { instruction, texts }), deps),
+    ),
+  )
+  return { ...deck, id: newDeckId(), slides, version: 1 }
 }
