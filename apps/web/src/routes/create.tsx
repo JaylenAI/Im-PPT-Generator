@@ -36,6 +36,9 @@ function CreatePage() {
   const [slideCount, setSlideCount] = useState(8)
   const [templateId, setTemplateId] = useState('')
   const [aspectRatio, setAspectRatio] = useState<NonNullable<GenerateInput['aspectRatio']>>('16:9')
+  const [guide, setGuide] = useState(false)
+  const [audience, setAudience] = useState('')
+  const [tone, setTone] = useState('professional')
   const [templates, setTemplates] = useState<TemplateMeta[]>([])
   const [sources, setSources] = useState<UserSource[]>([])
   const [srcText, setSrcText] = useState('')
@@ -56,7 +59,8 @@ function CreatePage() {
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }) }, [log])
 
   const input = (): GenerateInput => ({
-    prompt: topic.trim(), preset, slideCount, language: '한국어', aspectRatio,
+    prompt: topic.trim(), preset, slideCount, language: '한국어', aspectRatio, tone,
+    ...(audience.trim() ? { audience: audience.trim() } : {}),
     ...(templateId ? { templateId } : {}),
     ...(usesSources(preset) && sources.length ? { sources } : {}),
   })
@@ -240,7 +244,29 @@ function CreatePage() {
                 {ar}
               </button>
             ))}
+            <button onClick={() => setGuide((g) => !g)} data-testid="guide-toggle"
+              className={`ml-auto rounded-lg px-2.5 py-1 text-xs ${guide ? 'bg-gradient-brand text-white' : 'border border-border text-muted-foreground hover:border-primary'}`}>
+              가이드 모드
+            </button>
           </div>
+
+          {guide && (
+            <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl border border-border bg-secondary/30 p-3" data-testid="guide-panel">
+              <label className="text-xs">
+                <span className="mb-1 block text-muted-foreground">청중</span>
+                <input value={audience} onChange={(e) => setAudience(e.target.value)} data-testid="guide-audience"
+                  placeholder="예: 임원진, 투자자, 신입"
+                  className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-xs outline-none focus:border-primary" />
+              </label>
+              <label className="text-xs">
+                <span className="mb-1 block text-muted-foreground">톤</span>
+                <select value={tone} onChange={(e) => setTone(e.target.value)} data-testid="guide-tone"
+                  className="w-full rounded-lg border border-border bg-background px-2 py-1.5 text-xs">
+                  {['professional', 'formal', 'casual', 'academic', 'playful'].map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </label>
+            </div>
+          )}
 
           {usesSources(preset) && (
             <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-3">
