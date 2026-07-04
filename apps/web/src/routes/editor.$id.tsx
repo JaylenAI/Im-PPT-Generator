@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks, Stethoscope,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks, Stethoscope, Shapes,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -13,6 +13,7 @@ import { PresentMode } from '@/components/PresentMode'
 import { GhostDeckView } from '@/components/GhostDeckView'
 import { DeckDoctorView } from '@/components/DeckDoctorView'
 import { AiToolsMenu } from '@/components/AiToolsMenu'
+import { VariantsView } from '@/components/VariantsView'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement } from '@/lib/deck-edit'
@@ -67,6 +68,7 @@ function EditorPage() {
   const [imgGen, setImgGen] = useState(false)
   const [ghostOpen, setGhostOpen] = useState(false)
   const [doctorOpen, setDoctorOpen] = useState(false)
+  const [variantsOpen, setVariantsOpen] = useState(false)
   // undo/redo 히스토리
   const [hist, setHist] = useState<{ stack: Deck[]; idx: number }>({ stack: [], idx: -1 })
   const { ref, width } = useWidth<HTMLDivElement>()
@@ -225,6 +227,18 @@ function EditorPage() {
       )}
       {ghostOpen && <GhostDeckView deckId={deck.id} onClose={() => setGhostOpen(false)} />}
       {doctorOpen && <DeckDoctorView deckId={deck.id} onClose={() => setDoctorOpen(false)} onFixed={commit} />}
+      {variantsOpen && slide && theme && (
+        <VariantsView
+          deck={deck}
+          slide={slide}
+          theme={theme}
+          onClose={() => setVariantsOpen(false)}
+          onPick={(variant) => {
+            commit({ ...deck, slides: deck.slides.map((s) => (s.id === slide.id ? { ...variant, id: slide.id } : s)) })
+            setVariantsOpen(false)
+          }}
+        />
+      )}
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Toolbar */}
@@ -405,6 +419,10 @@ function EditorPage() {
                 <Sparkles className="h-4 w-4 text-teal" /> AI COPILOT
               </div>
               <p className="mt-1 text-xs text-sidebar-foreground/60">"{slide?.layoutType}" 슬라이드 편집 — 무엇이든 물어보세요.</p>
+              <button onClick={() => setVariantsOpen(true)} data-testid="variants-btn"
+                className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-lg border border-sidebar-border py-1.5 text-xs font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent">
+                <Shapes className="h-3.5 w-3.5" /> 이 슬라이드 다른 디자인 보기
+              </button>
               <div className="mt-3 flex gap-1 rounded-lg bg-sidebar-accent p-1">
                 {([['chat', MessageSquare, '채팅'], ['search', SearchIcon, '딥서치']] as const).map(([k, Icon, label]) => (
                   <button
