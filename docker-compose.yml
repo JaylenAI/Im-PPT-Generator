@@ -30,7 +30,7 @@ services:
       dockerfile: apps/api/Dockerfile
     environment:
       DATABASE_URL: postgresql://imppt:imppt_dev@db:5432/imppt
-      PORT: '8787'
+      PORT: '8788'
       WORKSPACE_ID: default
       LOG_LEVEL: info
       # LLM/리서치 키 — 루트 .env 있으면 주입, 없으면 빈 값(생성 시 구독 마운트 필요)
@@ -43,7 +43,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - '8787:8787'
+      - '8788:8788'
     volumes:
       - imppt_data:/data # export 산출물/업로드
       # 구독 기반 생성 시 호스트 claude 인증 마운트(선택). API 키 모드면 불필요.
