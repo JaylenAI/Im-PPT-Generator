@@ -5,6 +5,7 @@ import { AppShell } from '@/components/AppShell'
 import { OutlineGate } from '@/components/gates/OutlineGate'
 import { PlanGate } from '@/components/gates/PlanGate'
 import { PresentationTypePicker } from '@/components/PresentationTypePicker'
+import { CsvImportCard } from '@/components/CsvImportCard'
 import { useAppStore } from '@/lib/store'
 import type { TemplateMeta, Outline, Source, Fact, SlidePlan, PresentationTypeId } from '@im-ppt/schema'
 import { api, type GenerateInput, type UserSource } from '@/lib/api'
@@ -314,6 +315,8 @@ function CreatePage() {
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : '✨'} {usesGates(preset) ? '다음: 목차 검토' : '프레젠테이션 생성'}
           </button>
         </div>
+
+        <CsvImportCard />
       </div>
     </AppShell>
   )
