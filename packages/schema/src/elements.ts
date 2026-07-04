@@ -57,7 +57,7 @@ export const shapeElementSchema = z.object({
 export const chartElementSchema = z.object({
   ...baseElement,
   type: z.literal('chart'),
-  chartType: z.enum(['bar', 'horizontalBar', 'line', 'area', 'pie', 'donut', 'scatter']),
+  chartType: z.enum(['bar', 'horizontalBar', 'line', 'area', 'pie', 'donut', 'scatter', 'waterfall']),
   data: z.object({
     labels: z.array(z.string()).min(1),
     series: z
@@ -71,6 +71,8 @@ export const chartElementSchema = z.object({
       palette: z.array(colorSchema).optional(),
       /** 데이터 스토리텔링(ADR-011) — 강조할 데이터 포인트 인덱스(labels 기준). 나머지는 흐리게 */
       highlightIndex: z.number().int().min(0).optional(),
+      /** 워터폴 전용 — 마지막 값을 총계 막대(0부터)로 그림 */
+      waterfallTotalLast: z.boolean().optional(),
     })
     .prefault({}),
   citationIds: z.array(idSchema).default([]),
