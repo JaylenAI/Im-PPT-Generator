@@ -2,7 +2,7 @@
 
 > 마지막 업데이트: 2026-07-04 · **P2~P10 완성 + 콘텐츠 품질 개선 트랙 완료** — 딥리서치 기반 6레버(Action Title·발표 유형 10종·유형별 디자인 매칭·데이터 스토리텔링·Deck Doctor 진단·AI 자동 수정). 패키지 회귀 211·Playwright 4 신규·실 claude E2E 다수·origin/dev 푸시
 >
-> **AI 이미지도 claude -p(SVG)로 구현(무키).** 남은 것: Pexels 스톡 사진(키)·PNG export(헤드리스 렌더)·워터폴/Mekko 차트·오버플로 자동수정(폰트 메트릭)·Excel 파싱·15종+ 템플릿/커스텀 저장 — 외부 의존 또는 별도 인프라 필요 항목만.
+> **모든 백엔드 기능이 UI로 연결됨**(번역·리라이트·발표자 노트·예상 질문·접근성·디자인 변형·CSV→차트·AI 설정). Playwright 18 스펙 전체 그린(8.5분). 남은 것: Pexels 스톡 사진(키)·PNG export(헤드리스 렌더)·워터폴/Mekko 차트·오버플로 자동수정(폰트 메트릭)·Excel 파싱 — 외부 의존 또는 별도 인프라 필요 항목만.
 
 ## 모듈별 진행률
 
@@ -32,6 +32,10 @@
 | **품질: 발표 유형 10종 + 자동 테마 매칭** | ✅ 완료 | ADR-010, 실 claude E2E(유형별 구조) + Playwright |
 | **품질: 데이터 스토리텔링(차트 강조·인사이트)** | ✅ 완료 | ADR-011, 실 E2E + LibreOffice 렌더 |
 | **품질: Deck Doctor 진단 + AI 자동 수정** | ✅ 완료 | ADR-012, 실 E2E(86→97점) + Playwright |
+| **UI: 에디터 AI 도구(노트·질문·접근성·번역·리라이트)** | ✅ 완료 | 백엔드+UI, Playwright ai-tools |
+| **UI: 슬라이드 디자인 변형(3종 미리보기·교체)** | ✅ 완료 | 백엔드+UI, Playwright slide-variants |
+| **UI: CSV→차트 덱(위저드 보조 경로)** | ✅ 완료 | 백엔드+UI, Playwright csv-import |
+| **UI: AI 설정(모델 연결·프롬프트 편집)** | ✅ 완료 | 백엔드+UI, Playwright ai-settings |
 | 덱 번역 · 리라이트(톤/길이) | ✅ 완료 | P10, 실 claude E2E |
 | 접근성 검사(WCAG 대비/alt) | ✅ 완료 | P10a |
 | Playwright 브라우저 E2E 하네스 | ✅ 완료 | 게이트·편집·발표 E2E 5건 |
