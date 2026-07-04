@@ -49,6 +49,22 @@ importers:
         specifier: ^4.20.0
         version: 4.22.5
 
+  packages/core:
+    dependencies:
+      '@im-ppt/schema':
+        specifier: workspace:*
+        version: link:../schema
+      '@im-ppt/templates':
+        specifier: workspace:*
+        version: link:../templates
+      zod:
+        specifier: ^4.0.0
+        version: 4.4.3
+    devDependencies:
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.13.2
+
   packages/schema:
     dependencies:
       zod:
