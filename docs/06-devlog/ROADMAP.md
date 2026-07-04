@@ -45,8 +45,8 @@
 - ✅ AI Copilot 챗 패널(flow-deck-creator `ai_1` 구조): 선택 슬라이드 수정 실작동(진행 표시)
 - ✅ **슬라이드별 계획 게이트 백엔드**(시장 공백 = 핵심 차별화): core `generatePlans`(섹션별 designIntent+contentSummary), POST /decks/outline·/decks/plans 미리보기, POST /decks가 승인된 아웃라인+research 재사용. 실 claude E2E(피치덱 4슬라이드 계획 보고→승인→생성)
 - ✅ 생성 콘텐츠 품질 버그 봉합(QA): slide_system이 일부 필드에 메타 설명("~작성 완료","레이아웃에 맞춰 구성")을 넣던 잠복 버그 → 프롬프트 예시 + closing 레이아웃 필드 `.describe()`로 최종 문구만 출력
-- ❌ 팩트/계획 게이트 승인 UI(자율도 L0~L3 UI 포함) — P4b(웹)
-- ❌ 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입, 딥서치 탭 실배선 — P4b
+- ✅ **게이트 승인 위저드 UI**(P4b): create 플로우가 프리셋별 게이트 오케스트레이션 — quick=스트림, 표준/내자료=목차 게이트, 정밀=목차+슬라이드별 계획 게이트. OutlineGate(편집/삭제)+PlanGate(의도/내용 카드)+소스 입력(URL/텍스트). **Playwright 하네스 구축** + 실 claude 게이트 흐름 브라우저 E2E 2건 그린
+- ❌ 자율도 L0~L3 세부 UI, 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입, 딥서치 탭 — 후속
 
 ## P5 — WYSIWYG 에디터 심화 ❌
 

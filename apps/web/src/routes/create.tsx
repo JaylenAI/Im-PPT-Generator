@@ -1,37 +1,48 @@
 import { useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Sparkles, Loader2, Check } from 'lucide-react'
+import { Sparkles, Loader2, Check, Plus, X } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
+import { OutlineGate } from '@/components/gates/OutlineGate'
+import { PlanGate } from '@/components/gates/PlanGate'
 import { useAppStore } from '@/lib/store'
-import type { TemplateMeta } from '@im-ppt/schema'
-import { api, type GenerateInput } from '@/lib/api'
+import type { TemplateMeta, Outline, Source, Fact, SlidePlan } from '@im-ppt/schema'
+import { api, type GenerateInput, type UserSource } from '@/lib/api'
 
-export const Route = createFileRoute('/create')({
-  component: CreatePage,
-})
+export const Route = createFileRoute('/create')({ component: CreatePage })
 
 type Preset = NonNullable<GenerateInput['preset']>
 const PRESETS: Array<{ id: Preset; label: string; desc: string }> = [
   { id: 'quick', label: '빠르게', desc: '리서치·승인 없이 자동' },
-  { id: 'standard', label: '표준', desc: '목차 승인 (예정)' },
-  { id: 'research', label: '리서치', desc: '딥서치+팩트 승인 (예정)' },
+  { id: 'standard', label: '표준', desc: '목차 승인' },
+  { id: 'precision', label: '정밀', desc: '목차 + 슬라이드별 계획 승인' },
+  { id: 'my_materials', label: '내 자료', desc: '내가 준 자료로 생성' },
 ]
 const EXAMPLES = ['재생에너지의 미래', 'Q4 시장 진입 전략', '초보자를 위한 머신러닝 입문']
+const usesSources = (p: Preset) => p === 'my_materials' || p === 'research'
+const usesPlanGate = (p: Preset) => p === 'precision'
+const usesGates = (p: Preset) => p !== 'quick'
 
-interface LogLine {
-  text: string
-  done: boolean
-}
+type Phase = 'input' | 'outline' | 'plans' | 'generating'
+interface LogLine { text: string; done: boolean }
 
 function CreatePage() {
   const navigate = useNavigate()
   const addDeck = useAppStore((s) => s.addDeck)
   const loadThemes = useAppStore((s) => s.loadThemes)
+
+  const [phase, setPhase] = useState<Phase>('input')
   const [topic, setTopic] = useState('')
   const [preset, setPreset] = useState<Preset>('quick')
   const [slideCount, setSlideCount] = useState(8)
   const [templateId, setTemplateId] = useState('')
   const [templates, setTemplates] = useState<TemplateMeta[]>([])
+  const [sources, setSources] = useState<UserSource[]>([])
+  const [srcText, setSrcText] = useState('')
+
+  const [outline, setOutline] = useState<Outline | null>(null)
+  const [research, setResearch] = useState<{ sources: Source[]; facts: Fact[] }>({ sources: [], facts: [] })
+  const [plans, setPlans] = useState<SlidePlan[]>([])
+
   const [busy, setBusy] = useState(false)
   const [log, setLog] = useState<LogLine[]>([])
   const [progress, setProgress] = useState({ done: 0, total: 0 })
@@ -41,49 +52,102 @@ function CreatePage() {
   useEffect(() => {
     api.listTemplates().then((t) => { setTemplates(t); setTemplateId(t[0]?.id ?? '') }).catch(() => {})
   }, [])
-  useEffect(() => {
-    logRef.current?.scrollTo({ top: logRef.current.scrollHeight })
-  }, [log])
+  useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }) }, [log])
 
+  const input = (): GenerateInput => ({
+    prompt: topic.trim(), preset, slideCount, language: '한국어',
+    ...(templateId ? { templateId } : {}),
+    ...(usesSources(preset) && sources.length ? { sources } : {}),
+  })
   const addLog = (text: string, done = false) => setLog((l) => [...l, { text, done }])
+  const fail = (e: unknown) => { setError((e as Error).message); setBusy(false); setPhase('input') }
 
+  const addSource = () => {
+    const t = srcText.trim()
+    if (!t) return
+    const src: UserSource = /^https?:\/\//i.test(t) ? { kind: 'user_url', url: t } : { kind: 'user_text', text: t }
+    setSources((s) => [...s, src]); setSrcText('')
+  }
+
+  // 진입점 — quick은 즉시 스트림, 나머지는 아웃라인 게이트로
   const start = async () => {
     if (!topic.trim() || busy) return
-    setBusy(true)
     setError(null)
-    setLog([])
-    setProgress({ done: 0, total: 0 })
     await loadThemes()
+    if (!usesGates(preset)) return streamGenerate()
+    setBusy(true)
     try {
-      await api.streamDeck(
-        { prompt: topic.trim(), preset, slideCount, language: '한국어', ...(templateId ? { templateId } : {}) },
-        (e) => {
-          if (e.type === 'job_started') addLog('생성 시작…')
-          else if (e.type === 'outline_ready') {
-            setProgress({ done: 0, total: e.outline.sections.length })
-            addLog(`목차 완성 — ${e.outline.sections.length}개 섹션`, true)
-            e.outline.sections.forEach((s, i) => addLog(`슬라이드 ${i + 1}: ${s.title}`))
-          } else if (e.type === 'slide_done') {
-            setProgress((p) => ({ ...p, done: p.done + 1 }))
-            addLog(`슬라이드 완성 (${e.slide.layoutType})`, true)
-          } else if (e.type === 'deck_saved') {
-            addDeck(e.deck)
-            addLog('완료! 에디터로 이동합니다…', true)
-            setTimeout(() => navigate({ to: '/editor/$id', params: { id: e.deck.id } }), 600)
-          } else if (e.type === 'job_error') {
-            setError(e.message)
-            setBusy(false)
-          }
-        },
-      )
-    } catch (e) {
-      setError((e as Error).message)
-      setBusy(false)
+      const r = await api.previewOutline(input())
+      setOutline(r.outline); setResearch({ sources: r.sources, facts: r.facts })
+      setBusy(false); setPhase('outline')
+    } catch (e) { fail(e) }
+  }
+
+  // quick 경로 — 실시간 스트리밍
+  const streamGenerate = async () => {
+    setBusy(true); setLog([]); setProgress({ done: 0, total: 0 }); setPhase('generating')
+    try {
+      await api.streamDeck(input(), (e) => {
+        if (e.type === 'job_started') addLog('생성 시작…')
+        else if (e.type === 'outline_ready') {
+          setProgress({ done: 0, total: e.outline.sections.length })
+          addLog(`목차 완성 — ${e.outline.sections.length}개 섹션`, true)
+        } else if (e.type === 'slide_done') {
+          setProgress((p) => ({ ...p, done: p.done + 1 }))
+          addLog(`슬라이드 완성 (${e.slide.layoutType})`, true)
+        } else if (e.type === 'deck_saved') {
+          addDeck(e.deck); addLog('완료! 에디터로 이동합니다…', true)
+          setTimeout(() => navigate({ to: '/editor/$id', params: { id: e.deck.id } }), 600)
+        } else if (e.type === 'job_error') fail(new Error(e.message))
+      })
+    } catch (e) { fail(e) }
+  }
+
+  const approveOutline = async (approved: Outline) => {
+    setOutline(approved)
+    if (usesPlanGate(preset)) {
+      setBusy(true)
+      try {
+        const r = await api.previewPlans({ ...input(), outline: approved, facts: research.facts })
+        setPlans(r.plans); setBusy(false); setPhase('plans')
+      } catch (e) { fail(e) }
+    } else {
+      finalGenerate(approved)
     }
   }
 
-  if (busy) {
+  // 게이트 승인 후 최종 생성(동기) — 승인 아웃라인 + 이미 계산한 리서치 재사용
+  const finalGenerate = async (approved: Outline) => {
+    setBusy(true); setPhase('generating')
+    try {
+      const r = await api.generateApproved({
+        ...input(), outline: approved,
+        ...(research.sources.length || research.facts.length ? { research } : {}),
+      })
+      addDeck(r.deck)
+      navigate({ to: '/editor/$id', params: { id: r.deck.id } })
+    } catch (e) { fail(e) }
+  }
+
+  if (phase === 'outline' && outline)
+    return (
+      <AppShell>
+        <OutlineGate outline={outline} sources={research.sources} facts={research.facts} busy={busy}
+          onApprove={approveOutline} onBack={() => setPhase('input')} />
+      </AppShell>
+    )
+
+  if (phase === 'plans')
+    return (
+      <AppShell>
+        <PlanGate plans={plans} busy={busy} onApprove={() => outline && finalGenerate(outline)}
+          onBack={() => setPhase('outline')} />
+      </AppShell>
+    )
+
+  if (phase === 'generating') {
     const pct = progress.total ? Math.round((progress.done / progress.total) * 100) : 0
+    const streaming = preset === 'quick'
     return (
       <AppShell>
         <div className="mx-auto max-w-2xl px-10 py-16">
@@ -92,29 +156,27 @@ function CreatePage() {
               <Loader2 className="h-6 w-6 animate-spin text-white" />
             </div>
             <div>
-              <div className="font-display text-xl font-bold">실시간 생성 중</div>
+              <div className="font-display text-xl font-bold">{streaming ? '실시간 생성 중' : '승인한 계획으로 생성 중'}</div>
               <div className="font-mono text-xs text-teal">
                 {progress.total ? `${progress.done}/${progress.total} 슬라이드` : 'AI가 설계하고 있습니다…'}
               </div>
             </div>
           </div>
-          {progress.total > 0 && (
+          {streaming && progress.total > 0 && (
             <div className="mb-5 h-2 w-full overflow-hidden rounded-full bg-secondary">
               <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${pct}%` }} />
             </div>
           )}
-          <div ref={logRef} className="max-h-[420px] overflow-y-auto rounded-2xl border border-border bg-card p-5">
-            {log.map((l, i) => (
-              <div key={i} className="flex items-center gap-2 py-1 text-sm">
-                {l.done ? (
-                  <Check className="h-4 w-4 shrink-0 text-teal" />
-                ) : (
-                  <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-primary" />
-                )}
-                <span className={l.done ? 'text-foreground' : 'text-muted-foreground'}>{l.text}</span>
-              </div>
-            ))}
-          </div>
+          {streaming && (
+            <div ref={logRef} className="max-h-[420px] overflow-y-auto rounded-2xl border border-border bg-card p-5">
+              {log.map((l, i) => (
+                <div key={i} className="flex items-center gap-2 py-1 text-sm">
+                  {l.done ? <Check className="h-4 w-4 shrink-0 text-teal" /> : <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-primary" />}
+                  <span className={l.done ? 'text-foreground' : 'text-muted-foreground'}>{l.text}</span>
+                </div>
+              ))}
+            </div>
+          )}
           {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
         </div>
       </AppShell>
@@ -135,29 +197,19 @@ function CreatePage() {
         {error && <p className="mb-4 text-center text-sm text-destructive">{error}</p>}
 
         <div className="rounded-2xl border border-border bg-card p-6 shadow-card">
-          <textarea
-            rows={3}
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
+          <textarea rows={3} value={topic} onChange={(e) => setTopic(e.target.value)}
             placeholder="예: 중소기업을 위한 클라우드 전환 전략, 임원 대상, 15장"
-            className="w-full resize-none rounded-xl border border-border bg-background p-4 text-sm outline-none focus:border-primary"
-          />
+            className="w-full resize-none rounded-xl border border-border bg-background p-4 text-sm outline-none focus:border-primary" />
           <div className="mt-3 flex flex-wrap gap-2">
             {EXAMPLES.map((ex) => (
-              <button key={ex} onClick={() => setTopic(ex)} className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary hover:text-primary">
-                {ex}
-              </button>
+              <button key={ex} onClick={() => setTopic(ex)} className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary hover:text-primary">{ex}</button>
             ))}
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
             {PRESETS.map((p) => (
-              <button
-                key={p.id}
-                onClick={() => setPreset(p.id)}
-                title={p.desc}
-                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${preset === p.id ? 'bg-gradient-brand text-white' : 'border border-border text-muted-foreground hover:border-primary'}`}
-              >
+              <button key={p.id} onClick={() => setPreset(p.id)} title={p.desc}
+                className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${preset === p.id ? 'bg-gradient-brand text-white' : 'border border-border text-muted-foreground hover:border-primary'}`}>
                 {p.label}
               </button>
             ))}
@@ -166,23 +218,39 @@ function CreatePage() {
               <input type="number" min={3} max={30} value={slideCount} onChange={(e) => setSlideCount(Number(e.target.value))} className="w-16 rounded-lg border border-border bg-background px-2 py-1.5 text-sm" />
             </label>
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">{PRESETS.find((p) => p.id === preset)?.desc}</p>
+
+          {usesSources(preset) && (
+            <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-3">
+              <div className="mb-2 text-xs font-medium text-muted-foreground">내 자료 (URL 또는 텍스트 붙여넣기)</div>
+              <div className="flex gap-2">
+                <input value={srcText} onChange={(e) => setSrcText(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addSource())}
+                  placeholder="https://... 또는 참고할 텍스트"
+                  className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+                <button onClick={addSource} className="rounded-lg border border-border px-3 hover:border-primary" aria-label="자료 추가"><Plus className="h-4 w-4" /></button>
+              </div>
+              {sources.map((s, i) => (
+                <div key={i} className="mt-2 flex items-center gap-2 text-xs">
+                  <span className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[10px]">{s.kind === 'user_url' ? 'URL' : 'TEXT'}</span>
+                  <span className="flex-1 truncate">{s.url ?? s.text}</span>
+                  <button onClick={() => setSources((ss) => ss.filter((_, j) => j !== i))} aria-label="삭제"><X className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive" /></button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {templates.length > 0 && (
             <div className="mt-3">
               <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
-                {templates.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
+                {templates.map((t) => (<option key={t.id} value={t.id}>{t.name}</option>))}
               </select>
             </div>
           )}
 
-          <button
-            onClick={start}
-            disabled={!topic.trim()}
-            className="mt-6 w-full rounded-xl bg-gradient-brand py-3.5 text-sm font-semibold text-white shadow-brand disabled:opacity-50"
-          >
-            ✨ 프레젠테이션 생성
+          <button onClick={start} disabled={!topic.trim() || busy}
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-brand py-3.5 text-sm font-semibold text-white shadow-brand disabled:opacity-50">
+            {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : '✨'} {usesGates(preset) ? '다음: 목차 검토' : '프레젠테이션 생성'}
           </button>
         </div>
       </div>

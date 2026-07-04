@@ -1,4 +1,12 @@
-import type { Deck, Theme, TemplateMeta } from '@im-ppt/schema'
+import type { Deck, Theme, TemplateMeta, Outline, SlidePlan, Source, Fact } from '@im-ppt/schema'
+
+/** 사용자 제공 자료(리서치 입력) */
+export interface UserSource {
+  kind: 'user_url' | 'user_text'
+  url?: string
+  text?: string
+  title?: string
+}
 
 /** API 클라이언트 — 표준 봉투 {data}/{error} 파싱. 웹은 이 계약만 안다(ADR-007) */
 const BASE = '/api/v1'
@@ -26,6 +34,7 @@ export interface GenerateInput {
   tone?: string
   language?: string
   templateId?: string
+  sources?: UserSource[]
 }
 
 /** SSE 생성 이벤트 — 백엔드 events.ts 계약의 프론트 소비 형태 */
@@ -70,6 +79,28 @@ async function streamDeck(input: GenerateInput, onEvent: (e: StreamEvent) => voi
 
 export const api = {
   generateDeck: (input: GenerateInput) =>
+    req<{ deckId: string; deck: Deck; costUsd: number }>('/decks', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+
+  // HITL 게이트 — 아웃라인/계획 미리보기(승인 전)
+  previewOutline: (input: GenerateInput) =>
+    req<{ outline: Outline; sources: Source[]; facts: Fact[] }>('/decks/outline', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+
+  previewPlans: (input: GenerateInput & { outline: Outline; facts?: Fact[] }) =>
+    req<{ plans: SlidePlan[]; costUsd: number }>('/decks/plans', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+
+  // 게이트 승인 후 최종 생성 — 승인된 아웃라인 + 이미 계산된 리서치 재사용
+  generateApproved: (
+    input: GenerateInput & { outline: Outline; research?: { sources: Source[]; facts: Fact[] } },
+  ) =>
     req<{ deckId: string; deck: Deck; costUsd: number }>('/decks', {
       method: 'POST',
       body: JSON.stringify(input),
