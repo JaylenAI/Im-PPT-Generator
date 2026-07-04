@@ -21,7 +21,8 @@
     "hono": "^4.8.0",
     "zod": "^4.0.0",
     "mammoth": "^1.8.0",
-    "jszip": "^3.10.0"
+    "jszip": "^3.10.0",
+    "unpdf": "^1.6.0"
   },
   "devDependencies": {
     "tsx": "^4.20.0"

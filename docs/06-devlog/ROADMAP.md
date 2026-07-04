@@ -66,9 +66,9 @@
 
 ## P7 — 입력 확장 🔄 (문서 업로드 완료)
 
-- ✅ **문서 업로드 → 덱**: DOCX(mammoth)/TXT/MD 파싱 → 텍스트 추출 → user_text 소스로 리서치 파이프라인 재사용. POST /documents/extract(멀티파트, 10MB 제한, 미지원 형식 거부). 웹 create에 업로드 버튼. 실 E2E(txt/md/docx 추출 + 브라우저 업로드→소스 추가)
+- ✅ **문서 업로드 → 덱**: PDF(unpdf)/DOCX(mammoth)/TXT/MD 파싱 → 텍스트 추출 → user_text 소스로 리서치 파이프라인 재사용. POST /documents/extract(멀티파트, 10MB 제한, 미지원 형식 거부). 웹 create에 업로드 버튼. 실 E2E(pdf/txt/md/docx 추출 + 브라우저 업로드→소스 추가)
 - ✅ URL/텍스트 붙여넣기(기존 user_url/user_text 소스)
-- ❌ PDF 파싱(파서 추가 필요), 장문 3모드(condense는 P10 리라이트로 부분 대체), CSV/Excel→차트, Guide Mode
+- ❌ 장문 3모드(condense는 P10 리라이트로 부분 대체), CSV/Excel→차트, Guide Mode
 
 ## P8 — 이미지/차트 고도화 🔄 (다이어그램 착수)
 
