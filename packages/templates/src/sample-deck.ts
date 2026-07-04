@@ -1,19 +1,22 @@
-import type { Deck, Slide } from '@im-ppt/schema'
+import type { Deck, Slide, TemplateMeta, ThemeTokens } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
-import { TEMPLATES, getTheme, getLayout } from './registry.js'
+import { TEMPLATES, getLayout } from './registry.js'
 
 /**
  * 템플릿 미리보기용 샘플 덱 — LLM 없이 결정론적 플레이스홀더로 그 템플릿의 디자인을 보여준다.
  * 갤러리 썸네일/미리보기 모달이 이 덱을 우리 렌더러로 그대로 렌더(Canva식 실제 미리보기).
+ *
+ * builtin 템플릿은 themeId로 렌더러가 레지스트리 테마를 해석하고,
+ * 커스텀(PPTX 추출) 템플릿은 themeOverride(인라인 토큰)로 그 룩을 그린다.
  */
-export function buildSampleDeck(templateId: string): Deck {
-  const template = TEMPLATES.find((t) => t.id === templateId) ?? TEMPLATES[0]!
+export function buildSampleDeck(template: TemplateMeta | string, themeOverride?: ThemeTokens): Deck {
+  const tpl = typeof template === 'string' ? TEMPLATES.find((t) => t.id === template) ?? TEMPLATES[0]! : template
   const canvas = CANVAS_SIZES['16:9']
 
   const mk = (layoutKey: string, content: unknown): Slide => {
     const { background, elements } = getLayout(layoutKey).build(content, { canvas })
     return {
-      id: `sample_${template.id}_${layoutKey}`,
+      id: `sample_${tpl.id}_${layoutKey}`,
       layoutType: layoutKey,
       elements,
       notes: '',
@@ -24,7 +27,7 @@ export function buildSampleDeck(templateId: string): Deck {
   }
 
   const slides: Slide[] = [
-    mk('title', { title: template.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인' }),
+    mk('title', { title: tpl.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인' }),
     mk('kpi-grid', {
       title: '주요 성과 지표',
       kpis: [
@@ -48,19 +51,20 @@ export function buildSampleDeck(templateId: string): Deck {
       insight: '4분기 들어 성장이 가속됐다',
       highlightIndex: 3,
     }),
-    mk('closing', { headline: '함께 시작하세요', message: template.name }),
+    mk('closing', { headline: '함께 시작하세요', message: tpl.name }),
   ]
 
   return {
-    id: `sample_${template.id}`,
-    title: template.name,
+    id: `sample_${tpl.id}`,
+    title: tpl.name,
     language: 'ko',
     aspectRatio: '16:9',
-    themeId: template.themeId,
-    templateId: template.id,
+    themeId: tpl.themeId,
+    templateId: tpl.id,
     slides,
     sources: [],
     citations: [],
     version: 1,
+    ...(themeOverride ? { themeOverride } : {}),
   }
 }

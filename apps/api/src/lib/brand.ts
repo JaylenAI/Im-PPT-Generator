@@ -16,3 +16,15 @@ export function applyBrandKit(deps: AppDeps, deck: Deck): Deck {
     return deck // 알 수 없는 테마면 원본 유지
   }
 }
+
+/**
+ * 브랜딩 적용 — 커스텀 템플릿(PPTX 추출)이 선택되면 그 인라인 테마가 우선(P11.2),
+ * 아니면 전역 브랜드킷 적용(P6). 명시 선택이 전역 설정을 이긴다.
+ */
+export function applyBranding(deps: AppDeps, deck: Deck, templateId?: string): Deck {
+  if (templateId) {
+    const custom = deps.settings.getCustomTemplate(templateId)
+    if (custom) return { ...deck, themeOverride: custom.themeTokens }
+  }
+  return applyBrandKit(deps, deck)
+}
