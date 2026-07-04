@@ -146,6 +146,49 @@ export const api = {
       costUsd: number
     }>(`/decks/${id}/doctor/fix`, { method: 'POST' }),
 
+  // 발표자 노트 생성(P10) — 전 슬라이드에 발표 스크립트 추가, 저장된 덱 반환
+  generateSpeakerNotes: (id: string) =>
+    req<{ deck: Deck }>(`/decks/${id}/speaker-notes`, { method: 'POST' }),
+
+  // 예상 청중 질문(P10) — 발표 후 나올 만한 질문 목록
+  audienceQuestions: (id: string) => req<{ questions: string[] }>(`/decks/${id}/questions`),
+
+  // 접근성 점검(P10) — WCAG 대비율 + alt 텍스트(0~100 점수 + 이슈)
+  accessibility: (id: string) =>
+    req<{
+      score: number
+      checked: number
+      issues: Array<{ slideId: string; slideIndex: number; elementId?: string; kind: 'contrast' | 'alt-text'; severity: 'error' | 'warning'; detail: string }>
+    }>(`/decks/${id}/accessibility`),
+
+  // 덱 번역(P10) — 전 슬라이드를 대상 언어로. 원본 보존, 새 덱 생성
+  translateDeck: (id: string, language: string) =>
+    req<{ deckId: string; deck: Deck }>(`/decks/${id}/translate`, {
+      method: 'POST',
+      body: JSON.stringify({ language }),
+    }),
+
+  // 덱 리라이트(P10) — 톤/길이 지시로 전 슬라이드 재작성. 새 덱 생성
+  rewriteDeck: (id: string, instruction: string) =>
+    req<{ deckId: string; deck: Deck }>(`/decks/${id}/rewrite`, {
+      method: 'POST',
+      body: JSON.stringify({ instruction }),
+    }),
+
+  // 슬라이드 디자인 변형(P8) — 같은 내용의 다른 레이아웃 3종
+  slideVariants: (deckId: string, slideId: string) =>
+    req<{ variants: import('@im-ppt/schema').Slide[]; costUsd: number }>(
+      `/decks/${deckId}/slides/${slideId}/variants`,
+      { method: 'POST' },
+    ),
+
+  // CSV→차트 덱(P7) — CSV 텍스트에서 차트 슬라이드 생성
+  deckFromCsv: (csv: string, title?: string, chartType?: string) =>
+    req<{ deckId: string; deck: Deck }>(`/decks/from-csv`, {
+      method: 'POST',
+      body: JSON.stringify({ csv, ...(title ? { title } : {}), ...(chartType ? { chartType } : {}) }),
+    }),
+
   // AI 이미지 생성(P8) — claude -p로 SVG 그래픽 → data URI
   generateImage: (concept: string, themeId?: string) =>
     req<{ dataUri: string; chars: number }>('/images/generate', {
