@@ -152,7 +152,9 @@ export function addElement(
       const highlightColors =
         hi !== undefined && el.data.series.length === 1
           ? el.data.labels.map((_, i) =>
-              i === hi ? resolveColor('token:colors.accent', tokens) : resolveColor('token:colors.border', tokens),
+              // 강조는 accent, 나머지는 textSecondary(흐린 회색)로 de-emphasize.
+              // ※ 'border'는 테마 토큰에 없어 textPrimary(가장 진함)로 폴백돼 강조가 반전됐었음.
+              i === hi ? resolveColor('token:colors.accent', tokens) : resolveColor('token:colors.textSecondary', tokens),
             )
           : undefined
       slide.addChart(

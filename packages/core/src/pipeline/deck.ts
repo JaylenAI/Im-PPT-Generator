@@ -12,11 +12,16 @@ function buildSourcesSlide(
   config: GenerationConfig,
 ): Slide {
   const sourceById = new Map(sources.map((s) => [s.id, s]))
-  const items = citations.map((c) => {
-    const src = sourceById.get(c.sourceId)
-    const title = src?.title ?? '출처'
-    return src?.url ? `${title} — ${src.url}` : title
-  })
+  // references 레이아웃 계약: 아이템 ≤160자, ≤12개. 시스템 생성 슬라이드라 LLM 재검증을
+  // 거치지 않으므로 여기서 clamp/cap해 긴 URL·다수 출처로 인한 parse 크래시 방지.
+  const items = citations
+    .map((c) => {
+      const src = sourceById.get(c.sourceId)
+      const title = src?.title ?? '출처'
+      const full = src?.url ? `${title} — ${src.url}` : title
+      return full.length > 160 ? `${full.slice(0, 159)}…` : full
+    })
+    .slice(0, 12)
   const layout = getLayout('references')
   const title = config.language.toLowerCase().startsWith('ko') ? '출처' : 'Sources'
   const { background, elements } = layout.build(

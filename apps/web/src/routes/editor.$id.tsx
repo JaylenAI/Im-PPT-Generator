@@ -73,19 +73,21 @@ function EditorPage() {
   const [hist, setHist] = useState<{ stack: Deck[]; idx: number }>({ stack: [], idx: -1 })
   const { ref, width } = useWidth<HTMLDivElement>()
 
-  // 스토어에 없으면(새로고침/직접 URL) 백엔드에서 로드
+  // 백엔드에서 최신 버전 로드 — AI 편집(노트/변형/자동수정)은 서버에만 반영되므로
+  // 스토어(storeDeck)가 아니라 서버 진실을 우선. 실패 시에만 스토어로 폴백.
   useEffect(() => {
     let alive = true
     ;(async () => {
       const themes = await loadThemes()
       let d = storeDeck
-      if (!d) {
-        try {
-          d = await api.getDeck(id)
-          if (alive && d) addDeck(d)
-        } catch {
-          /* not found */
+      try {
+        const fresh = await api.getDeck(id)
+        if (fresh) {
+          d = fresh
+          if (alive) addDeck(fresh)
         }
+      } catch {
+        /* 백엔드 실패 → 스토어 버전으로 폴백 */
       }
       if (alive && d) {
         setDeck(d)

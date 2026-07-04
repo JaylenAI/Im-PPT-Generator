@@ -36,7 +36,7 @@ const TEXT_WALL_CHARS = 220
 const MAX_CONTENT_ELEMENTS = 8
 const SEVERITY_PENALTY: Record<DoctorSeverity, number> = { high: 15, medium: 8, low: 3 }
 // 빈 슬라이드 판정에서 제외할 레이아웃(본디 본문이 적은 장)
-const SPARSE_OK_LAYOUTS = new Set(['title', 'closing', 'section', 'references', 'quote'])
+const SPARSE_OK_LAYOUTS = new Set(['title', 'closing', 'references', 'quote'])
 
 /** 콘텐츠로 치는 요소(배경 장식용 shape/underline 제외) */
 function isContentElement(el: SlideElement): boolean {

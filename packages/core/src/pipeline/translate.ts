@@ -31,7 +31,8 @@ function applyTexts(slide: Slide, translated: string[]): Slide {
   let i = 0
   const elements = slide.elements.map((el) => {
     if (el.type === 'text') return { ...el, content: translated[i++] ?? el.content }
-    if (el.type === 'list') return { ...el, items: el.items.map(() => translated[i++] ?? '').filter((s) => s.length > 0) }
+    // 빈 번역이 와도 원문 유지 — 항목 개수·좌표 불변(드롭 시 리스트가 줄어드는 버그 방지)
+    if (el.type === 'list') return { ...el, items: el.items.map((orig) => { const t = translated[i++]; return t && t.length > 0 ? t : orig }) }
     return el
   })
   return { ...slide, elements }
