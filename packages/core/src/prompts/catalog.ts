@@ -75,7 +75,11 @@ export const PROMPT_CATALOG = {
 {facts}
 
 규칙:
-- 레이아웃 스키마가 요구하는 필드만 채웁니다.
+- 각 필드에는 슬라이드에 **그대로 표시될 최종 문구만** 넣으세요. 청중이 읽을 실제 내용.
+- **메타 설명·작업 보고·라벨 금지**: "슬라이드 카피 작성 완료", "~작성했습니다", "bullets 레이아웃에 맞춰 구성", "제목:", "요점1:" 같은 문구를 절대 넣지 마세요.
+- 선택 필드(note/caption 등)는 실제로 넣을 내용이 없으면 비우세요(억지로 채우지 말 것).
+- 좋은 예) title: "핵심 전략 3가지", bullets: ["비동기 소통 체계화", "OKR 기반 성과관리"]
+- 나쁜 예) title: "핵심 전략 3가지 — 슬라이드 카피 작성 완료", caption: "bullets 레이아웃에 맞춰 구성"
 - 간결하게. 슬라이드는 읽는 문서가 아니라 발표 보조물입니다.
 - 수치나 인용은 참고 팩트에 있는 것만 사용하고 지어내지 마세요.
 - 모든 텍스트는 {language}로 작성합니다.`,
@@ -83,14 +87,18 @@ export const PROMPT_CATALOG = {
   slide_plan_system: {
     description: '슬라이드 생성 전 디자인 계획(의도+내용 요약) 보고 — HITL 게이트③',
     category: 'slide',
-    variables: ['sectionTitle', 'sectionSummary', 'layoutType'],
-    content: `다음 슬라이드를 만들기 전에 어떻게 설계할지 한국어로 간결히 보고하세요.
+    variables: ['sectionTitle', 'sectionSummary', 'layoutType', 'facts', 'language'],
+    content: `다음 슬라이드를 만들기 전에 어떻게 설계할지 {language}로 간결히 보고하세요.
 
 제목: {sectionTitle}
 요약: {sectionSummary}
 레이아웃: {layoutType}
 
-designIntent(디자인 의도)와 contentSummary(담을 내용)를 각각 1~2문장으로 작성하세요.`,
+참고 팩트(있으면 이 근거를 어떻게 쓸지 반영):
+{facts}
+
+designIntent(이 슬라이드를 어떤 의도·구성으로 만들지)와 contentSummary(구체적으로 담을 내용)를
+각각 1~2문장으로 작성하세요. 실제 만들 내용을 요약하되, 최종 문구가 아니라 계획을 서술하세요.`,
   },
   edit_system: {
     description: '선택된 슬라이드를 사용자 지시에 따라 수정(페이지 단위 AI 수정)',

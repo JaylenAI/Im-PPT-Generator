@@ -4,8 +4,16 @@ import { clampText } from './types.js'
 import { MARGIN, CONTENT_W, rect, text } from './helpers.js'
 
 const contentSchema = z.object({
-  headline: z.string().min(1).max(60),
-  message: z.string().max(140).optional(),
+  headline: z
+    .string()
+    .min(1)
+    .max(60)
+    .describe('슬라이드에 크게 표시될 마무리 헤드라인 문구 자체(예: "지금 시작하세요"). 작업 설명이 아니라 청중이 읽을 실제 문구.'),
+  message: z
+    .string()
+    .max(140)
+    .optional()
+    .describe('헤드라인 아래 보조 메시지 한 줄(선택). 실제 표시 문구만. 없으면 생략.'),
 })
 
 export const closingLayout: LayoutDefinition<typeof contentSchema> = {
