@@ -3,9 +3,9 @@ import { themeSchema } from '@im-ppt/schema'
 import { getTheme, listThemes, TEMPLATES } from '../src/index.js'
 
 describe('테마/템플릿 레지스트리', () => {
-  it('테마 6종이 themeSchema를 통과한다(갤러리 확장)', () => {
+  it('테마 16종 이상이 themeSchema를 통과한다(갤러리 확장)', () => {
     const themes = listThemes()
-    expect(themes).toHaveLength(6)
+    expect(themes.length).toBeGreaterThanOrEqual(16)
     for (const t of themes) {
       expect(themeSchema.safeParse(t).success).toBe(true)
     }

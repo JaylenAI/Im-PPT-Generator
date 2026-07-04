@@ -206,6 +206,9 @@ export const api = {
 
   listTemplates: () => req<TemplateMeta[]>('/templates'),
 
+  // 템플릿 미리보기 샘플 덱(P11) — 갤러리 썸네일/미리보기 모달이 렌더
+  templateSample: (id: string) => req<Deck>(`/templates/${id}/sample`),
+
   // 발표 유형 카탈로그(ADR-010) — PT면접/컨설팅/IR/학술/세일즈/일반
   listPresentationTypes: () => req<PresentationType[]>('/presentation-types'),
 

@@ -1,4 +1,5 @@
 export * from './layouts/types.js'
 export * from './registry.js'
+export * from './sample-deck.js'
 export { stitchIndigoTheme } from './themes/stitch-indigo.js'
 export { deepNavyTheme } from './themes/deep-navy.js'

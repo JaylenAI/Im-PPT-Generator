@@ -13,6 +13,7 @@ import { referencesLayout } from './layouts/references.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
+import { GALLERY_THEMES } from './themes/gallery.js'
 
 /** 레이아웃 레지스트리 — 추가는 이 배열에 1줄 (분기문 증식 금지) */
 const LAYOUT_LIST: LayoutRuntime[] = [
@@ -58,6 +59,7 @@ const THEME_LIST: Theme[] = [
   coralTheme,
   slateTheme,
   royalTheme,
+  ...GALLERY_THEMES,
 ]
 const THEMES: ReadonlyMap<string, Theme> = new Map(THEME_LIST.map((t) => [t.id, t]))
 
@@ -85,6 +87,22 @@ const EXTRA_TEMPLATES: TemplateMeta[] = [
   { id: 'template-royal-purple', name: 'Royal Purple', category: 'creative', themeId: 'royal-purple', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
 ]
 
+// 갤러리 확장 템플릿(테마 1:1) — Canva/Genspark식 다양성
+const ALL = LAYOUT_LIST.map((l) => l.key)
+const AR = ['16:9', '4:3', '9:16'] as const
+const GALLERY_TEMPLATES: TemplateMeta[] = [
+  { id: 'template-midnight-tech', name: 'Midnight Tech', category: 'tech', themeId: 'midnight-tech', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-sunset-warm', name: 'Sunset', category: 'creative', themeId: 'sunset-warm', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-ocean-teal', name: 'Ocean Teal', category: 'business', themeId: 'ocean-teal', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-charcoal-gold', name: 'Charcoal Gold', category: 'business', themeId: 'charcoal-gold', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-blush-pastel', name: 'Blush', category: 'creative', themeId: 'blush-pastel', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-emerald-corp', name: 'Emerald Corporate', category: 'business', themeId: 'emerald-corp', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-violet-pop', name: 'Violet Pop', category: 'creative', themeId: 'violet-pop', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-steel-blue', name: 'Steel Blue', category: 'tech', themeId: 'steel-blue', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-sand-minimal', name: 'Sand', category: 'minimal', themeId: 'sand-minimal', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-crimson-bold', name: 'Crimson Bold', category: 'creative', themeId: 'crimson-bold', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+]
+
 export const TEMPLATES: TemplateMeta[] = [
   {
     id: 'corporate-indigo',
@@ -105,4 +123,5 @@ export const TEMPLATES: TemplateMeta[] = [
     source: 'builtin',
   },
   ...EXTRA_TEMPLATES,
+  ...GALLERY_TEMPLATES,
 ]

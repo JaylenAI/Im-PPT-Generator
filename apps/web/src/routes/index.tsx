@@ -12,7 +12,7 @@ export const Route = createFileRoute('/')({
 const CREATE_CARDS = [
   { to: '/create', icon: Sparkles, title: 'AI 프롬프트 → PPT', desc: '주제를 입력하면 AI가 완성된 프레젠테이션을 생성합니다.' },
   { to: '/create', icon: FileUp, title: '파일·데이터로 변환', desc: '문서(PDF·DOCX·TXT·MD)나 CSV 데이터를 슬라이드로 변환합니다.' },
-  { to: '/templates', icon: LayoutTemplate, title: '템플릿 둘러보기', desc: '전문 레이아웃 컬렉션에서 시작합니다.' },
+  { to: '/templates', icon: LayoutTemplate, title: '템플릿에서 시작', desc: '16종 디자인을 미리보고 골라 AI가 그 스타일로 채웁니다.' },
 ] as const
 
 function Dashboard() {

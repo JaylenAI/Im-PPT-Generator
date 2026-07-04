@@ -1,53 +1,72 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Layers } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
+import { TemplateCard } from '@/components/TemplateCard'
+import { TemplatePreviewModal } from '@/components/TemplatePreviewModal'
 import { api } from '@/lib/api'
-import type { TemplateMeta } from '@im-ppt/schema'
+import { useAppStore } from '@/lib/store'
+import type { Deck, TemplateMeta } from '@im-ppt/schema'
 
 export const Route = createFileRoute('/templates')({
   component: TemplatesPage,
 })
 
 const CATEGORY_LABEL: Record<string, string> = {
-  business: '비즈니스', education: '교육', creative: '크리에이티브', tech: '테크', minimal: '미니멀',
+  all: '전체', business: '비즈니스', creative: '크리에이티브', tech: '테크', minimal: '미니멀', education: '교육',
 }
 
 function TemplatesPage() {
   const navigate = useNavigate()
+  const loadThemes = useAppStore((s) => s.loadThemes)
   const [templates, setTemplates] = useState<TemplateMeta[]>([])
+  const [cat, setCat] = useState('all')
+  const [preview, setPreview] = useState<{ template: TemplateMeta; deck: Deck } | null>(null)
 
   useEffect(() => {
+    void loadThemes() // 미리보기 렌더에 테마 필요
     api.listTemplates().then(setTemplates).catch(() => {})
-  }, [])
+  }, [loadThemes])
+
+  const categories = useMemo(() => ['all', ...Array.from(new Set(templates.map((t) => t.category)))], [templates])
+  const shown = cat === 'all' ? templates : templates.filter((t) => t.category === cat)
+
+  const useTemplate = (t: TemplateMeta) => navigate({ to: '/create', search: { template: t.id } })
 
   return (
     <AppShell>
       <div className="mx-auto max-w-6xl px-10 py-8">
-        <h1 className="mb-2 text-2xl font-bold">템플릿 갤러리</h1>
-        <p className="mb-6 text-muted-foreground">원하는 양식을 골라 바로 시작하세요.</p>
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {templates.map((t) => (
-            <div key={t.id} className="group rounded-2xl border border-border bg-card p-6 shadow-soft transition-all hover:-translate-y-1 hover:shadow-card">
-              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-soft text-primary">
-                <Layers className="h-6 w-6" />
-              </div>
-              <div className="text-lg font-bold">{t.name}</div>
-              <div className="mt-1 flex gap-2 text-xs text-muted-foreground">
-                <span className="rounded bg-secondary px-2 py-0.5">{CATEGORY_LABEL[t.category] ?? t.category}</span>
-                <span className="rounded bg-secondary px-2 py-0.5">{t.aspectRatios.join(', ')}</span>
-                <span className="rounded bg-secondary px-2 py-0.5">레이아웃 {t.layoutTypes.length}</span>
-              </div>
-              <button
-                onClick={() => navigate({ to: '/create' })}
-                className="mt-5 w-full rounded-xl bg-gradient-brand py-2.5 text-sm font-semibold text-white shadow-brand"
-              >
-                이 템플릿으로 만들기
-              </button>
-            </div>
+        <h1 className="mb-1 text-2xl font-bold">템플릿 갤러리</h1>
+        <p className="mb-5 text-muted-foreground">{templates.length}종 · 원하는 디자인을 고르면 AI가 그 스타일로 채웁니다.</p>
+
+        {/* 카테고리 필터 */}
+        <div className="mb-6 flex flex-wrap gap-2" data-testid="tpl-categories">
+          {categories.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCat(c)}
+              data-testid={`tpl-cat-${c}`}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${cat === c ? 'bg-gradient-brand text-white shadow-brand' : 'border border-border text-muted-foreground hover:border-primary'}`}
+            >
+              {CATEGORY_LABEL[c] ?? c}
+            </button>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {shown.map((t) => (
+            <TemplateCard key={t.id} template={t} onPreview={(tt, deck) => setPreview({ template: tt, deck })} onUse={useTemplate} />
           ))}
         </div>
       </div>
+
+      {preview && (
+        <TemplatePreviewModal
+          template={preview.template}
+          deck={preview.deck}
+          onClose={() => setPreview(null)}
+          onUse={useTemplate}
+        />
+      )}
     </AppShell>
   )
 }
