@@ -1,15 +1,42 @@
-import type { Deck } from '@im-ppt/schema'
+import type { Deck, Frame } from '@im-ppt/schema'
+
+type Element = Deck['slides'][number]['elements'][number]
 
 /** 슬라이드 요소를 불변 갱신 — 항상 새 객체 생성(뮤테이션 금지) */
-function mapSlideElements(
-  deck: Deck,
-  slideId: string,
-  fn: (el: Deck['slides'][number]['elements'][number]) => Deck['slides'][number]['elements'][number],
-): Deck {
+function mapSlideElements(deck: Deck, slideId: string, fn: (el: Element) => Element): Deck {
   return {
     ...deck,
     slides: deck.slides.map((s) =>
       s.id !== slideId ? s : { ...s, elements: s.elements.map(fn) },
+    ),
+  }
+}
+
+/** 요소 프레임(위치/크기) 부분 갱신 */
+export function updateFrame(deck: Deck, slideId: string, elId: string, patch: Partial<Frame>): Deck {
+  return mapSlideElements(deck, slideId, (el) =>
+    el.id === elId ? { ...el, frame: { ...el.frame, ...patch } } : el,
+  )
+}
+
+/** 텍스트 요소 스타일 부분 갱신(색상/폰트크기 등) */
+export function updateTextStyle(
+  deck: Deck,
+  slideId: string,
+  elId: string,
+  patch: Partial<Extract<Element, { type: 'text' }>['style']>,
+): Deck {
+  return mapSlideElements(deck, slideId, (el) =>
+    el.id === elId && el.type === 'text' ? { ...el, style: { ...el.style, ...patch } } : el,
+  )
+}
+
+/** 요소 삭제 */
+export function deleteElement(deck: Deck, slideId: string, elId: string): Deck {
+  return {
+    ...deck,
+    slides: deck.slides.map((s) =>
+      s.id !== slideId ? s : { ...s, elements: s.elements.filter((e) => e.id !== elId) },
     ),
   }
 }

@@ -2,14 +2,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon,
+  Pencil, Check as CheckIcon, Undo2, Redo2,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { SlideView, ScaledSlide, type EditHandlers } from '@im-ppt/renderer'
 import { AppSidebar } from '@/components/AppSidebar'
+import { PropertyPanel } from '@/components/PropertyPanel'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
-import { editText, editListItem } from '@/lib/deck-edit'
+import { editText, editListItem, updateFrame, updateTextStyle, deleteElement } from '@/lib/deck-edit'
 import { makeId, type ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -56,6 +57,8 @@ function EditorPage() {
   const [selectedId, setSelectedId] = useState<string | undefined>()
   const [dirty, setDirty] = useState(false)
   const [saving, setSaving] = useState(false)
+  // undo/redo 히스토리
+  const [hist, setHist] = useState<{ stack: Deck[]; idx: number }>({ stack: [], idx: -1 })
   const { ref, width } = useWidth<HTMLDivElement>()
 
   // 스토어에 없으면(새로고침/직접 URL) 백엔드에서 로드
@@ -75,6 +78,7 @@ function EditorPage() {
       if (alive && d) {
         setDeck(d)
         setTheme(themes.find((t) => t.id === d!.themeId))
+        setHist({ stack: [d], idx: 0 }) // 히스토리 시작점
       }
     })()
     return () => { alive = false }
@@ -100,22 +104,47 @@ function EditorPage() {
     }
   }
 
-  // WYSIWYG — 인라인 편집 핸들러(불변 갱신 + dirty 표시)
+  // 편집 커밋 — 덱 갱신 + 히스토리 push + dirty
+  const commit = (newDeck: Deck) => {
+    setDeck(newDeck)
+    setHist((h) => {
+      const stack = [...h.stack.slice(0, h.idx + 1), newDeck]
+      return { stack, idx: stack.length - 1 }
+    })
+    setDirty(true)
+  }
+  const undo = () =>
+    setHist((h) => {
+      if (h.idx <= 0) return h
+      const idx = h.idx - 1
+      setDeck(h.stack[idx]!)
+      setDirty(true)
+      return { ...h, idx }
+    })
+  const redo = () =>
+    setHist((h) => {
+      if (h.idx >= h.stack.length - 1) return h
+      const idx = h.idx + 1
+      setDeck(h.stack[idx]!)
+      setDirty(true)
+      return { ...h, idx }
+    })
+  const canUndo = hist.idx > 0
+  const canRedo = hist.idx < hist.stack.length - 1
+
+  // WYSIWYG — 인라인 편집 핸들러(불변 갱신 → 히스토리 커밋)
   const editHandlers: EditHandlers | undefined =
     editMode && slide
       ? {
           ...(selectedId ? { selectedId } : {}),
           onSelect: (elId: string) => setSelectedId(elId),
-          onEditText: (elId: string, content: string) => {
-            setDeck((d) => (d ? editText(d, slide.id, elId, content) : d))
-            setDirty(true)
-          },
-          onEditListItem: (elId: string, index: number, text: string) => {
-            setDeck((d) => (d ? editListItem(d, slide.id, elId, index, text) : d))
-            setDirty(true)
-          },
+          onEditText: (elId: string, content: string) => deck && commit(editText(deck, slide.id, elId, content)),
+          onEditListItem: (elId: string, index: number, text: string) =>
+            deck && commit(editListItem(deck, slide.id, elId, index, text)),
         }
       : undefined
+
+  const selectedEl = slide?.elements.find((e) => e.id === selectedId)
 
   const save = async () => {
     if (!deck || !dirty) return
@@ -160,6 +189,18 @@ function EditorPage() {
           </button>
           <span className="font-display text-lg font-bold text-primary">{deck.title}</span>
           <div className="ml-auto flex items-center gap-2">
+            {editMode && (
+              <div className="flex items-center gap-1">
+                <button onClick={undo} disabled={!canUndo} data-testid="undo-btn" aria-label="실행 취소"
+                  className="rounded-lg border border-border p-1.5 hover:bg-secondary disabled:opacity-30">
+                  <Undo2 className="h-4 w-4" />
+                </button>
+                <button onClick={redo} disabled={!canRedo} data-testid="redo-btn" aria-label="다시 실행"
+                  className="rounded-lg border border-border p-1.5 hover:bg-secondary disabled:opacity-30">
+                  <Redo2 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
             <button
               onClick={() => { setEditMode((e) => !e); setSelectedId(undefined) }}
               className={cn(
@@ -249,8 +290,20 @@ function EditorPage() {
             </div>
           </div>
 
-          {/* AI Copilot */}
+          {/* 우측 패널 — 요소 선택 시 속성 패널, 아니면 AI Copilot */}
           <aside className="flex w-[380px] shrink-0 flex-col border-l border-border bg-sidebar text-sidebar-foreground">
+            {editMode && selectedEl && slide ? (
+              <PropertyPanel
+                element={selectedEl}
+                onFrame={(patch) => deck && commit(updateFrame(deck, slide.id, selectedEl.id, patch))}
+                onStyle={(patch) => deck && commit(updateTextStyle(deck, slide.id, selectedEl.id, patch))}
+                onDelete={() => {
+                  if (deck) commit(deleteElement(deck, slide.id, selectedEl.id))
+                  setSelectedId(undefined)
+                }}
+              />
+            ) : (
+            <>
             <div className="border-b border-sidebar-border p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-white">
                 <Sparkles className="h-4 w-4 text-teal" /> AI COPILOT
@@ -305,6 +358,8 @@ function EditorPage() {
                 </button>
               </div>
             </div>
+            </>
+            )}
           </aside>
         </div>
       </div>
