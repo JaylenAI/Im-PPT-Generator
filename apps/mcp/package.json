@@ -1,0 +1,25 @@
+{
+  "name": "@im-ppt/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": { "im-ppt-mcp": "src/index.ts" },
+  "scripts": {
+    "start": "node --import tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "lint": "eslint src"
+  },
+  "dependencies": {
+    "@im-ppt/core": "workspace:*",
+    "@im-ppt/schema": "workspace:*",
+    "@im-ppt/templates": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.20.0"
+  }
+}
