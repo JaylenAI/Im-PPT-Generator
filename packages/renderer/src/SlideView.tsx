@@ -3,6 +3,7 @@ import type { Slide, SlideBackground, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
 import { ThemeContext, resolveCssColor } from './theme-context.js'
 import { ElementView, type EditHandlers } from './elements/ElementView.js'
+import { SelectionBox } from './SelectionBox.js'
 
 export type { EditHandlers }
 
@@ -55,6 +56,11 @@ export function SlideView({
         {slide.elements.map((el) => (
           <ElementView key={el.id} el={el} {...(edit ? { edit } : {})} />
         ))}
+        {edit?.selectedId &&
+          (() => {
+            const sel = slide.elements.find((e) => e.id === edit.selectedId)
+            return sel ? <SelectionBox el={sel} handlers={edit} /> : null
+          })()}
       </div>
     </ThemeContext.Provider>
   )
