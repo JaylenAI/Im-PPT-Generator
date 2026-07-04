@@ -22,21 +22,36 @@ packages/
   templates/    테마(디자인 토큰) + 레이아웃 변형 카탈로그 (P1)
   renderer/     React 슬라이드 렌더러 (웹 표시/편집 공용) (P1)
   exporter/     PptxGenJS/PDF 익스포터 (P1)
-  research/     딥서치 + 스크레이핑 + citation 추적 (P2)
-  db/           Supabase 데이터 계층 (다른 곳에서 DB 직접 접근 금지) (P2)
+  research/     딥서치 + 스크레이핑 + citation 추적 (P3)
+  db/           순수 Postgres + Drizzle 데이터 계층 — 덱/잡 영속 (다른 곳에서 DB 직접 접근 금지)
 ```
 
 ## 개발
 
 ```bash
 pnpm install
-pnpm test        # 전체 테스트
-pnpm typecheck   # 타입 검사
-pnpm dev         # 개발 서버
+docker compose up -d db   # 로컬 Postgres(호스트 5433)
+pnpm test                 # 전체 테스트
+pnpm typecheck            # 타입 검사
+pnpm dev                  # 개발 서버(api :8787, web :5273)
 ```
 
 - 요구사항: Node >= 22, pnpm >= 10
 - 환경변수: `.env.example` 참고 (`.env`는 커밋 금지)
+
+## 셀프호스트 (Docker)
+
+전체 스택(Postgres + API + Web)을 한 번에 실행:
+
+```bash
+docker compose up          # http://localhost:3000
+```
+
+- **웹**: `http://localhost:3000` (nginx가 `/api`를 API로 프록시, SSE 지원)
+- **API**: `http://localhost:8787` (헤드리스, 직접 호출 가능)
+- **생성 인증**: 컨테이너는 `claude -p`로 생성한다. 아래 중 하나 필요:
+  - **API 키(권장)**: 루트 `.env`에 `ANTHROPIC_API_KEY=...` → compose가 자동 주입
+  - **구독**: `docker-compose.yml`의 `~/.claude` 마운트 주석 해제(hooks 없는 깨끗한 설정일 때만)
 
 ## 문서
 
