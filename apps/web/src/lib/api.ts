@@ -110,6 +110,10 @@ export const api = {
 
   getDeck: (id: string) => req<Deck>(`/decks/${id}`),
 
+  // 수동 편집 저장(WYSIWYG) — 편집한 덱 전체를 저장
+  updateDeck: (id: string, deck: Deck) =>
+    req<Deck>(`/decks/${id}`, { method: 'PATCH', body: JSON.stringify(deck) }),
+
   regenerateSlide: (deckId: string, slideId: string, instruction: string) =>
     req<{ slide: import('@im-ppt/schema').Slide; deck: Deck; costUsd: number }>(
       `/decks/${deckId}/slides/${slideId}/regenerate`,

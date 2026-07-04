@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { generateDeck, editSlide, replaceSlide, type ResearchInput } from '@im-ppt/core'
-import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema } from '@im-ppt/schema'
+import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import { buildConfig } from '../lib/build-config.js'
 import { runResearchForConfig } from '../lib/research-runner.js'
@@ -65,6 +65,18 @@ export function deckRoutes(deps: AppDeps) {
       const deck = await deps.decks.get(c.req.param('id'))
       if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       return c.json({ data: deck })
+    })
+    // 수동 편집 저장(WYSIWYG) — 클라이언트가 편집한 덱 전체를 검증 후 저장(version++)
+    .patch('/:id', async (c) => {
+      const existing = await deps.decks.get(c.req.param('id'))
+      if (!existing) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      const parsed = deckSchema.safeParse(await c.req.json().catch(() => null))
+      if (!parsed.success) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: parsed.error.message } }, 400)
+      }
+      const updated = { ...parsed.data, id: existing.id, version: existing.version + 1 }
+      await deps.decks.put(updated)
+      return c.json({ data: updated })
     })
     .delete('/:id', async (c) => {
       const ok = await deps.decks.delete(c.req.param('id'))

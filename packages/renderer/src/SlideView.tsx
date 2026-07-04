@@ -2,7 +2,9 @@ import type { CSSProperties } from 'react'
 import type { Slide, SlideBackground, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
 import { ThemeContext, resolveCssColor } from './theme-context.js'
-import { ElementView } from './elements/ElementView.js'
+import { ElementView, type EditHandlers } from './elements/ElementView.js'
+
+export type { EditHandlers }
 
 function backgroundStyle(bg: SlideBackground | undefined, theme: Theme): CSSProperties {
   const tokens = theme.tokens
@@ -29,10 +31,13 @@ export function SlideView({
   slide,
   theme,
   aspectRatio = '16:9',
+  edit,
 }: {
   slide: Slide
   theme: Theme
   aspectRatio?: '16:9' | '4:3' | '9:16'
+  /** 제공되면 편집 모드 — 텍스트 인라인 편집 + 요소 선택 */
+  edit?: EditHandlers
 }) {
   const size = CANVAS_SIZES[aspectRatio]
   return (
@@ -48,7 +53,7 @@ export function SlideView({
         }}
       >
         {slide.elements.map((el) => (
-          <ElementView key={el.id} el={el} />
+          <ElementView key={el.id} el={el} {...(edit ? { edit } : {})} />
         ))}
       </div>
     </ThemeContext.Provider>

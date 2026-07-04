@@ -3,6 +3,14 @@ import type { SlideElement } from '@im-ppt/schema'
 import { resolveCssColor, fontSizePx, fontFamily, useThemeTokens } from '../theme-context.js'
 import { ChartView } from './ChartView.js'
 
+/** 편집 모드 핸들러 — 제공되면 텍스트 인라인 편집 + 요소 선택 활성화 */
+export interface EditHandlers {
+  selectedId?: string
+  onSelect: (id: string) => void
+  onEditText: (id: string, content: string) => void
+  onEditListItem: (id: string, index: number, text: string) => void
+}
+
 /** 요소 frame → 절대 배치 CSS(가상 캔버스 px 그대로) */
 function frameStyle(el: SlideElement): CSSProperties {
   return {
@@ -18,15 +26,31 @@ function frameStyle(el: SlideElement): CSSProperties {
 
 const WEIGHT: Record<string, number> = { regular: 400, medium: 500, semibold: 600, bold: 700 }
 
+/** 선택된 요소 강조 아웃라인 */
+function selectedOutline(el: SlideElement, edit?: EditHandlers): CSSProperties {
+  if (!edit) return {}
+  return edit.selectedId === el.id
+    ? { outline: '2px solid #6366f1', outlineOffset: 2, borderRadius: 2 }
+    : { cursor: 'pointer' }
+}
+
 /** 슬라이드 요소 1개를 React로 렌더 — exporter와 같은 캔버스/토큰(웹=PPTX 시각 일치) */
-export function ElementView({ el }: { el: SlideElement }) {
+export function ElementView({ el, edit }: { el: SlideElement; edit?: EditHandlers }) {
   const tokens = useThemeTokens()
-  const base = frameStyle(el)
+  const base = { ...frameStyle(el), ...selectedOutline(el, edit) }
+  const selectProps = edit
+    ? { onClick: (e: React.MouseEvent) => { e.stopPropagation(); edit.onSelect(el.id) } }
+    : {}
 
   switch (el.type) {
     case 'text':
       return (
         <div
+          {...selectProps}
+          contentEditable={edit ? true : undefined}
+          suppressContentEditableWarning={!!edit}
+          data-element-id={edit ? el.id : undefined}
+          onBlur={edit ? (e) => edit.onEditText(el.id, e.currentTarget.textContent ?? '') : undefined}
           style={{
             ...base,
             fontSize: fontSizePx(tokens, el.role, el.style.fontSize),
@@ -36,6 +60,7 @@ export function ElementView({ el }: { el: SlideElement }) {
             textAlign: el.style.align ?? 'left',
             lineHeight: el.style.lineHeight ?? 1.3,
             whiteSpace: 'pre-wrap',
+            ...(edit ? { outlineColor: edit.selectedId === el.id ? '#6366f1' : undefined } : {}),
           }}
         >
           {el.content}
@@ -44,6 +69,7 @@ export function ElementView({ el }: { el: SlideElement }) {
     case 'list':
       return (
         <ul
+          {...selectProps}
           style={{
             ...base,
             margin: 0,
@@ -56,8 +82,14 @@ export function ElementView({ el }: { el: SlideElement }) {
           }}
         >
           {el.items.map((it, i) => (
-            <li key={i} style={{ marginBottom: 4 }}>
-              {el.marker === 'check' ? `✓ ${it}` : it}
+            <li
+              key={i}
+              style={{ marginBottom: 4 }}
+              contentEditable={edit ? true : undefined}
+              suppressContentEditableWarning={!!edit}
+              onBlur={edit ? (e) => edit.onEditListItem(el.id, i, e.currentTarget.textContent ?? '') : undefined}
+            >
+              {!edit && el.marker === 'check' ? `✓ ${it}` : it}
             </li>
           ))}
         </ul>

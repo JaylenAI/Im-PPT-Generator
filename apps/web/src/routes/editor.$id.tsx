@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
-  Sparkles, Send, Download, Play, Plus, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
+  Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
+  Pencil, Check as CheckIcon,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
-import { SlideView, ScaledSlide } from '@im-ppt/renderer'
+import { SlideView, ScaledSlide, type EditHandlers } from '@im-ppt/renderer'
 import { AppSidebar } from '@/components/AppSidebar'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
+import { editText, editListItem } from '@/lib/deck-edit'
 import { makeId, type ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -15,15 +17,20 @@ export const Route = createFileRoute('/editor/$id')({
   component: EditorPage,
 })
 
+/**
+ * 콜백 ref로 너비 측정 — 노드가 실제로 마운트될 때 ResizeObserver를 부착한다.
+ * (useRef+useEffect는 마운트 시 노드가 로딩 UI라 null이면 관찰을 놓침 → 직접 URL/새로고침 시
+ * 캔버스가 안 그려지던 버그. 콜백 ref는 대상 div가 나타나는 시점에 정확히 실행됨)
+ */
 function useWidth<T extends HTMLElement>() {
-  const ref = useRef<T>(null)
   const [w, setW] = useState(0)
-  useEffect(() => {
-    const el = ref.current
+  const roRef = useRef<ResizeObserver | null>(null)
+  const ref = useCallback((el: T | null) => {
+    roRef.current?.disconnect()
     if (!el) return
     const ro = new ResizeObserver(([e]) => e && setW(e.contentRect.width))
     ro.observe(el)
-    return () => ro.disconnect()
+    roRef.current = ro
   }, [])
   return { ref, width: w }
 }
@@ -44,6 +51,11 @@ function EditorPage() {
   const [input, setInput] = useState('')
   const [tab, setTab] = useState<'chat' | 'search'>('chat')
   const [editing, setEditing] = useState(false)
+  // WYSIWYG 편집 상태
+  const [editMode, setEditMode] = useState(false)
+  const [selectedId, setSelectedId] = useState<string | undefined>()
+  const [dirty, setDirty] = useState(false)
+  const [saving, setSaving] = useState(false)
   const { ref, width } = useWidth<HTMLDivElement>()
 
   // 스토어에 없으면(새로고침/직접 URL) 백엔드에서 로드
@@ -88,6 +100,38 @@ function EditorPage() {
     }
   }
 
+  // WYSIWYG — 인라인 편집 핸들러(불변 갱신 + dirty 표시)
+  const editHandlers: EditHandlers | undefined =
+    editMode && slide
+      ? {
+          ...(selectedId ? { selectedId } : {}),
+          onSelect: (elId: string) => setSelectedId(elId),
+          onEditText: (elId: string, content: string) => {
+            setDeck((d) => (d ? editText(d, slide.id, elId, content) : d))
+            setDirty(true)
+          },
+          onEditListItem: (elId: string, index: number, text: string) => {
+            setDeck((d) => (d ? editListItem(d, slide.id, elId, index, text) : d))
+            setDirty(true)
+          },
+        }
+      : undefined
+
+  const save = async () => {
+    if (!deck || !dirty) return
+    setSaving(true)
+    try {
+      const updated = await api.updateDeck(deck.id, deck)
+      setDeck(updated)
+      addDeck(updated)
+      setDirty(false)
+    } catch {
+      /* keep dirty on failure */
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const send = async () => {
     if (!input.trim() || editing || !slide) return
     const text = input.trim()
@@ -117,6 +161,25 @@ function EditorPage() {
           <span className="font-display text-lg font-bold text-primary">{deck.title}</span>
           <div className="ml-auto flex items-center gap-2">
             <button
+              onClick={() => { setEditMode((e) => !e); setSelectedId(undefined) }}
+              className={cn(
+                'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium',
+                editMode ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-secondary',
+              )}
+            >
+              <Pencil className="h-4 w-4" /> {editMode ? '편집 중' : '편집'}
+            </button>
+            {dirty && (
+              <button
+                onClick={save}
+                disabled={saving}
+                data-testid="save-btn"
+                className="flex items-center gap-1.5 rounded-lg bg-teal px-3 py-1.5 text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckIcon className="h-4 w-4" />} 저장
+              </button>
+            )}
+            <button
               onClick={download}
               disabled={downloading}
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
@@ -138,13 +201,31 @@ function EditorPage() {
                 <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{deck.aspectRatio}</span>
               </div>
               <div className="flex flex-1 items-center justify-center">
-                <div ref={ref} className="w-full max-w-4xl overflow-hidden rounded-2xl border border-border bg-card shadow-card">
+                <div
+                  ref={ref}
+                  data-testid="editor-canvas"
+                  onClick={() => editMode && setSelectedId(undefined)}
+                  className={cn(
+                    'w-full max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-card',
+                    editMode ? 'border-primary/50' : 'border-border',
+                  )}
+                >
                   {width > 0 && slide && (
                     <ScaledSlide width={width} aspectRatio={deck.aspectRatio}>
-                      <SlideView slide={slide} theme={theme} aspectRatio={deck.aspectRatio} />
+                      <SlideView
+                        slide={slide}
+                        theme={theme}
+                        aspectRatio={deck.aspectRatio}
+                        {...(editHandlers ? { edit: editHandlers } : {})}
+                      />
                     </ScaledSlide>
                   )}
                 </div>
+                {editMode && (
+                  <p className="mt-3 text-center text-xs text-muted-foreground">
+                    텍스트를 클릭해 바로 편집하세요. 변경 후 <b>저장</b>을 누르면 반영됩니다.
+                  </p>
+                )}
               </div>
             </div>
 
