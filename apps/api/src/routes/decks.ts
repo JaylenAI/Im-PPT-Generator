@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, checkAccessibility, translateDeck, rewriteDeck, generateVariants, generateSpeakerNotes, generateAudienceQuestions, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, checkGhostDeck, translateDeck, rewriteDeck, generateVariants, generateSpeakerNotes, generateAudienceQuestions, type ResearchInput } from '@im-ppt/core'
 import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
@@ -119,6 +119,15 @@ export function deckRoutes(deps: AppDeps) {
       } catch (e) {
         return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
       }
+    })
+    // Ghost Deck / Titles Test(ADR-009) — 제목만 순서 뷰 + 논리 골격 점검
+    .get('/:id/ghost-deck', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      if (!deck.outline) {
+        return c.json({ error: { code: 'NO_OUTLINE', message: '아웃라인이 없는 덱입니다' } }, 400)
+      }
+      return c.json({ data: checkGhostDeck(deck.outline) })
     })
     // 예상 청중 질문(P10)
     .get('/:id/questions', async (c) => {

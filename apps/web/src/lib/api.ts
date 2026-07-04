@@ -120,6 +120,12 @@ export const api = {
   duplicateDeck: (id: string) =>
     req<{ deckId: string; deck: Deck }>(`/decks/${id}/duplicate`, { method: 'POST' }),
 
+  // Ghost Deck / Titles Test(ADR-009) — 제목만 순서 + 논리 골격 점검
+  ghostDeck: (id: string) =>
+    req<{ titles: string[]; coherent: boolean; issues: Array<{ index: number; kind: string; detail: string }> }>(
+      `/decks/${id}/ghost-deck`,
+    ),
+
   // AI 이미지 생성(P8) — claude -p로 SVG 그래픽 → data URI
   generateImage: (concept: string, themeId?: string) =>
     req<{ dataUri: string; chars: number }>('/images/generate', {

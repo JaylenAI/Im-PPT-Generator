@@ -10,6 +10,7 @@ const outlineDraftSchema = z.object({
     .array(
       z.object({
         title: z.string().min(1),
+        assertion: z.string().default(''),
         summary: z.string().default(''),
         layoutHint: z.string().min(1),
         factIds: z.array(z.string()).default([]),
@@ -69,6 +70,7 @@ export async function generateOutline(
   const sections = data.sections.map((s) => ({
     id: nextId('section'),
     title: s.title,
+    assertion: s.assertion,
     summary: s.summary,
     layoutHint: validLayouts.has(s.layoutHint) ? s.layoutHint : 'bullets',
     // 지어낸 팩트 ID 폐기 — 제공된 것만 유지(할루시네이션 제로)
