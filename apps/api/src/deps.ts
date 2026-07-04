@@ -1,5 +1,12 @@
 import { ProviderRegistry, PromptStore, createDefaultRegistry } from '@im-ppt/core'
-import { MemoryDeckStore, MemoryJobStore, type DeckStore, type JobStore } from '@im-ppt/db'
+import {
+  MemoryDeckStore,
+  MemoryJobStore,
+  MemorySettingsStore,
+  type DeckStore,
+  type JobStore,
+} from '@im-ppt/db'
+import { SettingsService } from './lib/settings-service.js'
 
 /** 이펨럴 인메모리 저장소(export 산출물 등) — 재시작 시 재생성 가능해 영속 불필요 */
 export class MemoryStore<T extends { id: string }> {
@@ -36,16 +43,19 @@ export interface AppDeps {
   prompts: PromptStore
   decks: DeckStore
   jobs: JobStore
+  settings: SettingsService
   exports: MemoryStore<ExportArtifact>
 }
 
 /** 기본 deps — DB 없이 인메모리(테스트/개발 폴백). 서버 기동은 index.ts에서 DB 배선 */
 export function createDefaultDeps(): AppDeps {
+  const prompts = new PromptStore()
   return {
     registry: createDefaultRegistry(),
-    prompts: new PromptStore(),
+    prompts,
     decks: new MemoryDeckStore(),
     jobs: new MemoryJobStore(),
+    settings: new SettingsService(new MemorySettingsStore(), prompts),
     exports: new MemoryStore<ExportArtifact>(),
   }
 }

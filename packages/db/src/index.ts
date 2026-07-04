@@ -9,4 +9,10 @@ export {
   type EnqueueInput,
   type BackoffPolicy,
 } from './job-repo.js'
-export { decks, jobs, type DeckRow, type JobRow, type JobStatus } from './schema.js'
+export {
+  PgSettingsStore,
+  MemorySettingsStore,
+  type SettingsStore,
+  type SettingEntry,
+} from './settings-repo.js'
+export { decks, jobs, settings, type DeckRow, type JobRow, type JobStatus, type SettingRow } from './schema.js'

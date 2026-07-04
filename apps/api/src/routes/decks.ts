@@ -1,8 +1,8 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { resolveGenerationConfig } from '@im-ppt/schema'
 import { generateDeck, editSlide, replaceSlide } from '@im-ppt/core'
 import type { AppDeps } from '../deps.js'
+import { buildConfig } from '../lib/build-config.js'
 
 const createBody = z.object({ prompt: z.string().min(1) }).passthrough()
 const editBody = z.object({ instruction: z.string().min(1) })
@@ -21,7 +21,7 @@ export function deckRoutes(deps: AppDeps) {
       }
       let config
       try {
-        config = resolveGenerationConfig(parsed.data as { prompt: string })
+        config = buildConfig(deps.settings.getApp(), parsed.data as Record<string, unknown>)
       } catch (e) {
         return c.json(
           { error: { code: 'VALIDATION_FAILED', message: (e as Error).message } },
