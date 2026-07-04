@@ -5,6 +5,7 @@ import { exportRoutes } from './routes/exports.js'
 import { catalogRoutes } from './routes/catalog.js'
 import { settingsRoutes } from './routes/settings.js'
 import { streamRoutes } from './routes/stream.js'
+import { planningRoutes } from './routes/planning.js'
 import { createDefaultDeps, type AppDeps } from './deps.js'
 import { createWorker, type Worker } from './lib/worker.js'
 
@@ -18,6 +19,7 @@ export function createApp(deps: AppDeps = createDefaultDeps(), worker: Worker = 
 
   app.route('/health', healthRoutes)
   app.route('/decks', deckRoutes(deps))
+  app.route('/', planningRoutes(deps)) // /decks/outline, /decks/plans (HITL 게이트 미리보기)
   app.route('/', streamRoutes(deps, worker)) // /decks/stream, /decks/generate, /jobs/:id (SSE 잡큐)
   app.route('/', exportRoutes(deps)) // /decks/:id/export, /exports/:id/download
   app.route('/', catalogRoutes) // /templates, /themes, /layouts

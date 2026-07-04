@@ -39,14 +39,14 @@
 - ❌ 원클릭 팩트체크(근거 강/약 플래깅) — P3b
 - 검증: 웹 검색은 실 키 필요(Tavily/Serper). 유저 자료 경로는 실 claude E2E 완료
 
-## P4 — HITL 완성 + 페이지 단위 AI 수정 🔄 (일부 완료)
+## P4 — HITL 완성 + 페이지 단위 AI 수정 🔄 (백엔드 게이트 완료)
 
 - ✅ **페이지 단위 AI 수정**: 에디터 Copilot에 지시 → 해당 페이지만 재생성(레이아웃 유지, 다른 페이지 불변). core `editSlide`/`replaceSlide`, POST /decks/:id/slides/:slideId/regenerate. 실 claude E2E 검증. NotebookLM식
 - ✅ AI Copilot 챗 패널(flow-deck-creator `ai_1` 구조): 선택 슬라이드 수정 실작동(진행 표시)
-- ❌ **슬라이드별 계획 승인 게이트**(시장 공백 = 핵심 차별화): 페이지마다 디자인 의도+내용 요약 보고 → 승인 후 생성
-- ❌ 자율도 레벨 L0~L3 UI(스키마 GenerationConfig는 P0 완료, UI 미배선)
-- ❌ 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입, 딥서치 탭 실배선
-- 잔여 검증: 게이트 3종(팩트/아웃라인/계획) 풀루프 E2E
+- ✅ **슬라이드별 계획 게이트 백엔드**(시장 공백 = 핵심 차별화): core `generatePlans`(섹션별 designIntent+contentSummary), POST /decks/outline·/decks/plans 미리보기, POST /decks가 승인된 아웃라인+research 재사용. 실 claude E2E(피치덱 4슬라이드 계획 보고→승인→생성)
+- ✅ 생성 콘텐츠 품질 버그 봉합(QA): slide_system이 일부 필드에 메타 설명("~작성 완료","레이아웃에 맞춰 구성")을 넣던 잠복 버그 → 프롬프트 예시 + closing 레이아웃 필드 `.describe()`로 최종 문구만 출력
+- ❌ 팩트/계획 게이트 승인 UI(자율도 L0~L3 UI 포함) — P4b(웹)
+- ❌ 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입, 딥서치 탭 실배선 — P4b
 
 ## P5 — WYSIWYG 에디터 심화 ❌
 

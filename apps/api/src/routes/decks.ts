@@ -1,13 +1,19 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide } from '@im-ppt/core'
-import { userSourceInputSchema } from '@im-ppt/schema'
+import { generateDeck, editSlide, replaceSlide, type ResearchInput } from '@im-ppt/core'
+import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import { buildConfig } from '../lib/build-config.js'
 import { runResearchForConfig } from '../lib/research-runner.js'
 
 const createBody = z
-  .object({ prompt: z.string().min(1), sources: z.array(userSourceInputSchema).optional() })
+  .object({
+    prompt: z.string().min(1),
+    sources: z.array(userSourceInputSchema).optional(),
+    // 게이트 승인 후 재사용(재실행 방지): 승인된 아웃라인 + 이미 계산된 리서치
+    outline: outlineSchema.optional(),
+    research: z.object({ sources: z.array(sourceSchema), facts: z.array(factSchema) }).optional(),
+  })
   .passthrough()
 const editBody = z.object({ instruction: z.string().min(1) })
 
@@ -32,12 +38,24 @@ export function deckRoutes(deps: AppDeps) {
           400,
         )
       }
-      // 리서치(researchMode != off) → 팩트/인용. off면 undefined
-      const research = await runResearchForConfig(deps, config, parsed.data.sources ?? [])
+      // 게이트 승인 재사용: 클라이언트가 research를 주면 재실행 안 함. 없으면 새로 리서치.
+      let research: ResearchInput | undefined
+      if (parsed.data.research) {
+        research = {
+          sources: parsed.data.research.sources,
+          // 거절된 팩트는 반영 안 함(할루시네이션 게이트 결과 존중)
+          facts: parsed.data.research.facts.filter((f) => f.status !== 'rejected'),
+        }
+      } else {
+        research = await runResearchForConfig(deps, config, parsed.data.sources ?? [])
+      }
       const { deck, costUsd } = await generateDeck(
         config,
         { registry: deps.registry, prompts: deps.prompts },
-        research ? { research } : {},
+        {
+          ...(research ? { research } : {}),
+          ...(parsed.data.outline ? { outline: parsed.data.outline } : {}),
+        },
       )
       await deps.decks.put(deck)
       return c.json({ data: { deckId: deck.id, deck, costUsd } }, 201)
