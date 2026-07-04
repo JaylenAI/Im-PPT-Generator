@@ -12,10 +12,11 @@
 | | [TECH_STACK](02-architecture/TECH_STACK.md) | 스택 선정 + 미선택 이유 |
 | | [DATA_MODEL](02-architecture/DATA_MODEL.md) | 도메인 모델, 불변식, 저장 전략 |
 | | [TEMPLATE_SYSTEM](02-architecture/TEMPLATE_SYSTEM.md) | 템플릿 3종(빌트인/사용자저장/PPTX추출), 갤러리·저장·선택 흐름 |
-| | [ADR-001](02-architecture/ADR-001-json-schema-ssot.md)~[007](02-architecture/ADR-007-api-first-headless.md) | 핵심 결정 (003=GenerationConfig·006=Postgres셀프호스트·007=API-First 헤드리스) |
-| **03-api** | [REST_API](03-api/REST_API.md) | API v1 명세(엔드포인트/SSE/에러 코드) |
+| | [ADR-001](02-architecture/ADR-001-json-schema-ssot.md)~[008](02-architecture/ADR-008-frontend-tanstack-adopt.md) | 기반 결정 (003=GenerationConfig·006=Postgres셀프호스트·007=API-First 헤드리스·008=프론트 TanStack) |
+| | [ADR-009](02-architecture/ADR-009-action-titles.md)~[012](02-architecture/ADR-012-deck-doctor.md) | **콘텐츠 품질 트랙** (009=Action Title·010=발표 유형·011=데이터 스토리텔링·012=Deck Doctor) |
+| **03-api** | [REST_API](03-api/REST_API.md) | API v1 명세(구현 반영 — 생성/게이트/품질도구/AI부가/카탈로그/설정) |
 | **04-design** | [DESIGN_SYSTEM](04-design/DESIGN_SYSTEM.md) | 디자인 토큰(이원 액센트/글래스/타이포) |
-| | [UI_UX_GUIDE](04-design/UI_UX_GUIDE.md) | 화면 17종 설계 + 핵심 플로우 + UX 원칙 |
+| | [UI_UX_GUIDE](04-design/UI_UX_GUIDE.md) | 화면 설계 + 핵심 플로우 + UX 원칙 |
 | **05-guides** | [DEV_ENVIRONMENT](05-guides/DEV_ENVIRONMENT.md) | 개발 환경/셋업/env |
 | | [CODING_STANDARDS](05-guides/CODING_STANDARDS.md) | 코딩 규칙(기업급 패턴) |
 | | [GIT_WORKFLOW](05-guides/GIT_WORKFLOW.md) | 브랜치/커밋/릴리스 |
