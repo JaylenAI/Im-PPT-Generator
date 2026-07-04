@@ -10,6 +10,12 @@ import { chartLayout } from './layouts/chart.js'
 import { closingLayout } from './layouts/closing.js'
 import { processLayout } from './layouts/process.js'
 import { referencesLayout } from './layouts/references.js'
+import { timelineLayout } from './layouts/timeline.js'
+import { comparisonLayout } from './layouts/comparison.js'
+import { kpiLayout } from './layouts/kpi.js'
+import { cardsLayout } from './layouts/cards.js'
+import { bignumLayout } from './layouts/bignum.js'
+import { roadmapLayout } from './layouts/roadmap.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -25,6 +31,13 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(quoteLayout),
   defineLayout(chartLayout),
   defineLayout(processLayout),
+  // P11.3 디자인 엔진 — 리치 레이아웃 확장(레퍼런스급 다양성)
+  defineLayout(timelineLayout),
+  defineLayout(comparisonLayout),
+  defineLayout(kpiLayout),
+  defineLayout(cardsLayout),
+  defineLayout(bignumLayout),
+  defineLayout(roadmapLayout),
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
