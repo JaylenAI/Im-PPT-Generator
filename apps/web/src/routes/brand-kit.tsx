@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/brand-kit")({
   head: () => ({
     meta: [
-      { title: "Brand Kit — Sophie's Space" },
-      { name: "description", content: "Define your logo, colors, and fonts so every AI deck stays on brand." },
+      { title: "브랜드 킷 — Im PPT Generator" },
+      { name: "description", content: "색상·폰트를 지정하면 이후 생성되는 모든 덱에 브랜드가 반영됩니다." },
     ],
   }),
   component: BrandKitPage,
