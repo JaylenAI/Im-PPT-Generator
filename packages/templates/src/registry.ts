@@ -12,6 +12,7 @@ import { processLayout } from './layouts/process.js'
 import { referencesLayout } from './layouts/references.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
+import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
 
 /** 레이아웃 레지스트리 — 추가는 이 배열에 1줄 (분기문 증식 금지) */
 const LAYOUT_LIST: LayoutRuntime[] = [
@@ -50,7 +51,14 @@ export function layoutCatalogForLlm(): Array<{ key: string; description: string 
     .map((l) => ({ key: l.key, description: l.description }))
 }
 
-const THEME_LIST: Theme[] = [stitchIndigoTheme, deepNavyTheme]
+const THEME_LIST: Theme[] = [
+  stitchIndigoTheme,
+  deepNavyTheme,
+  forestTheme,
+  coralTheme,
+  slateTheme,
+  royalTheme,
+]
 const THEMES: ReadonlyMap<string, Theme> = new Map(THEME_LIST.map((t) => [t.id, t]))
 
 export function getTheme(id: string): Theme {
@@ -64,6 +72,13 @@ export function getTheme(id: string): Theme {
 export function listThemes(): Theme[] {
   return [...THEMES.values()]
 }
+
+const EXTRA_TEMPLATES: TemplateMeta[] = [
+  { id: 'template-forest-green', name: 'Forest Green', category: 'business', themeId: 'forest-green', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
+  { id: 'template-coral-energy', name: 'Coral Energy', category: 'creative', themeId: 'coral-energy', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
+  { id: 'template-mono-slate', name: 'Mono Slate', category: 'minimal', themeId: 'mono-slate', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
+  { id: 'template-royal-purple', name: 'Royal Purple', category: 'creative', themeId: 'royal-purple', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
+]
 
 export const TEMPLATES: TemplateMeta[] = [
   {
@@ -84,4 +99,5 @@ export const TEMPLATES: TemplateMeta[] = [
     layoutTypes: LAYOUT_LIST.map((l) => l.key),
     source: 'builtin',
   },
+  ...EXTRA_TEMPLATES,
 ]

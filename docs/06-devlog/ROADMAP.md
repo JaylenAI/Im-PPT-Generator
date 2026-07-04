@@ -63,7 +63,8 @@
 - ✅ **브랜드킷**: 팔레트/폰트 → 테마 토큰 부분 오버라이드. `brandKitSchema`+`mergeBrandKit`, 덱이 자기 테마 소유(`deck.themeOverride` 인라인 토큰 — 정적 레지스트리 불변, 동적 저장 인프라 불필요). 설정 DB 영속+생성 시 적용. 웹 brand-kit 화면 실작동. 실 E2E(설정→생성 시 override 적용→재시작 영속)
 - ✅ **유저 PPTX 업로드 → 테마 추출**: jszip으로 theme1.xml clrScheme 파싱 → accent1/2·dk1/2·lt1을 브랜드 색상으로 매핑 → 브랜드킷 설정. POST /settings/brand-kit/from-pptx, 웹 brand-kit 업로드 버튼. 실 E2E(python-pptx Office 테마 5색 추출→생성 적용)
 - ✅ **덱 복제**: POST /decks/:id/duplicate(새 ID·"(사본)"·구조 동일) + 에디터 복제 버튼. 실 E2E
-- ❌ 템플릿 갤러리 15종+ (현재 빌트인 2종), 로고 업로드, 커스텀 템플릿 저장
+- ✅ **템플릿 갤러리 확장**: 테마 6종(indigo/navy/forest/coral/slate/purple) → 템플릿 6종(각 카테고리·전 화면비). 갤러리는 3소스 병합 노출 구조 유지
+- ❌ 15종+로 추가 확장, 로고 업로드, 커스텀 템플릿 저장
 
 ## P7 — 입력 확장 🔄 (문서 업로드 완료)
 
