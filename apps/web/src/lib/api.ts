@@ -120,6 +120,13 @@ export const api = {
   duplicateDeck: (id: string) =>
     req<{ deckId: string; deck: Deck }>(`/decks/${id}/duplicate`, { method: 'POST' }),
 
+  // AI 이미지 생성(P8) — claude -p로 SVG 그래픽 → data URI
+  generateImage: (concept: string, themeId?: string) =>
+    req<{ dataUri: string; chars: number }>('/images/generate', {
+      method: 'POST',
+      body: JSON.stringify({ concept, width: 400, height: 300, ...(themeId ? { themeId } : {}) }),
+    }),
+
   regenerateSlide: (deckId: string, slideId: string, instruction: string) =>
     req<{ slide: import('@im-ppt/schema').Slide; deck: Deck; costUsd: number }>(
       `/decks/${deckId}/slides/${slideId}/regenerate`,
