@@ -1,0 +1,130 @@
+/* 디자인 토큰 — flow-deck-creator/Stitch 이식(인디고=사람, 시안=AI) */
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --line: #e2e8f0;
+  --brand: #4f46e5;
+  --brand-soft: #eef2ff;
+  --ai: #06b6d4;
+  --sidebar: #0f172a;
+  --radius: 0.75rem;
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.shell {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px;
+}
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.subtitle {
+  color: var(--muted);
+  margin-top: 8px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+textarea,
+input,
+select {
+  width: 100%;
+  font: inherit;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--ink);
+  outline: none;
+}
+textarea:focus,
+input:focus {
+  border-color: var(--brand);
+}
+.row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.btn {
+  font: inherit;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.btn-primary {
+  background: var(--brand);
+  color: #fff;
+  border-color: var(--brand);
+}
+.btn-ai {
+  background: linear-gradient(135deg, var(--brand), var(--ai));
+  color: #fff;
+  border: none;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.muted {
+  color: var(--muted);
+  font-size: 14px;
+}
+.slide-frame {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+}
+.thumb {
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+}
+.thumb.active {
+  border-color: var(--brand);
+}
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--brand-soft);
+  border-top-color: var(--brand);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.ai-pulse {
+  color: var(--ai);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}

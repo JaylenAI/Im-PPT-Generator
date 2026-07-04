@@ -1,5 +1,9 @@
-import PptxGenJS from 'pptxgenjs'
+import PptxGenJSImport from 'pptxgenjs'
 import type { Deck, SlideBackground, ThemeTokens } from '@im-ppt/schema'
+
+// ESM/CJS interop: 일부 런타임(node+tsx)에서 default가 이중 래핑됨 → 언래핑
+const PptxGenJS = ((PptxGenJSImport as unknown as { default?: unknown }).default ??
+  PptxGenJSImport) as typeof PptxGenJSImport
 import { CANVAS_SIZES } from '@im-ppt/schema'
 import { pxToInch, resolveColor } from './units.js'
 import { addElement } from './elements.js'
