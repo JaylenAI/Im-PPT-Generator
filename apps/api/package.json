@@ -19,7 +19,8 @@
     "@im-ppt/schema": "workspace:*",
     "@im-ppt/templates": "workspace:*",
     "hono": "^4.8.0",
-    "zod": "^4.0.0"
+    "zod": "^4.0.0",
+    "mammoth": "^1.8.0"
   },
   "devDependencies": {
     "tsx": "^4.20.0"

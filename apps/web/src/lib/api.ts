@@ -146,6 +146,21 @@ export const api = {
       body: JSON.stringify({ content }),
     }),
 
+  // 문서 인제스트(P7) — 업로드 파일 → 텍스트 추출(멀티파트)
+  extractDocument: async (file: File): Promise<{ filename: string; chars: number; text: string }> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch(`${BASE}/documents/extract`, { method: 'POST', body: fd })
+    const body = (await res.json().catch(() => null)) as
+      | { data: { filename: string; chars: number; text: string } }
+      | { error: { message: string } }
+      | null
+    if (!res.ok || !body || 'error' in body) {
+      throw new Error(body && 'error' in body ? body.error.message : '문서 추출 실패')
+    }
+    return body.data
+  },
+
   // 브랜드킷 — 색/폰트 오버라이드(다음 생성부터 반영)
   getBrandKit: () => req<BrandKitView | null>('/settings/brand-kit'),
   patchBrandKit: (kit: BrandKitView) =>
