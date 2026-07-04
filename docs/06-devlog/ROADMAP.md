@@ -91,7 +91,8 @@
 
 - ✅ **접근성 검사(시장 공백)**: `checkAccessibility` — 텍스트 대비율 WCAG AA(4.5:1) + 이미지 alt 점검, 색 배경만 대비 계산(그라디언트/이미지 배경 스킵). GET /decks/:id/accessibility. 실 덱 검증(빌트인 테마 100점 확인)
 - ✅ **덱 번역**(전 슬라이드 일괄): `translateDeck` — 슬라이드별 텍스트 수집→번역→순서대로 재적용(레이아웃/좌표 불변), 개수 불일치 시 원문 유지. 원본 보존(새 덱). POST /decks/:id/translate. 실 claude E2E(한국어→영어, 구조 동일)
-- ❌ 요약/확장/톤 리라이트
+- ✅ **덱 리라이트**(톤/길이): `rewriteDeck` — 지시("더 간결하게" 등)를 전 슬라이드에 적용, 구조 불변. POST /decks/:id/rewrite. 실 claude E2E(간결화 확인). translate와 transformSlide 공용
+- ❌ MCP 서버, 조회 애널리틱스, 예상 질문 생성
 - ❌ 조회 애널리틱스, 예상 청중 질문 생성
 - ❌ 생성 REST API 문서화/웹훅, MCP 서버(신흥표준)
 - 참고: 생성 REST API 자체는 P1~P5로 대부분 구현됨(헤드리스 계약)

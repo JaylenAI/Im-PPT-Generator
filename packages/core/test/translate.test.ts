@@ -4,6 +4,7 @@ import {
   ProviderRegistry,
   PromptStore,
   translateDeck,
+  rewriteDeck,
   type ModelConnection,
   type ProviderAdapter,
 } from '../src/index.js'
@@ -50,5 +51,17 @@ describe('translateDeck', () => {
     const out = await translateDeck(deck(), 'en', deps)
     const el = out.slides[0]!.elements
     expect(el[0]).toMatchObject({ content: '안녕하세요' }) // 원문 유지
+  })
+})
+
+describe('rewriteDeck', () => {
+  it('지시에 맞게 전 슬라이드 텍스트 리라이트, 구조 불변, 새 덱', async () => {
+    const deps = { registry: registryWith({ translations: ['안녕', '1', '2'] }), prompts: new PromptStore() }
+    const out = await rewriteDeck(deck(), '더 간결하게', deps)
+    expect(out.id).not.toBe('d1')
+    expect(out.language).toBe('ko') // 언어는 유지(번역 아님)
+    const el = out.slides[0]!.elements
+    expect(el[0]).toMatchObject({ content: '안녕', frame: { x: 1, y: 2, w: 3, h: 4 } })
+    expect(el[1]).toMatchObject({ type: 'list', items: ['1', '2'] })
   })
 })

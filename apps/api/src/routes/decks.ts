@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, checkAccessibility, translateDeck, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, translateDeck, rewriteDeck, type ResearchInput } from '@im-ppt/core'
 import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
@@ -111,6 +111,25 @@ export function deckRoutes(deps: AppDeps) {
         })
         await deps.decks.put(translated)
         return c.json({ data: { deckId: translated.id, deck: translated } }, 201)
+      } catch (e) {
+        return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
+      }
+    })
+    // 덱 리라이트(P10) — 톤/길이 등 지시를 전 슬라이드에 적용. 원본 보존, 새 덱
+    .post('/:id/rewrite', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      const body = (await c.req.json().catch(() => null)) as { instruction?: string } | null
+      if (!body?.instruction || body.instruction.trim().length === 0) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: 'instruction 필수' } }, 400)
+      }
+      try {
+        const rewritten = await rewriteDeck(deck, body.instruction, {
+          registry: deps.registry,
+          prompts: deps.prompts,
+        })
+        await deps.decks.put(rewritten)
+        return c.json({ data: { deckId: rewritten.id, deck: rewritten } }, 201)
       } catch (e) {
         return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
       }
