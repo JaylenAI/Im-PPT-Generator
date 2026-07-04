@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react'
 import type { Deck, Theme } from '@im-ppt/schema'
+import type { TemplateMeta } from '@im-ppt/schema'
 import { api, type GenerateInput } from './lib/api.js'
 import { DeckViewer } from './DeckViewer.js'
+import { SettingsView } from './SettingsView.js'
 
-type View = { step: 'create' } | { step: 'generating' } | { step: 'viewer'; deck: Deck; theme: Theme }
+type View =
+  | { step: 'create' }
+  | { step: 'generating' }
+  | { step: 'viewer'; deck: Deck; theme: Theme }
+  | { step: 'settings' }
 type Preset = NonNullable<GenerateInput['preset']>
 
 const PRESETS: Array<{ id: Preset; label: string; desc: string }> = [
@@ -20,10 +26,13 @@ export function App() {
   const [preset, setPreset] = useState<Preset>('quick')
   const [slideCount, setSlideCount] = useState(8)
   const [themes, setThemes] = useState<Theme[]>([])
+  const [templates, setTemplates] = useState<TemplateMeta[]>([])
+  const [templateId, setTemplateId] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     api.listThemes().then(setThemes).catch(() => setThemes([]))
+    api.listTemplates().then((t) => { setTemplates(t); setTemplateId(t[0]?.id ?? '') }).catch(() => setTemplates([]))
   }, [])
 
   const generate = async () => {
@@ -31,7 +40,13 @@ export function App() {
     setView({ step: 'generating' })
     setError(null)
     try {
-      const { deck } = await api.generateDeck({ prompt: prompt.trim(), preset, slideCount, language: '한국어' })
+      const { deck } = await api.generateDeck({
+        prompt: prompt.trim(),
+        preset,
+        slideCount,
+        language: '한국어',
+        ...(templateId ? { templateId } : {}),
+      })
       const theme = themes.find((t) => t.id === deck.themeId) ?? (await api.listThemes()).find((t) => t.id === deck.themeId)
       if (!theme) throw new Error('테마를 불러오지 못했습니다')
       setView({ step: 'viewer', deck, theme })
@@ -43,6 +58,10 @@ export function App() {
 
   if (view.step === 'viewer') {
     return <DeckViewer deck={view.deck} theme={view.theme} onBack={() => { setView({ step: 'create' }); setPrompt('') }} />
+  }
+
+  if (view.step === 'settings') {
+    return <SettingsView onBack={() => setView({ step: 'create' })} />
   }
 
   if (view.step === 'generating') {
@@ -59,6 +78,12 @@ export function App() {
 
   return (
     <div className="shell">
+      <div className="row" style={{ justifyContent: 'space-between', marginBottom: 8 }}>
+        <span className="ai-pulse">Im PPT Generator</span>
+        <button className="btn" style={{ fontSize: 13, padding: '6px 12px' }} onClick={() => setView({ step: 'settings' })}>
+          ⚙ AI 설정
+        </button>
+      </div>
       <h1 className="title">무엇을 만들까요?</h1>
       <p className="subtitle">주제를 입력하면 AI가 아웃라인을 짜고 슬라이드를 생성합니다.</p>
 
@@ -101,6 +126,16 @@ export function App() {
               style={{ width: 72 }}
             />
           </label>
+          {templates.length > 0 && (
+            <label className="row" style={{ gap: 6 }}>
+              <span className="muted">템플릿</span>
+              <select value={templateId} onChange={(e) => setTemplateId(e.target.value)} style={{ width: 'auto' }}>
+                {templates.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            </label>
+          )}
         </div>
 
         <div style={{ marginTop: 20 }}>

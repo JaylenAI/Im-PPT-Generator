@@ -25,6 +25,7 @@ export interface GenerateInput {
   slideCount?: number
   tone?: string
   language?: string
+  templateId?: string
 }
 
 export const api = {
@@ -47,4 +48,38 @@ export const api = {
     }),
 
   downloadUrl: (exportId: string) => `${BASE}/exports/${exportId}/download`,
+
+  // AI 설정
+  getModels: () =>
+    req<{ connections: ModelConnectionView[]; assignments: Record<string, string> }>(
+      '/settings/models',
+    ),
+
+  getPrompts: () => req<PromptView[]>('/settings/prompts'),
+
+  patchPrompt: (key: string, content: string) =>
+    req<PromptView>(`/settings/prompts/${key}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ content }),
+    }),
+}
+
+export interface ModelConnectionView {
+  id: string
+  name: string
+  provider: string
+  model: string
+  tags: string[]
+  isActive: boolean
+  apiKey?: string
+}
+
+export interface PromptView {
+  key: string
+  description: string
+  category: string
+  variables: string[]
+  defaultContent: string
+  currentContent: string
+  isOverridden: boolean
 }
