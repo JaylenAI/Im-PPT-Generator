@@ -4,6 +4,7 @@ import { deckRoutes } from './routes/decks.js'
 import { exportRoutes } from './routes/exports.js'
 import { catalogRoutes } from './routes/catalog.js'
 import { settingsRoutes } from './routes/settings.js'
+import { streamRoutes } from './routes/stream.js'
 import { createDefaultDeps, type AppDeps } from './deps.js'
 
 /**
@@ -15,6 +16,7 @@ export function createApp(deps: AppDeps = createDefaultDeps()) {
 
   app.route('/health', healthRoutes)
   app.route('/decks', deckRoutes(deps))
+  app.route('/', streamRoutes(deps)) // /decks/stream (SSE)
   app.route('/', exportRoutes(deps)) // /decks/:id/export, /exports/:id/download
   app.route('/', catalogRoutes) // /templates, /themes, /layouts
   app.route('/settings', settingsRoutes(deps))
