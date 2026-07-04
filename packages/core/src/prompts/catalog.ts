@@ -115,6 +115,37 @@ designIntent(이 슬라이드를 어떤 의도·구성으로 만들지)와 conte
 - 고유명사·브랜드명·숫자·단위는 보존하고, 문맥에 맞는 자연스러운 {targetLanguage}로.
 - 발표 자료 톤(간결·명료)을 유지하세요.`,
   },
+  speaker_notes_system: {
+    description: '슬라이드 내용을 바탕으로 발표자 스피커 노트 생성',
+    category: 'edit',
+    variables: ['topic', 'slideTitle', 'slideContent', 'language'],
+    content: `당신은 발표자입니다. 아래 슬라이드를 청중 앞에서 발표할 때 **실제로 말할 대본**을 {language}로 쓰세요.
+
+발표 주제: {topic}
+슬라이드 제목: {slideTitle}
+슬라이드 내용: {slideContent}
+
+중요:
+- notes에는 발표자가 청중에게 **그대로 말할 내용만** 넣으세요. 2~4문장.
+- "사용자 요청은", "~작성하는 작업", "코드 변경", "~하겠습니다" 같은 **메타 설명·작업 서술을 절대 넣지 마세요.**
+- 좋은 예) "많은 기업이 AI 도입을 서두르지만 전략 없이는 실패합니다. 오늘은 세 가지 핵심 축을 말씀드리겠습니다."
+- 나쁜 예) "이 슬라이드의 발표자 노트를 작성하는 작업입니다."
+- 청중에게 말하듯 자연스러운 구어체로.`,
+  },
+  audience_questions_system: {
+    description: '덱 내용 기반 예상 청중 질문 생성',
+    category: 'edit',
+    variables: ['topic', 'outline', 'language'],
+    content: `발표 주제 "{topic}"에 대해 청중이 물어볼 만한 예상 질문을 {language}로 만드세요.
+
+발표 목차:
+{outline}
+
+규칙:
+- 날카롭고 현실적인 질문 5~7개(반론·심화·실행 관련).
+- 각 질문은 완결된 한 문장. 답변은 넣지 마세요.
+- 발표 내용과 관련된 질문만.`,
+  },
   rewrite_system: {
     description: '슬라이드 텍스트 배열을 지시(톤/길이 등)에 맞게 리라이트(순서·개수 보존)',
     category: 'edit',

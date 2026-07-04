@@ -19,6 +19,7 @@ export { generateVariants } from './pipeline/variants.js'
 export { generateDeck, generateDeckStreaming, type ResearchInput } from './pipeline/deck.js'
 export { editSlide, replaceSlide } from './pipeline/edit.js'
 export { translateDeck, rewriteDeck, type TranslateDeps } from './pipeline/translate.js'
+export { generateSpeakerNotes, generateAudienceQuestions, type ExtrasDeps } from './pipeline/ai-extras.js'
 
 // Analysis
 export {

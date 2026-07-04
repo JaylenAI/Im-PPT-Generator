@@ -81,7 +81,8 @@
 
 - ✅ **발표 모드**: 전체화면 슬라이드 + 키보드 네비(←/→/Space/Esc) + 뷰포트 비율 유지 스케일 + 발표자 노트 토글(N키). Playwright E2E(열기→네비→종료)
 - ✅ **화면비 4:3/9:16 전 파이프라인 스윕**: `defineLayout`이 기준 1280×720로 빌드 후 타깃 캔버스로 프레임/폰트 비례 리매핑(레이아웃 코드 무변경, 16:9 하위호환). 렌더러·exporter는 이미 CANVAS_SIZES 기반. 생성 위저드 화면비 선택. 실 E2E(9:16 생성 시 전 요소 720×1280 안+PPTX 세로 크기 export)
-- ❌ 발표자 뷰(다음 슬라이드 미리보기), AI 스피커 노트 생성, PNG export(헤드리스 렌더), 웹 링크 퍼블리싱
+- ✅ **AI 스피커 노트**: `generateSpeakerNotes` — 슬라이드별 발표 대본 생성(slide.notes). claude CLI 메타 누출은 프롬프트 예시 + 후처리 가드(looksLikeMeta)로 이중 봉합. POST /decks/:id/speaker-notes. 실 E2E(4/4 클린)
+- ❌ 발표자 뷰(다음 슬라이드 미리보기), PNG export(헤드리스 렌더), 웹 링크 퍼블리싱
 
 ## P10 — AI 부가 + 플랫폼 🔄 (접근성 검사 완료)
 
@@ -89,7 +90,8 @@
 - ✅ **덱 번역**(전 슬라이드 일괄): `translateDeck` — 슬라이드별 텍스트 수집→번역→순서대로 재적용(레이아웃/좌표 불변), 개수 불일치 시 원문 유지. 원본 보존(새 덱). POST /decks/:id/translate. 실 claude E2E(한국어→영어, 구조 동일)
 - ✅ **덱 리라이트**(톤/길이): `rewriteDeck` — 지시("더 간결하게" 등)를 전 슬라이드에 적용, 구조 불변. POST /decks/:id/rewrite. 실 claude E2E(간결화 확인). translate와 transformSlide 공용
 - ✅ **MCP 서버**(신흥 표준): `apps/mcp` — generate_deck·list_layouts 도구를 stdio로 노출. Claude Desktop 등 MCP 클라이언트가 프레젠테이션 생성 가능(claude CLI 구독, 무키). 실 검증(SDK Client 스폰→tools/list→generate_deck 실 claude 3슬라이드)
-- ❌ 조회 애널리틱스, 예상 질문 생성
+- ✅ **예상 청중 질문**: `generateAudienceQuestions` — 덱 목차 기반 날카로운 질문 5~7개. GET /decks/:id/questions. 실 E2E(ROI·인력·우선순위 질문 7개)
+- ❌ 조회 애널리틱스
 - ❌ 조회 애널리틱스, 예상 청중 질문 생성
 - ❌ 생성 REST API 문서화/웹훅, MCP 서버(신흥표준)
 - 참고: 생성 REST API 자체는 P1~P5로 대부분 구현됨(헤드리스 계약)
