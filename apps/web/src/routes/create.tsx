@@ -35,6 +35,7 @@ function CreatePage() {
   const [preset, setPreset] = useState<Preset>('quick')
   const [slideCount, setSlideCount] = useState(8)
   const [templateId, setTemplateId] = useState('')
+  const [aspectRatio, setAspectRatio] = useState<NonNullable<GenerateInput['aspectRatio']>>('16:9')
   const [templates, setTemplates] = useState<TemplateMeta[]>([])
   const [sources, setSources] = useState<UserSource[]>([])
   const [srcText, setSrcText] = useState('')
@@ -55,7 +56,7 @@ function CreatePage() {
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }) }, [log])
 
   const input = (): GenerateInput => ({
-    prompt: topic.trim(), preset, slideCount, language: '한국어',
+    prompt: topic.trim(), preset, slideCount, language: '한국어', aspectRatio,
     ...(templateId ? { templateId } : {}),
     ...(usesSources(preset) && sources.length ? { sources } : {}),
   })
@@ -230,6 +231,16 @@ function CreatePage() {
             </label>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{PRESETS.find((p) => p.id === preset)?.desc}</p>
+
+          <div className="mt-3 flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">화면비</span>
+            {(['16:9', '4:3', '9:16'] as const).map((ar) => (
+              <button key={ar} onClick={() => setAspectRatio(ar)}
+                className={`rounded-lg px-2.5 py-1 font-mono text-xs ${aspectRatio === ar ? 'bg-gradient-brand text-white' : 'border border-border text-muted-foreground hover:border-primary'}`}>
+                {ar}
+              </button>
+            ))}
+          </div>
 
           {usesSources(preset) && (
             <div className="mt-4 rounded-xl border border-border bg-secondary/30 p-3">
