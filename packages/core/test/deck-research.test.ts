@@ -46,9 +46,14 @@ describe('generateDeck 인용 전파(리서치 → 팩트 → 인용)', () => {
     // 소스/인용 채워짐 — 팩트가 참조한 s1 → cite_1
     expect(deck.sources).toHaveLength(1)
     expect(deck.citations).toEqual([{ id: 'cite_1', sourceId: 's1', label: '1' }])
-    // 섹션1 슬라이드는 cite_1 인용, 섹션2는 없음
+    // 콘텐츠 2장 + 출처 슬라이드 1장 = 3장
+    expect(deck.slides).toHaveLength(3)
     expect(deck.slides[0]!.citationIds).toEqual(['cite_1'])
     expect(deck.slides[1]!.citationIds).toEqual([])
+    // 마지막은 자동 출처 슬라이드(references)
+    const sourcesSlide = deck.slides[2]!
+    expect(sourcesSlide.layoutType).toBe('references')
+    expect(sourcesSlide.citationIds).toEqual(['cite_1'])
   })
 
   it('리서치 없으면 sources/citations 빈 채로 정상 생성(하위호환)', async () => {
