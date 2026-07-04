@@ -209,6 +209,22 @@ export const api = {
   // 템플릿 미리보기 샘플 덱(P11) — 갤러리 썸네일/미리보기 모달이 렌더
   templateSample: (id: string) => req<Deck>(`/templates/${id}/sample`),
 
+  // PPTX 업로드 → 내 템플릿 생성(P11.2 템플릿 흡수) — 색+폰트 추출
+  createTemplateFromPptx: async (file: File, name?: string): Promise<TemplateMeta> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    if (name) fd.append('name', name)
+    const res = await fetch(`${BASE}/templates/from-pptx`, { method: 'POST', body: fd })
+    const body = (await res.json().catch(() => null)) as { data: TemplateMeta } | { error: { message: string } } | null
+    if (!res.ok || !body || 'error' in body) {
+      throw new Error(body && 'error' in body ? body.error.message : '템플릿 추출 실패')
+    }
+    return body.data
+  },
+
+  // 커스텀 템플릿 삭제
+  deleteTemplate: (id: string) => req<{ removed: boolean }>(`/templates/${id}`, { method: 'DELETE' }),
+
   // 발표 유형 카탈로그(ADR-010) — PT면접/컨설팅/IR/학술/세일즈/일반
   listPresentationTypes: () => req<PresentationType[]>('/presentation-types'),
 

@@ -1,9 +1,11 @@
-import { appSettingsSchema, brandKitSchema, type AppSettings, type BrandKit } from '@im-ppt/schema'
+import { appSettingsSchema, brandKitSchema, customTemplateSchema, type AppSettings, type BrandKit, type CustomTemplate } from '@im-ppt/schema'
+import { z } from 'zod'
 import type { PromptStore } from '@im-ppt/core'
 import type { SettingsStore } from '@im-ppt/db'
 
 const APP_KEY = 'app.settings'
 const BRAND_KEY = 'brand.kit'
+const CUSTOM_TPL_KEY = 'custom.templates'
 const PROMPT_PREFIX = 'prompt.'
 
 /**
@@ -14,6 +16,7 @@ const PROMPT_PREFIX = 'prompt.'
 export class SettingsService {
   private app: AppSettings = appSettingsSchema.parse({})
   private brand: BrandKit | null = null
+  private customTemplates: CustomTemplate[] = []
 
   constructor(
     private readonly store: SettingsStore,
@@ -31,6 +34,11 @@ export class SettingsService {
     if (brandVal !== undefined) {
       const parsed = brandKitSchema.safeParse(brandVal)
       if (parsed.success) this.brand = parsed.data
+    }
+    const tplVal = await this.store.get(CUSTOM_TPL_KEY)
+    if (tplVal !== undefined) {
+      const parsed = z.array(customTemplateSchema).safeParse(tplVal)
+      if (parsed.success) this.customTemplates = parsed.data
     }
     const known = new Set(this.prompts.list().map((p) => p.key))
     for (const { key, value } of await this.store.getAll(PROMPT_PREFIX)) {
@@ -55,6 +63,32 @@ export class SettingsService {
     this.brand = parsed
     await this.store.set(BRAND_KEY, parsed)
     return parsed
+  }
+
+  /** 커스텀 템플릿(PPTX 추출/사용자 저장) 목록 */
+  getCustomTemplates(): CustomTemplate[] {
+    return this.customTemplates
+  }
+
+  getCustomTemplate(id: string): CustomTemplate | undefined {
+    return this.customTemplates.find((t) => t.id === id)
+  }
+
+  /** 커스텀 템플릿 추가 — 검증 후 메모리+DB(맨 앞에 최신) */
+  async addCustomTemplate(tpl: unknown): Promise<CustomTemplate> {
+    const parsed = customTemplateSchema.parse(tpl)
+    this.customTemplates = [parsed, ...this.customTemplates.filter((t) => t.id !== parsed.id)]
+    await this.store.set(CUSTOM_TPL_KEY, this.customTemplates)
+    return parsed
+  }
+
+  /** 커스텀 템플릿 삭제 — 있으면 제거 후 영속, 삭제 여부 반환 */
+  async removeCustomTemplate(id: string): Promise<boolean> {
+    const before = this.customTemplates.length
+    this.customTemplates = this.customTemplates.filter((t) => t.id !== id)
+    if (this.customTemplates.length === before) return false
+    await this.store.set(CUSTOM_TPL_KEY, this.customTemplates)
+    return true
   }
 
   /** 부분 갱신 — 검증 후 병합, 메모리+DB 반영. 갱신된 전체 설정 반환 */

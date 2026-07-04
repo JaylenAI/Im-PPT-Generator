@@ -5,7 +5,12 @@ import { test, expect } from '@playwright/test'
  */
 test('템플릿 갤러리: 미리보기 → 선택 → 생성 위저드에 템플릿 전달', async ({ page }) => {
   test.setTimeout(60_000)
+  // 무한 리렌더(themeOverride 썸네일) 회귀 방지 — 페이지 에러 0
+  const pageErrors: string[] = []
+  page.on('pageerror', (e) => pageErrors.push(e.message))
   await page.goto('/templates')
+  // PPTX로 내 템플릿 만들기(P11.2) 업로드 진입점 존재
+  await expect(page.getByTestId('tpl-upload')).toBeAttached()
 
   // 카드가 실제 샘플 슬라이드로 렌더될 때까지(SlideView는 [data-slide-id] 컨테이너)
   const firstCard = page.locator('[data-testid^="tpl-card-"]').first()
@@ -26,4 +31,6 @@ test('템플릿 갤러리: 미리보기 → 선택 → 생성 위저드에 템�
   await expect(page).toHaveURL(/\/create\?template=template-midnight-tech/)
   // 생성 위저드에서 템플릿이 선택됨(셀렉트 값)
   await expect(page.locator('select').filter({ hasText: 'Midnight Tech' })).toHaveValue('template-midnight-tech')
+
+  expect(pageErrors, `page errors: ${pageErrors.join(' | ')}`).toHaveLength(0)
 })

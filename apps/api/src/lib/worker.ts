@@ -3,7 +3,7 @@ import { generateDeckStreaming, type ResearchInput } from '@im-ppt/core'
 import type { JobStore } from '@im-ppt/db'
 import type { AppDeps } from '../deps.js'
 import { runResearchForConfig } from './research-runner.js'
-import { applyBrandKit } from './brand.js'
+import { applyBranding } from './brand.js'
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -54,7 +54,7 @@ export function createWorker(deps: AppDeps, opts: WorkerOptions = {}): Worker {
         append,
         { deckId, ...(research ? { research } : {}) },
       )
-      const deck = applyBrandKit(deps, generated)
+      const deck = applyBranding(deps, generated, config.templateId)
       await deps.decks.put(deck)
       await append({ type: 'deck_saved', deckId: deck.id, deck })
       await deps.jobs.complete(id)

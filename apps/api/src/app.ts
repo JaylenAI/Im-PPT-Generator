@@ -26,7 +26,7 @@ export function createApp(deps: AppDeps = createDefaultDeps(), worker: Worker = 
   app.route('/', imageRoutes(deps)) // /images/generate (P8 AI SVG 이미지)
   app.route('/', streamRoutes(deps, worker)) // /decks/stream, /decks/generate, /jobs/:id (SSE 잡큐)
   app.route('/', exportRoutes(deps)) // /decks/:id/export, /exports/:id/download
-  app.route('/', catalogRoutes) // /templates, /themes, /layouts
+  app.route('/', catalogRoutes(deps)) // /templates(+커스텀), /themes, /layouts, /presentation-types
   app.route('/settings', settingsRoutes(deps))
 
   app.notFound((c) =>

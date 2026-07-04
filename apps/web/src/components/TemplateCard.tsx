@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import type { Deck, TemplateMeta } from '@im-ppt/schema'
 import { api } from '@/lib/api'
 import { SlideThumbnail } from '@/components/slides/SlideThumbnail'
@@ -9,12 +10,16 @@ import { SlideThumbnail } from '@/components/slides/SlideThumbnail'
  */
 export function TemplateCard({
   template,
+  custom,
   onPreview,
   onUse,
+  onDelete,
 }: {
   template: TemplateMeta
+  custom?: boolean
   onPreview: (t: TemplateMeta, deck: Deck) => void
   onUse: (t: TemplateMeta) => void
+  onDelete?: (t: TemplateMeta) => void
 }) {
   const [deck, setDeck] = useState<Deck | null>(null)
 
@@ -40,6 +45,19 @@ export function TemplateCard({
         <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition-all group-hover:bg-black/30 group-hover:opacity-100">
           <span className="rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-900">미리보기</span>
         </div>
+        {custom && (
+          <span className="absolute left-2 top-2 rounded-md bg-primary/90 px-2 py-0.5 text-[10px] font-semibold text-white">내 템플릿</span>
+        )}
+        {onDelete && (
+          <button
+            onClick={(e) => { e.stopPropagation(); onDelete(template) }}
+            data-testid={`tpl-delete-${template.id}`}
+            className="absolute right-2 top-2 rounded-md bg-white/90 p-1.5 text-destructive opacity-0 transition-opacity hover:bg-white group-hover:opacity-100"
+            aria-label="삭제"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
       <div className="flex items-center justify-between gap-2 p-4">
         <div className="min-w-0">

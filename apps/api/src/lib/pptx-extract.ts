@@ -12,6 +12,15 @@ function pickColor(xml: string, name: string): string | undefined {
   return undefined
 }
 
+/** fontScheme의 majorFont/minorFont 대표 라틴 타이페이스 추출 */
+function pickFont(xml: string, scheme: 'majorFont' | 'minorFont'): string | undefined {
+  const block = xml.match(new RegExp(`<a:${scheme}>([\\s\\S]*?)</a:${scheme}>`))
+  if (!block) return undefined
+  const latin = block[1]!.match(/<a:latin typeface="([^"]+)"/)
+  const face = latin?.[1]?.trim()
+  return face && face.length > 0 ? face : undefined
+}
+
 /**
  * 업로드 PPTX → 브랜드킷(P6) — 테마 XML의 clrScheme를 브랜드 색상으로 매핑.
  * accent1→primary, accent2→accent, dk2→secondary, lt1→background, dk1→textPrimary.
@@ -36,5 +45,11 @@ export async function extractPptxBrandKit(buffer: Buffer): Promise<BrandKit> {
     if (hex) colors[brandKey] = hex
   }
   if (Object.keys(colors).length === 0) throw new Error('테마에서 색상을 추출하지 못했습니다')
-  return { colors }
+
+  // 폰트도 추출 — majorFont→heading, minorFont→body (PPTX 안전 폰트명 그대로)
+  const heading = pickFont(xml, 'majorFont')
+  const body = pickFont(xml, 'minorFont')
+  const fonts = heading || body ? { ...(heading ? { heading } : {}), ...(body ? { body } : {}) } : undefined
+
+  return { colors, ...(fonts ? { fonts } : {}) }
 }
