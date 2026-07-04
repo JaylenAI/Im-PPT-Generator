@@ -2,7 +2,7 @@
 
 - 상태: 채택(Accepted)
 - 날짜: 2026-07-04
-- 관련: [ADR-007 API-First 헥사고날](./ADR-007-api-first-hexagonal.md), [ADR-009 Action Titles](./ADR-009-action-titles.md)
+- 관련: [ADR-007 API-First 헤드리스](./ADR-007-api-first-headless.md), [ADR-009 Action Titles](./ADR-009-action-titles.md)
 
 ## 맥락
 
