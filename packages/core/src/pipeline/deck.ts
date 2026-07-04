@@ -1,7 +1,14 @@
-import type { Deck, GenerationConfig, GenerationEvent, Outline } from '@im-ppt/schema'
+import type { Citation, Deck, Fact, GenerationConfig, GenerationEvent, Outline, Source } from '@im-ppt/schema'
 import { TEMPLATES, getTheme } from '@im-ppt/templates'
+import { buildCitations } from '@im-ppt/research'
 import { generateOutline } from './outline.js'
 import { generateSlide, type SlideDeps } from './slide.js'
+
+/** 리서치 결과(사전 계산) — api 워커가 runResearch로 만들어 주입 */
+export interface ResearchInput {
+  sources: Source[]
+  facts: Fact[]
+}
 
 /** 충돌 안전 덱 ID — 서버 재시작에도 카운터 리셋으로 인한 PK 충돌 없음 */
 function nextDeckId(): string {
@@ -21,10 +28,10 @@ function assembleDeck(
   ids: { templateId: string; themeId: string },
   outline: Outline,
   slides: Deck['slides'],
-  deckId?: string,
+  opts: { deckId?: string; sources?: Source[]; citations?: Citation[] } = {},
 ): Deck {
   return {
-    id: deckId ?? nextDeckId(),
+    id: opts.deckId ?? nextDeckId(),
     title: config.prompt.trim().slice(0, 80) || '제목 없는 프레젠테이션',
     language: config.language,
     aspectRatio: config.aspectRatio,
@@ -32,8 +39,8 @@ function assembleDeck(
     templateId: ids.templateId,
     outline: { ...outline, status: 'approved' },
     slides,
-    sources: [],
-    citations: [],
+    sources: opts.sources ?? [],
+    citations: opts.citations ?? [],
     version: 1,
   }
 }
@@ -45,18 +52,30 @@ function assembleDeck(
 export async function generateDeck(
   config: GenerationConfig,
   deps: SlideDeps,
-  opts: { outline?: Outline } = {},
+  opts: { outline?: Outline; research?: ResearchInput } = {},
 ): Promise<{ deck: Deck; costUsd: number }> {
   const ids = resolveTemplate(config)
   getTheme(ids.themeId)
 
-  const outline = opts.outline ?? (await generateOutline(config, deps)).outline
+  const research = opts.research ?? { sources: [], facts: [] }
+  const { citations, sourceToCitation } = buildCitations(research.sources, research.facts)
+
+  const outline = opts.outline ?? (await generateOutline(config, deps, { facts: research.facts })).outline
   const results = await Promise.all(
-    outline.sections.map((section) => generateSlide({ config, section, deps })),
+    outline.sections.map((section) => {
+      const facts = research.facts.filter((f) => section.factIds.includes(f.id))
+      return generateSlide({ config, section, deps, facts, sourceToCitation })
+    }),
   )
   const slides = results.map((r) => r.slide)
   const costUsd = results.reduce((sum, r) => sum + (r.usage?.costUsd ?? 0), 0)
-  return { deck: assembleDeck(config, ids, outline, slides), costUsd }
+  return {
+    deck: assembleDeck(config, ids, outline, slides, {
+      sources: research.sources,
+      citations,
+    }),
+    costUsd,
+  }
 }
 
 /**
@@ -67,25 +86,36 @@ export async function generateDeckStreaming(
   config: GenerationConfig,
   deps: SlideDeps,
   onEvent: (event: GenerationEvent) => void | Promise<void>,
-  opts: { deckId?: string } = {},
+  opts: { deckId?: string; research?: ResearchInput } = {},
 ): Promise<Deck> {
   const ids = resolveTemplate(config)
   getTheme(ids.themeId)
 
-  const outline = (await generateOutline(config, deps)).outline
+  const research = opts.research ?? { sources: [], facts: [] }
+  const { citations, sourceToCitation } = buildCitations(research.sources, research.facts)
+  if (research.facts.length > 0) {
+    await onEvent({ type: 'facts_extracted', facts: research.facts })
+  }
+
+  const outline = (await generateOutline(config, deps, { facts: research.facts })).outline
   await onEvent({ type: 'outline_ready', outline })
 
   const slides: Deck['slides'] = new Array(outline.sections.length)
   await Promise.all(
     outline.sections.map(async (section, index) => {
       await onEvent({ type: 'slide_started', slideId: section.id, index })
-      const { slide } = await generateSlide({ config, section, deps })
+      const facts = research.facts.filter((f) => section.factIds.includes(f.id))
+      const { slide } = await generateSlide({ config, section, deps, facts, sourceToCitation })
       slides[index] = slide
       await onEvent({ type: 'slide_done', slideId: slide.id, slide })
     }),
   )
 
-  const deck = assembleDeck(config, ids, outline, slides, opts.deckId)
+  const deck = assembleDeck(config, ids, outline, slides, {
+    ...(opts.deckId !== undefined ? { deckId: opts.deckId } : {}),
+    sources: research.sources,
+    citations,
+  })
   await onEvent({ type: 'deck_done', deckId: deck.id })
   return deck
 }

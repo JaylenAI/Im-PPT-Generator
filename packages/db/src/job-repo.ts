@@ -1,5 +1,5 @@
 import { and, desc, eq, sql } from 'drizzle-orm'
-import type { GenerationConfig, GenerationEvent } from '@im-ppt/schema'
+import type { GenerationConfig, GenerationEvent, UserSourceInput } from '@im-ppt/schema'
 import type { Db } from './client.js'
 import { jobs, type JobStatus } from './schema.js'
 
@@ -9,6 +9,7 @@ export interface Job {
   deckId: string
   status: JobStatus
   config: GenerationConfig
+  userSources: UserSourceInput[]
   events: GenerationEvent[]
   error: string | null
   attempts: number
@@ -19,6 +20,7 @@ export interface EnqueueInput {
   id: string
   deckId: string
   config: GenerationConfig
+  userSources?: UserSourceInput[]
 }
 
 /** 백오프 정책 — 지수 증가, cap. attempts는 방금 실패한 시도 횟수(1-based). */
@@ -61,6 +63,7 @@ interface RawJobRow {
   deck_id: string
   status: JobStatus
   config: GenerationConfig
+  user_sources: UserSourceInput[] | null
   events: GenerationEvent[] | null
   error: string | null
   attempts: number
@@ -73,6 +76,7 @@ function rawToJob(row: RawJobRow): Job {
     deckId: row.deck_id,
     status: row.status,
     config: row.config,
+    userSources: row.user_sources ?? [],
     events: row.events ?? [],
     error: row.error,
     attempts: row.attempts,
@@ -95,6 +99,7 @@ export class PgJobStore implements JobStore {
       deckId: input.deckId,
       status: 'queued',
       config: input.config,
+      userSources: input.userSources ?? [],
       events: [],
     })
     const job = await this.get(input.id)
@@ -115,6 +120,7 @@ export class PgJobStore implements JobStore {
       deckId: row.deckId,
       status: row.status,
       config: row.config,
+      userSources: row.userSources ?? [],
       events: row.events ?? [],
       error: row.error,
       attempts: row.attempts,
@@ -137,7 +143,7 @@ export class PgJobStore implements JobStore {
         FOR UPDATE SKIP LOCKED
         LIMIT 1
       )
-      RETURNING id, deck_id, status, config, events, error, attempts, max_attempts
+      RETURNING id, deck_id, status, config, user_sources, events, error, attempts, max_attempts
     `)
     const row = (res.rows as unknown as RawJobRow[])[0]
     return row ? rawToJob(row) : undefined
@@ -203,6 +209,7 @@ export class PgJobStore implements JobStore {
       deckId: row.deckId,
       status: row.status,
       config: row.config,
+      userSources: row.userSources ?? [],
       events: row.events ?? [],
       error: row.error,
       attempts: row.attempts,
@@ -230,6 +237,7 @@ export class MemoryJobStore implements JobStore {
       deckId: r.deckId,
       status: r.status,
       config: r.config,
+      userSources: [...r.userSources],
       events: [...r.events],
       error: r.error,
       attempts: r.attempts,
@@ -243,6 +251,7 @@ export class MemoryJobStore implements JobStore {
       deckId: input.deckId,
       status: 'queued',
       config: input.config,
+      userSources: input.userSources ?? [],
       events: [],
       error: null,
       attempts: 0,

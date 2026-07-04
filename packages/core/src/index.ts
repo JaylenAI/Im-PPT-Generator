@@ -14,5 +14,5 @@ export * from './config/masking.js'
 // Pipeline
 export { generateOutline, type OutlineDeps } from './pipeline/outline.js'
 export { generateSlide, type SlideDeps } from './pipeline/slide.js'
-export { generateDeck, generateDeckStreaming } from './pipeline/deck.js'
+export { generateDeck, generateDeckStreaming, type ResearchInput } from './pipeline/deck.js'
 export { editSlide, replaceSlide } from './pipeline/edit.js'

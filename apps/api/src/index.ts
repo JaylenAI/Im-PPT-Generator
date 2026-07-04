@@ -1,5 +1,6 @@
 import { serve } from '@hono/node-server'
 import { createDb, ensureSchema, PgDeckStore, PgJobStore, PgSettingsStore } from '@im-ppt/db'
+import { createTavilyAdapter, createSerperAdapter } from '@im-ppt/research'
 import { createApp } from './app.js'
 import { createDefaultDeps } from './deps.js'
 import { createWorker } from './lib/worker.js'
@@ -11,6 +12,14 @@ const env = loadEnv()
 const logger = createLogger(env.LOG_LEVEL)
 
 const deps = createDefaultDeps()
+// 웹 검색 어댑터 — 키 있으면 배선(Tavily 우선, Serper 폴백). 없으면 유저 자료만.
+if (env.TAVILY_API_KEY) {
+  deps.search = createTavilyAdapter({ apiKey: env.TAVILY_API_KEY })
+  logger.info('리서치 검색 어댑터: Tavily')
+} else if (env.SERPER_API_KEY) {
+  deps.search = createSerperAdapter({ apiKey: env.SERPER_API_KEY })
+  logger.info('리서치 검색 어댑터: Serper')
+}
 // DATABASE_URL 있으면 Postgres 영속으로 교체(덱·잡·설정이 재시작에도 살아남음)
 if (env.DATABASE_URL) {
   const handle = createDb(env.DATABASE_URL)

@@ -1,10 +1,10 @@
 import { z } from 'zod'
-import type { GenerationConfig, Outline } from '@im-ppt/schema'
+import type { Fact, GenerationConfig, Outline } from '@im-ppt/schema'
 import { layoutCatalogForLlm } from '@im-ppt/templates'
 import type { ProviderRegistry } from '../providers/registry.js'
 import type { PromptStore } from '../prompts/loader.js'
 
-/** LLM 출력 계약 — id는 우리가 부여하므로 LLM엔 title/summary/layoutHint만 요구 */
+/** LLM 출력 계약 — id는 우리가 부여, factIds는 제공된 팩트 ID를 섹션에 배정 */
 const outlineDraftSchema = z.object({
   sections: z
     .array(
@@ -12,10 +12,16 @@ const outlineDraftSchema = z.object({
         title: z.string().min(1),
         summary: z.string().default(''),
         layoutHint: z.string().min(1),
+        factIds: z.array(z.string()).default([]),
       }),
     )
     .min(1),
 })
+
+function factsText(facts: Fact[]): string {
+  if (facts.length === 0) return '(리서치 없음 — 일반 지식으로 설계)'
+  return facts.map((f) => `- [${f.id}] (${f.kind}) ${f.statement}`).join('\n')
+}
 
 let counter = 0
 function nextId(prefix: string): string {
@@ -35,8 +41,11 @@ export interface OutlineDeps {
 export async function generateOutline(
   config: GenerationConfig,
   deps: OutlineDeps,
+  opts: { facts?: Fact[] } = {},
 ): Promise<{ outline: Outline; usage?: { costUsd?: number } }> {
+  const facts = opts.facts ?? []
   const validLayouts = new Set(layoutCatalogForLlm().map((l) => l.key))
+  const validFactIds = new Set(facts.map((f) => f.id))
   const catalogText = layoutCatalogForLlm()
     .map((l) => `- ${l.key}: ${l.description}`)
     .join('\n')
@@ -48,6 +57,7 @@ export async function generateOutline(
     audience: config.audience || '일반',
     language: config.language,
     layoutCatalog: catalogText,
+    facts: factsText(facts),
   })
 
   const { data, usage } = await deps.registry.generateStructured(
@@ -61,7 +71,8 @@ export async function generateOutline(
     title: s.title,
     summary: s.summary,
     layoutHint: validLayouts.has(s.layoutHint) ? s.layoutHint : 'bullets',
-    factIds: [],
+    // 지어낸 팩트 ID 폐기 — 제공된 것만 유지(할루시네이션 제로)
+    factIds: s.factIds.filter((id) => validFactIds.has(id)),
   }))
 
   return {

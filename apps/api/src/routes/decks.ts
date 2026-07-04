@@ -1,10 +1,14 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { generateDeck, editSlide, replaceSlide } from '@im-ppt/core'
+import { userSourceInputSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import { buildConfig } from '../lib/build-config.js'
+import { runResearchForConfig } from '../lib/research-runner.js'
 
-const createBody = z.object({ prompt: z.string().min(1) }).passthrough()
+const createBody = z
+  .object({ prompt: z.string().min(1), sources: z.array(userSourceInputSchema).optional() })
+  .passthrough()
 const editBody = z.object({ instruction: z.string().min(1) })
 
 /**
@@ -28,10 +32,13 @@ export function deckRoutes(deps: AppDeps) {
           400,
         )
       }
-      const { deck, costUsd } = await generateDeck(config, {
-        registry: deps.registry,
-        prompts: deps.prompts,
-      })
+      // 리서치(researchMode != off) → 팩트/인용. off면 undefined
+      const research = await runResearchForConfig(deps, config, parsed.data.sources ?? [])
+      const { deck, costUsd } = await generateDeck(
+        config,
+        { registry: deps.registry, prompts: deps.prompts },
+        research ? { research } : {},
+      )
       await deps.decks.put(deck)
       return c.json({ data: { deckId: deck.id, deck, costUsd } }, 201)
     })
