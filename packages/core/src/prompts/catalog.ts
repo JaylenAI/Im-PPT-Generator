@@ -100,6 +100,21 @@ export const PROMPT_CATALOG = {
 designIntent(이 슬라이드를 어떤 의도·구성으로 만들지)와 contentSummary(구체적으로 담을 내용)를
 각각 1~2문장으로 작성하세요. 실제 만들 내용을 요약하되, 최종 문구가 아니라 계획을 서술하세요.`,
   },
+  translate_system: {
+    description: '슬라이드의 텍스트 배열을 대상 언어로 번역(순서·개수 보존)',
+    category: 'edit',
+    variables: ['targetLanguage', 'texts'],
+    content: `다음 프레젠테이션 텍스트들을 {targetLanguage}로 자연스럽게 번역하세요.
+
+번역할 텍스트(순서대로):
+{texts}
+
+규칙:
+- 입력과 **정확히 같은 개수**의 번역을 같은 순서로 반환하세요.
+- 각 항목은 슬라이드에 표시될 최종 문구입니다 — 번역문만, 설명·번호·라벨 금지.
+- 고유명사·브랜드명·숫자·단위는 보존하고, 문맥에 맞는 자연스러운 {targetLanguage}로.
+- 발표 자료 톤(간결·명료)을 유지하세요.`,
+  },
   edit_system: {
     description: '선택된 슬라이드를 사용자 지시에 따라 수정(페이지 단위 AI 수정)',
     category: 'edit',
