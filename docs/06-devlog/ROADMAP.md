@@ -20,14 +20,13 @@
 - `apps/web`: **flow-deck-creator 편입**(TanStack Start, ADR-008) — 가짜 로직 4개(generation/SlideView/export/store)를 우리 API·렌더러·익스포터로 교체. 디자인 토큰(인디고/시안 이원 액센트, Geist+Inter+JetBrains Mono, 글래스) + 대시보드 + 생성 위저드(프롬프트→옵션: 장수/톤/청중/언어) + 아웃라인 승인 화면 + 덱 뷰어 + PPTX/PDF 다운로드
 - 검증: 실 API로 덱 1개 관통 E2E(Playwright) + exporter 스냅샷 테스트 + LibreOffice 렌더 육안 QA
 
-## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 🔄 (일부 완료)
+## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 ✅ 완료(2026-07-04)
 
-- ✅ `packages/db`: 순수 Postgres + Drizzle ORM ([ADR-006](../02-architecture/ADR-006-postgres-selfhost.md)) — decks JSONB + `workspace_id` 격리, PgDeckStore/MemoryDeckStore 공통 인터페이스, ensureSchema. 실 PG 통합 + 서버 재시작 E2E 검증
-- ✅ SSE 스트리밍: `outline_ready/slide_started/slide_done/deck_done` — **AI가 슬라이드를 실시간으로 만드는 뷰**(웹 활동 로그+진행바). POST /decks/stream(hono streamSSE). 실 claude 이벤트 흐름 검증
-- ❌ Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 detached 잡화 + 재접속 이벤트 재생(잡 테이블 영속)
-- ❌ Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — 오픈소스 셀프호스트 (db 서비스는 존재)
-- ❌ 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드) — /settings API+화면은 있음, DB 영속+동적카탈로그 미완
-- 잔여 검증: 잡 재접속 재생 E2E
+- ✅ `packages/db`: 순수 Postgres + Drizzle ORM ([ADR-006](../02-architecture/ADR-006-postgres-selfhost.md)) — decks JSONB + `workspace_id` 격리, PgDeckStore/MemoryDeckStore 공통 인터페이스, ensureSchema(advisory lock으로 동시 부팅 DDL 레이스 방지). 실 PG 통합 + 서버 재시작 E2E 검증
+- ✅ SSE 스트리밍: `outline_ready/slide_started/slide_done/deck_done/deck_saved` — **AI가 슬라이드를 실시간으로 만드는 뷰**(웹 활동 로그+진행바). 실 claude 이벤트 흐름 검증
+- ✅ Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 detach(POST /decks/generate) + 재접속 이벤트 재생(GET /jobs/:id/stream, 잡 로그 영속). 오래 잠긴 running 재클레임(크래시 복구). 실 claude E2E: 서버 재시작 후 12 이벤트 전체 재생·덱 영속
+- ✅ Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — nginx가 /api 프록시(SSE) + SPA 폴백. 오픈소스 셀프호스트. 두 이미지 빌드→스택 기동→서빙/프록시 실검증
+- ✅ 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드) — APP_SETTINGS_CATALOG + SettingsService(부팅 hydrate). 실 E2E: PATCH→재시작 영속→앱 기본값이 미지정 생성에 반영
 
 ## P3 — 딥리서치 + 할루시네이션 제로 ❌
 

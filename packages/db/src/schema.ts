@@ -1,4 +1,4 @@
-import { pgTable, text, jsonb, timestamp, integer } from 'drizzle-orm/pg-core'
+import { pgTable, text, jsonb, timestamp, integer, primaryKey } from 'drizzle-orm/pg-core'
 import type { Deck, GenerationConfig, GenerationEvent } from '@im-ppt/schema'
 
 /**
@@ -43,3 +43,20 @@ export const jobs = pgTable('jobs', {
 
 export type JobStatus = 'queued' | 'running' | 'done' | 'error'
 export type JobRow = typeof jobs.$inferSelect
+
+/**
+ * 설정 KV — 프롬프트 오버라이드·앱 기본값을 워크스페이스 단위로 영속.
+ * value는 JSONB(문자열/객체 모두). 부팅 시 rehydrate, 변경 즉시 반영(핫리로드).
+ */
+export const settings = pgTable(
+  'settings',
+  {
+    workspaceId: text('workspace_id').notNull().default('default'),
+    key: text('key').notNull(),
+    value: jsonb('value').notNull(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.workspaceId, t.key] })],
+)
+
+export type SettingRow = typeof settings.$inferSelect

@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { ProviderRegistry, PromptStore, type ProviderAdapter } from '@im-ppt/core'
-import { MemoryDeckStore, MemoryJobStore } from '@im-ppt/db'
+import { MemoryDeckStore, MemoryJobStore, MemorySettingsStore } from '@im-ppt/db'
 import type { Deck, GenerationEvent } from '@im-ppt/schema'
 import { createApp } from '../src/app.js'
 import { MemoryStore, type AppDeps, type ExportArtifact } from '../src/deps.js'
+import { SettingsService } from '../src/lib/settings-service.js'
 
 function fakeProvider(): ProviderAdapter {
   return {
@@ -30,11 +31,13 @@ function testDeps(): AppDeps {
     id: 'fake', name: 'fake', provider: 'claude-cli', model: 'sonnet',
     tags: ['outline', 'slide'], params: { adminOnly: false }, isActive: true,
   })
+  const prompts = new PromptStore()
   return {
     registry,
-    prompts: new PromptStore(),
+    prompts,
     decks: new MemoryDeckStore(),
     jobs: new MemoryJobStore(),
+    settings: new SettingsService(new MemorySettingsStore(), prompts),
     exports: new MemoryStore<ExportArtifact>(),
   }
 }

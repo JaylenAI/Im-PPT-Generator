@@ -1,19 +1,20 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { z } from 'zod'
-import { resolveGenerationConfig, type GenerationConfig } from '@im-ppt/schema'
+import type { AppSettings, GenerationConfig } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import type { Worker } from '../lib/worker.js'
 import { tailJob } from '../lib/worker.js'
+import { buildConfig } from '../lib/build-config.js'
 import { newDeckId, newJobId } from '../lib/ids.js'
 
 const createBody = z.object({ prompt: z.string().min(1) }).passthrough()
 
-function parseConfig(raw: unknown): GenerationConfig | { error: string } {
+function parseConfig(app: AppSettings, raw: unknown): GenerationConfig | { error: string } {
   const parsed = createBody.safeParse(raw)
   if (!parsed.success) return { error: 'prompt는 필수입니다' }
   try {
-    return resolveGenerationConfig(parsed.data as { prompt: string })
+    return buildConfig(app, parsed.data as Record<string, unknown>)
   } catch (e) {
     return { error: (e as Error).message }
   }
@@ -28,7 +29,7 @@ function parseConfig(raw: unknown): GenerationConfig | { error: string } {
 export function streamRoutes(deps: AppDeps, worker: Worker) {
   return new Hono()
     .post('/decks/stream', async (c) => {
-      const config = parseConfig(await c.req.json().catch(() => null))
+      const config = parseConfig(deps.settings.getApp(), await c.req.json().catch(() => null))
       if ('error' in config) {
         return c.json({ error: { code: 'VALIDATION_FAILED', message: config.error } }, 400)
       }
@@ -44,7 +45,7 @@ export function streamRoutes(deps: AppDeps, worker: Worker) {
       })
     })
     .post('/decks/generate', async (c) => {
-      const config = parseConfig(await c.req.json().catch(() => null))
+      const config = parseConfig(deps.settings.getApp(), await c.req.json().catch(() => null))
       if ('error' in config) {
         return c.json({ error: { code: 'VALIDATION_FAILED', message: config.error } }, 400)
       }
