@@ -1,6 +1,6 @@
 # CURRENT STATUS
 
-> 마지막 업데이트: 2026-07-04 · **P2~P10 전 phase 커버 + 포괄 E2E 통과** — API E2E 17/17·Playwright 10·MCP·단위 233·타입 17/17 그린 · origin/dev 푸시
+> 마지막 업데이트: 2026-07-04 · **P2~P10 완성 + 콘텐츠 품질 개선 트랙 완료** — 딥리서치 기반 6레버(Action Title·발표 유형 10종·유형별 디자인 매칭·데이터 스토리텔링·Deck Doctor 진단·AI 자동 수정). 패키지 회귀 211·Playwright 4 신규·실 claude E2E 다수·origin/dev 푸시
 >
 > **AI 이미지도 claude -p(SVG)로 구현(무키).** 남은 것: Pexels 스톡 사진(키)·PNG export(헤드리스 렌더)·워터폴/Mekko 차트·오버플로 자동수정(폰트 메트릭)·Excel 파싱·15종+ 템플릿/커스텀 저장 — 외부 의존 또는 별도 인프라 필요 항목만.
 
@@ -28,6 +28,10 @@
 | WYSIWYG(인라인 편집 + 속성 패널 + undo/redo) | ✅ 완료 | P5a+b, Playwright 영속 E2E |
 | 발표 모드(전체화면 + 키보드 네비 + 노트) | ✅ 완료 | P9, Playwright E2E |
 | 프로세스 다이어그램 레이아웃 | ✅ 완료 | P8, 실 export E2E |
+| **품질: Action Title 엔진 + Ghost Deck** | ✅ 완료 | ADR-009, 실 claude E2E + Playwright |
+| **품질: 발표 유형 10종 + 자동 테마 매칭** | ✅ 완료 | ADR-010, 실 claude E2E(유형별 구조) + Playwright |
+| **품질: 데이터 스토리텔링(차트 강조·인사이트)** | ✅ 완료 | ADR-011, 실 E2E + LibreOffice 렌더 |
+| **품질: Deck Doctor 진단 + AI 자동 수정** | ✅ 완료 | ADR-012, 실 E2E(86→97점) + Playwright |
 | 덱 번역 · 리라이트(톤/길이) | ✅ 완료 | P10, 실 claude E2E |
 | 접근성 검사(WCAG 대비/alt) | ✅ 완료 | P10a |
 | Playwright 브라우저 E2E 하네스 | ✅ 완료 | 게이트·편집·발표 E2E 5건 |
