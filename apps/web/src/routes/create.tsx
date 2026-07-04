@@ -251,9 +251,9 @@ function CreatePage() {
                   placeholder="https://... 또는 참고할 텍스트"
                   className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
                 <button onClick={addSource} className="rounded-lg border border-border px-3 hover:border-primary" aria-label="자료 추가"><Plus className="h-4 w-4" /></button>
-                <label className="flex cursor-pointer items-center rounded-lg border border-border px-3 hover:border-primary" title="문서 업로드(DOCX/TXT/MD)">
+                <label className="flex cursor-pointer items-center rounded-lg border border-border px-3 hover:border-primary" title="문서 업로드(PDF/DOCX/TXT/MD)">
                   <Upload className="h-4 w-4" />
-                  <input type="file" accept=".docx,.txt,.md,.markdown" className="hidden"
+                  <input type="file" accept=".pdf,.docx,.txt,.md,.markdown" className="hidden"
                     data-testid="doc-upload"
                     onChange={(e) => { void uploadDoc(e.target.files?.[0]); e.target.value = '' }} />
                 </label>
