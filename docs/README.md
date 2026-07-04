@@ -11,7 +11,8 @@
 | **02-architecture** | [SYSTEM_ARCHITECTURE](02-architecture/SYSTEM_ARCHITECTURE.md) | 시스템 구조도, 데이터 흐름 |
 | | [TECH_STACK](02-architecture/TECH_STACK.md) | 스택 선정 + 미선택 이유 |
 | | [DATA_MODEL](02-architecture/DATA_MODEL.md) | 도메인 모델, 불변식, 저장 전략 |
-| | [ADR-001](02-architecture/ADR-001-json-schema-ssot.md)~[005](02-architecture/ADR-005-virtual-canvas.md) | 핵심 아키텍처 결정 기록 |
+| | [TEMPLATE_SYSTEM](02-architecture/TEMPLATE_SYSTEM.md) | 템플릿 3종(빌트인/사용자저장/PPTX추출), 갤러리·저장·선택 흐름 |
+| | [ADR-001](02-architecture/ADR-001-json-schema-ssot.md)~[007](02-architecture/ADR-007-api-first-headless.md) | 핵심 결정 (003=GenerationConfig·006=Postgres셀프호스트·007=API-First 헤드리스) |
 | **03-api** | [REST_API](03-api/REST_API.md) | API v1 명세(엔드포인트/SSE/에러 코드) |
 | **04-design** | [DESIGN_SYSTEM](04-design/DESIGN_SYSTEM.md) | 디자인 토큰(이원 액센트/글래스/타이포) |
 | | [UI_UX_GUIDE](04-design/UI_UX_GUIDE.md) | 화면 17종 설계 + 핵심 플로우 + UX 원칙 |

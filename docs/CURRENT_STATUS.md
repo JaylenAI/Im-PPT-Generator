@@ -13,7 +13,7 @@
 | `packages/core` — 파이프라인/프롬프트/프로바이더 | ❌ 미개발 | P1 |
 | `packages/renderer` — React 슬라이드 렌더러 | ❌ 미개발 | P1 |
 | `packages/exporter` — PPTX/PDF | ❌ 미개발 | P1 |
-| `apps/web` — Next.js (디자인 토큰 이식) | ❌ 미개발 | P1 |
+| `apps/web` — TanStack Start (flow-deck-creator 편입) | ❌ 미개발 | P1 |
 | `packages/research` — 딥서치+인용 | ❌ 미개발 | P2 |
 | `packages/db` — Supabase 데이터 계층 | ❌ 미개발 | P2 |
 

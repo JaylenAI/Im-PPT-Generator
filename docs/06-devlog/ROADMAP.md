@@ -17,12 +17,13 @@
 - `packages/core`: 프롬프트 카탈로그(prompts-as-data) + LLM 프로바이더 레지스트리(작업별 라우팅, Claude 우선) + 아웃라인 생성 + 슬라이드 JSON 생성(스키마 검증 실패 시 재시도 루프)
 - `packages/renderer`: React 절대좌표 렌더러(읽기 전용, 토큰 해석 `token:colors.*`)
 - `packages/exporter`: PptxGenJS 매핑(텍스트/리스트/이미지/도형/차트/표) + PDF
-- `apps/web`: Next.js + 디자인 토큰(인디고/시안 이원 액센트, Geist+Inter+JetBrains Mono, 글래스) + 대시보드 + 생성 위저드(프롬프트→옵션: 장수/톤/청중/언어) + 아웃라인 승인 화면 + 덱 뷰어 + PPTX/PDF 다운로드
+- `apps/web`: **flow-deck-creator 편입**(TanStack Start, ADR-008) — 가짜 로직 4개(generation/SlideView/export/store)를 우리 API·렌더러·익스포터로 교체. 디자인 토큰(인디고/시안 이원 액센트, Geist+Inter+JetBrains Mono, 글래스) + 대시보드 + 생성 위저드(프롬프트→옵션: 장수/톤/청중/언어) + 아웃라인 승인 화면 + 덱 뷰어 + PPTX/PDF 다운로드
 - 검증: 실 API로 덱 1개 관통 E2E(Playwright) + exporter 스냅샷 테스트 + LibreOffice 렌더 육안 QA
 
 ## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 ❌
 
-- `packages/db`: Supabase(Postgres) — decks/slides/sources/facts/jobs/settings, 데이터 접근은 이 패키지만(ESLint 가드)
+- `packages/db`: 순수 Postgres + Drizzle ORM ([ADR-006](../02-architecture/ADR-006-postgres-selfhost.md)) — decks/slides/sources/facts/jobs/settings, `workspace_id` 격리, 데이터 접근은 이 패키지만(ESLint 가드). docker-compose로 로컬 인스턴스
+- Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — 오픈소스 셀프호스트
 - Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 파이프라인 detached 잡화
 - SSE 스트리밍: `slide_started/slide_delta/slide_done` — **AI가 슬라이드를 실시간으로 그리는 뷰**(부분 JSON 렌더), 재접속 시 이벤트 재생(잡 테이블 영속)
 - 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드)

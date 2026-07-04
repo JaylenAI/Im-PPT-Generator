@@ -59,6 +59,9 @@ erDiagram
 
 ## 저장 전략 (P2에서 확정)
 
+> DB: 순수 Postgres 16 + Drizzle ORM ([ADR-006](ADR-006-postgres-selfhost.md)). 모든 테이블은 `workspace_id`(기본 `default`) 컬럼으로 앱 레이어 격리. 접근은 `packages/db`에만.
+
+
 | 데이터 | 저장 방식 | 이유 |
 |---|---|---|
 | 덱 스냅샷 | `decks` 테이블 + JSONB(`deck` 컬럼) | 스키마 진화에 유연, 전체 로드가 기본 액세스 패턴 |
@@ -66,8 +69,9 @@ erDiagram
 | 버전 히스토리 | `deck_revisions` (deckId, version, snapshot, cause) | 롤백/비교 (P5) |
 | 소스/팩트 | 정규 테이블 (`sources`, `facts`) | 게이트 UI가 행 단위 승인/거절 — 관계 질의 필요 |
 | 생성 잡 | `jobs` (status, payload, 이벤트 로그 JSONB[]) | SSE 재접속 재생, `FOR UPDATE SKIP LOCKED` 큐 |
-| 설정 | `system_settings` KV (타입드 카탈로그) | ai-news-hub 동적 설정 패턴 |
+| 설정 | `system_settings` KV (타입드 카탈로그) | 동적 설정 패턴 (ai-news-hub 차용) |
 | 프롬프트 override | `prompt_overrides` | prompts-as-data |
+| export 산출물/업로드 파일 | 로컬 볼륨(`/data`) — 경로만 DB 저장 | 셀프호스트 기본. 향후 S3 호환 어댑터로 추상화 |
 
 ## SSE 이벤트 계약
 

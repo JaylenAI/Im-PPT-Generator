@@ -1,0 +1,38 @@
+# SlideForge 로컬 개발 / 셀프호스트 스택
+# 개발: `docker compose up db` (Postgres만) 후 로컬에서 pnpm dev
+# 셀프호스트: `docker compose up` (app+web+db 전체) — P2에서 app/web 서비스 배선
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: imppt
+      POSTGRES_PASSWORD: imppt_dev
+      POSTGRES_DB: imppt
+    ports:
+      - '5433:5432' # 호스트 5433 (기존 로컬 Postgres 5432와 충돌 회피)
+    volumes:
+      - imppt_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U imppt -d imppt']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # P2에서 배선 (Dockerfile 작성 후 주석 해제):
+  # app:
+  #   build: { context: ., dockerfile: apps/api/Dockerfile }
+  #   env_file: .env
+  #   environment:
+  #     DATABASE_URL: postgresql://imppt:imppt_dev@db:5432/imppt
+  #   depends_on: { db: { condition: service_healthy } }
+  #   ports: ['8787:8787']
+  #   volumes: ['imppt_data:/data']  # export 산출물/업로드
+  #
+  # web:
+  #   build: { context: ., dockerfile: apps/web/Dockerfile }
+  #   depends_on: [app]
+  #   ports: ['3000:3000']
+
+volumes:
+  imppt_pgdata:
+  imppt_data:

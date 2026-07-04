@@ -1,0 +1,64 @@
+# TEMPLATE SYSTEM — 템플릿 시스템 설계
+
+> "템플릿을 한곳에 모아 바로 선택 + 새 템플릿 추가/저장해 재사용 + 사용자 PPTX 양식으로 제작"을 어떻게 하드코딩 없이 구현하는가.
+> 정본 스키마: `packages/schema/src/template.ts` (`templateMetaSchema`, `customTemplateSchema`). 코드 레지스트리: `packages/templates`.
+
+## 3종 출처 (source)
+
+| source | 테마 소유 | 저장 위치 | 생성 방법 |
+|---|---|---|---|
+| `builtin` | 코드(`packages/templates/themes`) | 코드 레지스트리 | 개발자가 레이아웃+테마로 제작. `register()` 1줄 추가 |
+| `user` | DB(`themeTokens` 인라인) | Postgres `templates` 테이블 | ① 갤러리에서 신규 제작 ② **현재 덱의 스타일을 "템플릿으로 저장"** |
+| `imported_pptx` | DB(`themeTokens` 인라인) | Postgres `templates` 테이블 | 사용자 PPTX 업로드 → 마스터/레이아웃/색/폰트 추출(P6) |
+
+핵심: **builtin은 코드가 테마를 소유**(레지스트리에서 `getTheme(id)`), **user/imported는 DB가 테마 토큰을 인라인 소유**(`customTemplateSchema.themeTokens`). 갤러리는 이 둘을 **동일한 `templateMetaSchema`로 합쳐서** 노출하므로 UI는 출처를 구분할 필요가 없다(하드코딩 분기 없음).
+
+## 통합 조회 — "한곳에 모아 바로 선택"
+
+```
+GET /templates?category=&aspectRatio=&source=
+ → builtin(레지스트리) + user/imported(DB, workspace_id 스코프) 를 병합해 TemplateMeta[] 반환
+```
+
+`packages/templates`의 `listTemplates()`가 빌트인을, `packages/db`가 사용자 것을 반환하고, API 라우트가 병합한다. 프론트는 한 그리드에 렌더(Stitch `_2` 화면). 필터는 순수 데이터(category/aspectRatio/source) — 새 카테고리 추가해도 코드 수정 없음.
+
+## 템플릿 선택 → 생성
+
+`GenerationConfig.templateId`에 선택한 id가 들어가면, 파이프라인의 "템플릿 선택" 단계가 스킵되고 그 템플릿의 테마+레이아웃 세트로 바로 진행([ADR-003](ADR-003-hitl-3gates.md)). 사용자가 아무것도 안 고르면 AI가 주제/톤에 맞춰 자동 선택.
+
+테마 해석은 출처 무관하게 단일 경로:
+```
+resolveTheme(templateId):
+  builtin  → packages/templates getTheme(themeId)
+  user/imported → DB customTemplate.themeTokens
+→ 이후 렌더러/익스포터는 동일한 themeTokens만 본다 (token:colors.* resolver 공용)
+```
+
+## 새 템플릿 저장 — "다음에 또 사용"
+
+두 경로 모두 `POST /templates`(P6):
+1. **덱 스타일 저장**: 현재 덱의 themeId+레이아웃 사용현황 → `customTemplate`로 스냅샷 저장. "이 덱처럼 만들기"를 재사용 가능하게.
+2. **갤러리 신규 제작**: 색/폰트를 편집해 새 테마 토큰 구성 → 저장.
+
+저장 시 `workspaceId` 필수(소유자), `source='user'`, 미리보기 이미지는 렌더러로 대표 슬라이드 PNG 생성해 첨부.
+
+## 사용자 PPTX 양식으로 제작 (imported_pptx, P6)
+
+```
+POST /templates/import-pptx  (파일 업로드)
+ → services/pptx-parser(python-pptx): slide_masters → layouts → placeholders(위치/타입) + 테마 색/폰트 추출
+ → 추출 결과를 themeTokens + layoutTypes 매핑으로 정규화
+ → customTemplate(source='imported_pptx') 저장 + 추출 미리보기 반환
+```
+v1 스코프: placeholder 기반 표준 PPTX. 자유 배치 텍스트박스 완전 대응은 연구급(PPTAgent 참고) → 후속. 추출 실패 요소는 "미지원"으로 명시(무성 폴백 금지).
+
+## 확장 규칙 (하드코딩 없음 보장)
+
+- 새 빌트인 테마/레이아웃: `packages/templates` 배열에 1줄 추가 → 갤러리 자동 반영
+- 새 카테고리: `templateCategorySchema` enum에 추가 → 필터 UI 자동 반영(데이터 주도)
+- 테마는 항상 토큰(`token:colors.*` 참조)으로만 슬라이드에 연결 → 템플릿 교체가 슬라이드 데이터 수정 없이 전파([ADR-005](ADR-005-virtual-canvas.md))
+- 템플릿 로직은 `packages/templates`(빌트인) + `packages/db`(사용자)에만. API/웹은 조회·표시만([ADR-007](ADR-007-api-first-headless.md))
+
+## 관련 API (REST_API.md)
+
+`GET /templates` · `GET /themes` · `POST /templates`(저장) · `POST /templates/import-pptx`(추출) · `POST /brand-kits`

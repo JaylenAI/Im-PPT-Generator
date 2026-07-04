@@ -1,5 +1,16 @@
 # Im PPT Generator 아키텍처 개요
 
+## 3층 분리 (API-First 헤드리스 — ADR-007)
+
+```
+apps/web (TanStack Start) ← 표현만. API 호출+렌더링. DB/LLM 직접접근 금지
+     │ HTTP/SSE (표준 봉투 {data}/{error}, 계약=@im-ppt/schema)
+apps/api (Hono)     ← 얇은 라우트. zod 검증 → 패키지 호출 → 응답. 비즈니스 로직 금지
+     │
+packages/*          ← 순수 도메인 로직(HTTP 무지): schema(SSOT)·core·templates·renderer·exporter·research·db
+```
+프론트를 CLI/데스크톱/타 프레임워크로 교체해도 API 계약만 지키면 전 기능 동작(교체 가능성이 수용 기준).
+
 ## 시스템 구조
 
 ```mermaid

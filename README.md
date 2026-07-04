@@ -15,7 +15,7 @@
 ```
 apps/
   api/          Hono API 서버 (도메인 라우터 분리)
-  web/          Next.js 웹앱 (P1)
+  web/          TanStack Start 웹앱 (P1, flow-deck-creator 편입)
 packages/
   schema/       Zod 슬라이드/덱/이벤트 스키마 — SSOT
   core/         파이프라인 오케스트레이터 + 프롬프트 카탈로그 + LLM 프로바이더 레지스트리 (P1)

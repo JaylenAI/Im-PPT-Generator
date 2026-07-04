@@ -13,7 +13,7 @@
 
 | Method | Path | 설명 | Phase |
 |---|---|---|---|
-| POST | `/decks` | 덱 생성 시작 `{prompt, options:{slideCount,tone,audience,language,aspectRatio}, templateId?, autonomy}` → `{deckId, jobId}` | P1 |
+| POST | `/decks` | 덱 생성 시작. 바디 = **GenerationConfig**(`generation-config.ts`): `{prompt, preset?, slideCount?, tone?, audience?, language?, aspectRatio?, researchMode?, outlineSource?, templateId?, themeId?, imageMode?, gates?}` + 선택적 `sources[]`(사용자 제공 자료). `resolveGenerationConfig`로 정규화 후 잡 시작 → `{deckId, jobId}` | P1 |
 | GET | `/decks` | 내 덱 목록(페이지네이션) | P2 |
 | GET | `/decks/:id` | 덱 전체 JSON | P1 |
 | PATCH | `/decks/:id` | 덱 메타 수정(제목/테마/템플릿) | P2 |

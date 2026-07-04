@@ -14,7 +14,10 @@
 | **인용(Citation)** | 슬라이드 요소 ↔ 소스 연결 고리. `citationId`로 역추적 |
 | **게이트(Gate)** | HITL 승인 지점 3종: ① facts(팩트) ② outline(아웃라인) ③ slide_plan(슬라이드별 계획) |
 | **슬라이드 계획(Slide Plan)** | 생성 전 AI가 보고하는 페이지 설계서(layoutType+디자인 의도+내용 요약+사용 팩트) — 게이트③의 단위 |
-| **자율도(Autonomy Level)** | L0 전자동 / L1 아웃라인만 승인 / L2 +팩트 승인 / L3 +페이지별 계획 승인 |
+| **GenerationConfig** | 생성 파이프라인 전체를 제어하는 설정(SSOT, `generation-config.ts`) — 딥서치 강도, 게이트 3종 토글, 목차 출처, 템플릿/테마, 이미지 모드. 파이프라인 각 단계가 이걸 읽어 실행/스킵 |
+| **프리셋(Preset)** | 이름 붙은 GenerationConfig 조각: quick/standard/research/precision/my_materials. UI 노출용, "고급"에서 개별 오버라이드 |
+| **자율도(Autonomy Level)** | GenerationConfig 프리셋의 별칭: L0=quick(전자동) / L1=standard(목차 승인) / L2=research(+팩트 승인) / L3=precision(+페이지별 계획 승인) |
+| **researchMode** | 딥서치 강도: off(없음) / user_only(제공 자료만, 웹서치 스킵) / web(가벼운 웹서치) / deep(딥리서치+교차검증) |
 | **생성 이벤트(GenerationEvent)** | SSE로 흐르는 의미 단위 이벤트(`slide_started/slide_delta/slide_done` 등). `events.ts`가 계약 |
 | **slide_delta** | 생성 중인 슬라이드의 부분 JSON 패치 — "AI가 그리는 모습"을 만드는 재료 |
 | **잡(Job)** | detached 생성 작업 단위. Postgres 잡큐로 실행, 이벤트를 영속해 재접속 시 재생 |
