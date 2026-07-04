@@ -23,6 +23,8 @@ export interface LayoutDefinition<S extends z.ZodType = z.ZodType> {
   description: string
   contentSchema: S
   build: (content: z.infer<S>, ctx: LayoutContext) => LayoutResult
+  /** LLM 선택 카탈로그에서 숨김(시스템 전용 레이아웃 — 예: 출처 슬라이드) */
+  hidden?: boolean
 }
 
 /**
@@ -35,6 +37,7 @@ export interface LayoutRuntime {
   description: string
   contentSchema: z.ZodType
   build: (content: unknown, ctx: LayoutContext) => LayoutResult
+  hidden: boolean
 }
 
 export function defineLayout<S extends z.ZodType>(def: LayoutDefinition<S>): LayoutRuntime {
@@ -44,6 +47,7 @@ export function defineLayout<S extends z.ZodType>(def: LayoutDefinition<S>): Lay
     description: def.description,
     contentSchema: def.contentSchema,
     build: (content, ctx) => def.build(def.contentSchema.parse(content), ctx),
+    hidden: def.hidden ?? false,
   }
 }
 

@@ -23,13 +23,19 @@ const FIXTURES: Record<string, unknown> = {
     insight: 'Q3 급성장은 신규 채널 효과',
   },
   closing: { headline: '감사합니다', message: '질문을 환영합니다' },
+  references: { title: '출처', items: ['시장 보고서 2026 — https://example.com/report', '내부 분석 메모'] },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 8종이 등록되어 있다', () => {
+  it('레이아웃 9종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bullets', 'chart', 'closing', 'quote', 'stat', 'title', 'two-col'],
+      ['agenda', 'bullets', 'chart', 'closing', 'quote', 'references', 'stat', 'title', 'two-col'],
     )
+  })
+
+  it('hidden 레이아웃(references)은 LLM 카탈로그에서 제외', () => {
+    expect(layoutCatalogForLlm().map((l) => l.key)).not.toContain('references')
+    expect(listLayouts().some((l) => l.key === 'references')).toBe(true)
   })
 
   it('미등록 layoutType은 사용 가능 목록과 함께 에러', () => {

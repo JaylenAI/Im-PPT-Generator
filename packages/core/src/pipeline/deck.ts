@@ -1,8 +1,38 @@
-import type { Citation, Deck, Fact, GenerationConfig, GenerationEvent, Outline, Source } from '@im-ppt/schema'
-import { TEMPLATES, getTheme } from '@im-ppt/templates'
+import type { Citation, Deck, Fact, GenerationConfig, GenerationEvent, Outline, Slide, Source } from '@im-ppt/schema'
+import { CANVAS_SIZES } from '@im-ppt/schema'
+import { TEMPLATES, getLayout, getTheme } from '@im-ppt/templates'
 import { buildCitations } from '@im-ppt/research'
 import { generateOutline } from './outline.js'
 import { generateSlide, type SlideDeps } from './slide.js'
+
+/** 출처 슬라이드 — 인용된 소스를 번호 리스트로. 렌더러/익스포터가 자동 렌더(둘 다 덱 소비) */
+function buildSourcesSlide(
+  citations: Citation[],
+  sources: Source[],
+  config: GenerationConfig,
+): Slide {
+  const sourceById = new Map(sources.map((s) => [s.id, s]))
+  const items = citations.map((c) => {
+    const src = sourceById.get(c.sourceId)
+    const title = src?.title ?? '출처'
+    return src?.url ? `${title} — ${src.url}` : title
+  })
+  const layout = getLayout('references')
+  const title = config.language.toLowerCase().startsWith('ko') ? '출처' : 'Sources'
+  const { background, elements } = layout.build(
+    { title, items },
+    { canvas: CANVAS_SIZES[config.aspectRatio] },
+  )
+  return {
+    id: `sources_${Math.random().toString(36).slice(2, 9)}`,
+    layoutType: 'references',
+    elements,
+    notes: '',
+    citationIds: citations.map((c) => c.id),
+    status: 'draft',
+    ...(background ? { background } : {}),
+  }
+}
 
 /** 리서치 결과(사전 계산) — api 워커가 runResearch로 만들어 주입 */
 export interface ResearchInput {
@@ -30,6 +60,10 @@ function assembleDeck(
   slides: Deck['slides'],
   opts: { deckId?: string; sources?: Source[]; citations?: Citation[] } = {},
 ): Deck {
+  const sources = opts.sources ?? []
+  const citations = opts.citations ?? []
+  // 인용이 있으면 마지막에 출처 슬라이드 자동 추가(할루시네이션 제로 — 근거 가시화)
+  const allSlides = citations.length > 0 ? [...slides, buildSourcesSlide(citations, sources, config)] : slides
   return {
     id: opts.deckId ?? nextDeckId(),
     title: config.prompt.trim().slice(0, 80) || '제목 없는 프레젠테이션',
@@ -38,9 +72,9 @@ function assembleDeck(
     themeId: ids.themeId,
     templateId: ids.templateId,
     outline: { ...outline, status: 'approved' },
-    slides,
-    sources: opts.sources ?? [],
-    citations: opts.citations ?? [],
+    slides: allSlides,
+    sources,
+    citations,
     version: 1,
   }
 }

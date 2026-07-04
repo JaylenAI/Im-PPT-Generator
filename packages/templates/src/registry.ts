@@ -8,6 +8,7 @@ import { statLayout } from './layouts/stat.js'
 import { quoteLayout } from './layouts/quote.js'
 import { chartLayout } from './layouts/chart.js'
 import { closingLayout } from './layouts/closing.js'
+import { referencesLayout } from './layouts/references.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 
@@ -21,6 +22,7 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(quoteLayout),
   defineLayout(chartLayout),
   defineLayout(closingLayout),
+  defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
 
 const LAYOUTS: ReadonlyMap<string, LayoutRuntime> = new Map(
@@ -39,9 +41,11 @@ export function listLayouts(): LayoutRuntime[] {
   return [...LAYOUTS.values()]
 }
 
-/** LLM에 제공되는 레이아웃 카탈로그(선택 가이드) — 프롬프트 재료 */
+/** LLM에 제공되는 레이아웃 카탈로그(선택 가이드) — 프롬프트 재료. hidden 레이아웃 제외 */
 export function layoutCatalogForLlm(): Array<{ key: string; description: string }> {
-  return listLayouts().map((l) => ({ key: l.key, description: l.description }))
+  return listLayouts()
+    .filter((l) => !l.hidden)
+    .map((l) => ({ key: l.key, description: l.description }))
 }
 
 const THEME_LIST: Theme[] = [stitchIndigoTheme, deepNavyTheme]
