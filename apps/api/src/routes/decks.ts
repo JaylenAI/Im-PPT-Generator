@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, checkAccessibility, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, translateDeck, type ResearchInput } from '@im-ppt/core'
 import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
@@ -95,6 +95,25 @@ export function deckRoutes(deps: AppDeps) {
         return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
       }
       return c.json({ data: checkAccessibility(deck, theme.tokens) })
+    })
+    // 덱 번역(P10) — 전 슬라이드 텍스트를 대상 언어로. 원본 보존, 새 덱 저장
+    .post('/:id/translate', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      const body = (await c.req.json().catch(() => null)) as { language?: string } | null
+      if (!body?.language || body.language.trim().length < 2) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: 'language 필수' } }, 400)
+      }
+      try {
+        const translated = await translateDeck(deck, body.language, {
+          registry: deps.registry,
+          prompts: deps.prompts,
+        })
+        await deps.decks.put(translated)
+        return c.json({ data: { deckId: translated.id, deck: translated } }, 201)
+      } catch (e) {
+        return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
+      }
     })
     // 페이지 단위 AI 수정 — 선택 슬라이드만 재생성(다른 페이지 불변)
     .post('/:id/slides/:slideId/regenerate', async (c) => {

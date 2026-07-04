@@ -17,6 +17,7 @@ export { generateSlide, type SlideDeps } from './pipeline/slide.js'
 export { generatePlans, type PlanDeps } from './pipeline/plan.js'
 export { generateDeck, generateDeckStreaming, type ResearchInput } from './pipeline/deck.js'
 export { editSlide, replaceSlide } from './pipeline/edit.js'
+export { translateDeck, type TranslateDeps } from './pipeline/translate.js'
 
 // Analysis
 export {
