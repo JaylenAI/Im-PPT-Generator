@@ -61,7 +61,8 @@
 
 - ✅ **브랜드킷**: 팔레트/폰트 → 테마 토큰 부분 오버라이드. `brandKitSchema`+`mergeBrandKit`, 덱이 자기 테마 소유(`deck.themeOverride` 인라인 토큰 — 정적 레지스트리 불변, 동적 저장 인프라 불필요). 설정 DB 영속+생성 시 적용. 웹 brand-kit 화면 실작동. 실 E2E(설정→생성 시 override 적용→재시작 영속)
 - ✅ **유저 PPTX 업로드 → 테마 추출**: jszip으로 theme1.xml clrScheme 파싱 → accent1/2·dk1/2·lt1을 브랜드 색상으로 매핑 → 브랜드킷 설정. POST /settings/brand-kit/from-pptx, 웹 brand-kit 업로드 버튼. 실 E2E(python-pptx Office 테마 5색 추출→생성 적용)
-- ❌ 템플릿 갤러리 15종+ (현재 빌트인 2종), 로고 업로드, 커스텀 템플릿 저장, 덱 복제
+- ✅ **덱 복제**: POST /decks/:id/duplicate(새 ID·"(사본)"·구조 동일) + 에디터 복제 버튼. 실 E2E
+- ❌ 템플릿 갤러리 15종+ (현재 빌트인 2종), 로고 업로드, 커스텀 템플릿 저장
 
 ## P7 — 입력 확장 🔄 (문서 업로드 완료)
 
@@ -82,7 +83,8 @@
 - ✅ **발표 모드**: 전체화면 슬라이드 + 키보드 네비(←/→/Space/Esc) + 뷰포트 비율 유지 스케일 + 발표자 노트 토글(N키). Playwright E2E(열기→네비→종료)
 - ✅ **화면비 4:3/9:16 전 파이프라인 스윕**: `defineLayout`이 기준 1280×720로 빌드 후 타깃 캔버스로 프레임/폰트 비례 리매핑(레이아웃 코드 무변경, 16:9 하위호환). 렌더러·exporter는 이미 CANVAS_SIZES 기반. 생성 위저드 화면비 선택. 실 E2E(9:16 생성 시 전 요소 720×1280 안+PPTX 세로 크기 export)
 - ✅ **AI 스피커 노트**: `generateSpeakerNotes` — 슬라이드별 발표 대본 생성(slide.notes). claude CLI 메타 누출은 프롬프트 예시 + 후처리 가드(looksLikeMeta)로 이중 봉합. POST /decks/:id/speaker-notes. 실 E2E(4/4 클린)
-- ❌ 발표자 뷰(다음 슬라이드 미리보기), PNG export(헤드리스 렌더), 웹 링크 퍼블리싱
+- ✅ **발표자 뷰**: 발표 모드에 다음 슬라이드 미리보기(우하단) 추가
+- ❌ PNG export(헤드리스 렌더), 웹 링크 퍼블리싱
 
 ## P10 — AI 부가 + 플랫폼 🔄 (접근성 검사 완료)
 
