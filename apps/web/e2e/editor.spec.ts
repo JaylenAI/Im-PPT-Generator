@@ -82,3 +82,35 @@ test('속성 패널: 요소 선택 → 삭제 → undo/redo → 저장 영속', 
   await page.reload()
   await expect(page.getByTestId('editor-canvas').getByText(before, { exact: true })).toHaveCount(0)
 })
+
+/**
+ * P9 — 발표 모드: 전체화면 + 키보드/버튼 네비게이션 + 종료.
+ */
+test('발표 모드: 열기 → 슬라이드 이동 → 종료', async ({ page, request }) => {
+  const res = await request.post('/api/v1/decks', {
+    data: { prompt: '발표 모드 테스트', preset: 'quick', slideCount: 3, language: '한국어' },
+  })
+  const { data } = (await res.json()) as { data: { deck: { id: string; slides: unknown[] } } }
+  const total = data.deck.slides.length
+
+  await page.goto(`/editor/${data.deck.id}`)
+  await expect(page.getByTestId('editor-canvas').locator('[data-slide-id]')).toBeVisible()
+
+  // 발표 시작
+  await page.getByTestId('present-btn').click()
+  await expect(page.getByTestId('present-mode')).toBeVisible()
+  await expect(page.getByTestId('present-counter')).toHaveText(`1 / ${total}`)
+
+  // 다음 버튼 → 2, 키보드 오른쪽 → 3
+  await page.getByTestId('present-next').click()
+  await expect(page.getByTestId('present-counter')).toHaveText(`2 / ${total}`)
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByTestId('present-counter')).toHaveText(`3 / ${total}`)
+  // 왼쪽 → 2
+  await page.keyboard.press('ArrowLeft')
+  await expect(page.getByTestId('present-counter')).toHaveText(`2 / ${total}`)
+
+  // Esc로 종료
+  await page.keyboard.press('Escape')
+  await expect(page.getByTestId('present-mode')).toBeHidden()
+})
