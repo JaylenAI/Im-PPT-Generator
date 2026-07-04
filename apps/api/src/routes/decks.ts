@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, type ResearchInput } from '@im-ppt/core'
+import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import { buildConfig } from '../lib/build-config.js'
@@ -82,6 +83,18 @@ export function deckRoutes(deps: AppDeps) {
       const ok = await deps.decks.delete(c.req.param('id'))
       if (!ok) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       return c.json({ data: { deleted: true } })
+    })
+    // 접근성 검사(시장 공백) — 대비율 AA + 이미지 alt 점검
+    .get('/:id/accessibility', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      let theme
+      try {
+        theme = getTheme(deck.themeId)
+      } catch (e) {
+        return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
+      }
+      return c.json({ data: checkAccessibility(deck, theme.tokens) })
     })
     // 페이지 단위 AI 수정 — 선택 슬라이드만 재생성(다른 페이지 불변)
     .post('/:id/slides/:slideId/regenerate', async (c) => {

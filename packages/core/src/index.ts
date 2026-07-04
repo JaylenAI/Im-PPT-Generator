@@ -17,3 +17,11 @@ export { generateSlide, type SlideDeps } from './pipeline/slide.js'
 export { generatePlans, type PlanDeps } from './pipeline/plan.js'
 export { generateDeck, generateDeckStreaming, type ResearchInput } from './pipeline/deck.js'
 export { editSlide, replaceSlide } from './pipeline/edit.js'
+
+// Analysis
+export {
+  checkAccessibility,
+  contrastRatio,
+  type A11yReport,
+  type A11yIssue,
+} from './analysis/accessibility.js'
