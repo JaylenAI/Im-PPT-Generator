@@ -79,6 +79,12 @@ export const api = {
 
   getDeck: (id: string) => req<Deck>(`/decks/${id}`),
 
+  regenerateSlide: (deckId: string, slideId: string, instruction: string) =>
+    req<{ slide: import('@im-ppt/schema').Slide; deck: Deck; costUsd: number }>(
+      `/decks/${deckId}/slides/${slideId}/regenerate`,
+      { method: 'POST', body: JSON.stringify({ instruction }) },
+    ),
+
   listThemes: () => req<Theme[]>('/themes'),
 
   listTemplates: () => req<TemplateMeta[]>('/templates'),

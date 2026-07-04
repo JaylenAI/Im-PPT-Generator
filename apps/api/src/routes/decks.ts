@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { resolveGenerationConfig } from '@im-ppt/schema'
-import { generateDeck } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide } from '@im-ppt/core'
 import type { AppDeps } from '../deps.js'
 
 const createBody = z.object({ prompt: z.string().min(1) }).passthrough()
+const editBody = z.object({ instruction: z.string().min(1) })
 
 /**
  * 덱 라우트 — 생성/조회. 생성은 P1에서 동기(잡큐+SSE는 P2).
@@ -44,5 +45,27 @@ export function deckRoutes(deps: AppDeps) {
       const ok = await deps.decks.delete(c.req.param('id'))
       if (!ok) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       return c.json({ data: { deleted: true } })
+    })
+    // 페이지 단위 AI 수정 — 선택 슬라이드만 재생성(다른 페이지 불변)
+    .post('/:id/slides/:slideId/regenerate', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      const parsed = editBody.safeParse(await c.req.json().catch(() => null))
+      if (!parsed.success) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: 'instruction 필수' } }, 400)
+      }
+      try {
+        const { slide, usage } = await editSlide({
+          deck,
+          slideId: c.req.param('slideId'),
+          instruction: parsed.data.instruction,
+          deps: { registry: deps.registry, prompts: deps.prompts },
+        })
+        const updated = replaceSlide(deck, slide)
+        await deps.decks.put(updated)
+        return c.json({ data: { slide, deck: updated, costUsd: usage?.costUsd ?? 0 } })
+      } catch (e) {
+        return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
+      }
     })
 }

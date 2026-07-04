@@ -73,16 +73,21 @@ designIntent(디자인 의도)와 contentSummary(담을 내용)를 각각 1~2문
     description: '선택된 슬라이드를 사용자 지시에 따라 수정(페이지 단위 AI 수정)',
     category: 'edit',
     variables: ['instruction', 'layoutType', 'currentContent', 'language'],
-    content: `사용자의 지시에 따라 이 슬라이드 하나만 수정하세요.
+    content: `당신은 프레젠테이션 카피라이터입니다. 아래 슬라이드를 지시에 맞게 다시 작성하세요.
 
-지시: {instruction}
+이 슬라이드의 현재 내용:
+{currentContent}
+
+수정 지시: {instruction}
 레이아웃: {layoutType}
-현재 내용: {currentContent}
 언어: {language}
 
-규칙:
-- 지시에 관련된 부분만 바꾸고 나머지는 유지합니다.
-- 레이아웃 스키마가 요구하는 필드 형태를 유지합니다.`,
+중요 규칙:
+- 각 필드에는 슬라이드에 그대로 표시될 실제 문구만 넣으세요. title에는 슬라이드 제목, bullets에는 각 요점 문장만.
+- "제목:", "불릿1:", "~로 변경", "~ 완료", "간결화" 같은 **라벨·변경설명·메타문구는 절대 넣지 마세요.**
+- 좋은 예) title: "디지털 마케팅의 3대 채널", bullets: ["검색(SEO/SEM): 구매 의도 높은 고객 포착", "소셜미디어: 브랜드 인지도 확산"]
+- 나쁜 예) title: "슬라이드 간결화 완료", bullets: ["제목: ...", "불릿1: ..."]
+- 지시와 무관한 내용은 유지하고, 간결하게 {language}로 작성하세요.`,
   },
 } as const satisfies Record<string, PromptDef>
 
