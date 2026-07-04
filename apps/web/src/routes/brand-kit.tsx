@@ -67,12 +67,26 @@ function BrandKitPage() {
 
         <section className="mt-10 grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="mb-4 text-lg font-bold">Logo</h2>
-            <div className="flex aspect-video cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary">
+            <h2 className="mb-4 text-lg font-bold">브랜드 PPTX에서 색상 가져오기</h2>
+            <label className="flex aspect-video cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary">
               <Upload className="mb-3 h-8 w-8" />
-              <span className="text-sm font-medium">Upload your logo</span>
-              <span className="text-xs">SVG, PNG (transparent recommended)</span>
-            </div>
+              <span className="text-sm font-medium">브랜드 PPTX 업로드</span>
+              <span className="text-xs">테마 색상을 자동 추출합니다 (.pptx)</span>
+              <input type="file" accept=".pptx" className="hidden" data-testid="pptx-upload"
+                onChange={async (e) => {
+                  const f = e.target.files?.[0]; e.target.value = ''
+                  if (!f) return
+                  try {
+                    const kit = await api.brandKitFromPptx(f)
+                    if (kit.colors?.primary) {
+                      const idx = PALETTES.findIndex((p) => p.colors[0]?.toLowerCase() === kit.colors?.primary?.toLowerCase())
+                      if (idx >= 0) setPalette(idx)
+                    }
+                    setSaved(true); setTimeout(() => setSaved(false), 3000)
+                  } catch { /* ignore */ }
+                }} />
+            </label>
+            {saved && <p className="mt-2 text-xs text-teal">PPTX 색상을 브랜드킷에 적용했습니다</p>}
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">

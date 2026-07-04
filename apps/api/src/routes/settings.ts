@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { redactConnection } from '@im-ppt/core'
 import { APP_SETTINGS_CATALOG } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
+import { extractPptxBrandKit } from '../lib/pptx-extract.js'
 
 const promptOverrideBody = z.object({ content: z.string() })
 
@@ -40,6 +41,22 @@ export function settingsRoutes(deps: AppDeps) {
     )
     // 브랜드킷(P6) — 색/폰트 오버라이드. 다음 생성부터 덱 테마에 반영
     .get('/brand-kit', (c) => c.json({ data: deps.settings.getBrandKit() }))
+    // 브랜드 PPTX 업로드 → 테마 색상 추출 → 브랜드킷으로 설정
+    .post('/brand-kit/from-pptx', async (c) => {
+      const body = await c.req.parseBody().catch(() => null)
+      const file = body?.['file']
+      if (!(file instanceof File)) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: 'file(pptx) 필수' } }, 400)
+      }
+      try {
+        const buffer = Buffer.from(await file.arrayBuffer())
+        const kit = await extractPptxBrandKit(buffer)
+        const saved = await deps.settings.setBrandKit(kit)
+        return c.json({ data: saved })
+      } catch (e) {
+        return c.json({ error: { code: 'PARSE_FAILED', message: (e as Error).message } }, 400)
+      }
+    })
     .patch('/brand-kit', async (c) => {
       const body = await c.req.json().catch(() => null)
       try {
