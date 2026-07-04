@@ -1,0 +1,63 @@
+# im-ppt 로컬 개발 / 셀프호스트 스택
+# 개발: `docker compose up -d db` (Postgres만) 후 로컬에서 pnpm dev
+# 셀프호스트: `docker compose up` (app+web+db 전체) — http://localhost:3000
+#
+# 생성(claude -p)에 필요한 인증 — 컨테이너 셀프호스트는 API 키 모드를 권장:
+#   1) API 키(권장) — 프로젝트 루트 .env에 ANTHROPIC_API_KEY=... (compose가 자동 주입)
+#   2) 구독      — app에서 ~/.claude 마운트 주석 해제. 단, 호스트 settings.json의
+#                 hooks가 호스트 절대경로를 참조하면 컨테이너에서 실패하므로,
+#                 hooks 없는 깨끗한 CLAUDE 설정일 때만 사용할 것.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: imppt
+      POSTGRES_PASSWORD: imppt_dev
+      POSTGRES_DB: imppt
+    ports:
+      - '5433:5432' # 호스트 5433 (기존 로컬 Postgres 5432와 충돌 회피)
+    volumes:
+      - imppt_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U imppt -d imppt']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://imppt:imppt_dev@db:5432/imppt
+      PORT: '8787'
+      WORKSPACE_ID: default
+      LOG_LEVEL: info
+      # LLM/리서치 키 — 루트 .env 있으면 주입, 없으면 빈 값(생성 시 구독 마운트 필요)
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+      SERPER_API_KEY: ${SERPER_API_KEY:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - '8787:8787'
+    volumes:
+      - imppt_data:/data # export 산출물/업로드
+      # 구독 기반 생성 시 호스트 claude 인증 마운트(선택). API 키 모드면 불필요.
+      # - ${HOME}/.claude:/root/.claude:ro
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    depends_on:
+      - app
+    ports:
+      - '3000:3000'
+
+volumes:
+  imppt_pgdata:
+  imppt_data:

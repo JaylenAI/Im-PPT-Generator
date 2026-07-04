@@ -4,6 +4,12 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  /** 있으면 Postgres 영속, 없으면 인메모리 폴백 */
+  DATABASE_URL: z.string().optional(),
+  WORKSPACE_ID: z.string().default('default'),
+  /** 웹 검색(리서치) — 있으면 web/deep 모드에서 사용. Tavily 우선, Serper 폴백 */
+  TAVILY_API_KEY: z.string().optional(),
+  SERPER_API_KEY: z.string().optional(),
 })
 
 export type Env = z.infer<typeof envSchema>

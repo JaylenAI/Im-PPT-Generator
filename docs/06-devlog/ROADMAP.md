@@ -11,82 +11,110 @@
 - ✅ `apps/api`: Hono 스켈레톤(앱 팩토리, zod env, 구조화 로거, 표준 에러 포맷) (단위 4)
 - 🔄 첫 커밋 + dev 분기 (사용자 확인 대기)
 
-## P1 — 세로 슬라이스 MVP: 프롬프트→아웃라인→생성→렌더→PPTX ❌
+## P1 — 세로 슬라이스 MVP: 프롬프트→아웃라인→생성→렌더→PPTX ✅ 완료(2026-07-04)
 
 - `packages/templates`: 테마 2종(Stitch 토큰 이식) + 레이아웃 변형 8종(title/agenda/bullets/two-col/stat/quote/chart/closing) — 레이아웃=코드, AI는 선택+채움만
 - `packages/core`: 프롬프트 카탈로그(prompts-as-data) + LLM 프로바이더 레지스트리(작업별 라우팅, Claude 우선) + 아웃라인 생성 + 슬라이드 JSON 생성(스키마 검증 실패 시 재시도 루프)
 - `packages/renderer`: React 절대좌표 렌더러(읽기 전용, 토큰 해석 `token:colors.*`)
 - `packages/exporter`: PptxGenJS 매핑(텍스트/리스트/이미지/도형/차트/표) + PDF
-- `apps/web`: Next.js + 디자인 토큰(인디고/시안 이원 액센트, Geist+Inter+JetBrains Mono, 글래스) + 대시보드 + 생성 위저드(프롬프트→옵션: 장수/톤/청중/언어) + 아웃라인 승인 화면 + 덱 뷰어 + PPTX/PDF 다운로드
+- `apps/web`: **flow-deck-creator 편입**(TanStack Start, ADR-008) — 가짜 로직 4개(generation/SlideView/export/store)를 우리 API·렌더러·익스포터로 교체. 디자인 토큰(인디고/시안 이원 액센트, Geist+Inter+JetBrains Mono, 글래스) + 대시보드 + 생성 위저드(프롬프트→옵션: 장수/톤/청중/언어) + 아웃라인 승인 화면 + 덱 뷰어 + PPTX/PDF 다운로드
 - 검증: 실 API로 덱 1개 관통 E2E(Playwright) + exporter 스냅샷 테스트 + LibreOffice 렌더 육안 QA
 
-## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 ❌
+## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 ✅ 완료(2026-07-04)
 
-- `packages/db`: Supabase(Postgres) — decks/slides/sources/facts/jobs/settings, 데이터 접근은 이 패키지만(ESLint 가드)
-- Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 파이프라인 detached 잡화
-- SSE 스트리밍: `slide_started/slide_delta/slide_done` — **AI가 슬라이드를 실시간으로 그리는 뷰**(부분 JSON 렌더), 재접속 시 이벤트 재생(잡 테이블 영속)
-- 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드)
-- 검증: SSE E2E(생성 중 새로고침 재접속 포함)
+- ✅ `packages/db`: 순수 Postgres + Drizzle ORM ([ADR-006](../02-architecture/ADR-006-postgres-selfhost.md)) — decks JSONB + `workspace_id` 격리, PgDeckStore/MemoryDeckStore 공통 인터페이스, ensureSchema(advisory lock으로 동시 부팅 DDL 레이스 방지). 실 PG 통합 + 서버 재시작 E2E 검증
+- ✅ SSE 스트리밍: `outline_ready/slide_started/slide_done/deck_done/deck_saved` — **AI가 슬라이드를 실시간으로 만드는 뷰**(웹 활동 로그+진행바). 실 claude 이벤트 흐름 검증
+- ✅ Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 detach(POST /decks/generate) + 재접속 이벤트 재생(GET /jobs/:id/stream, 잡 로그 영속). 오래 잠긴 running 재클레임(크래시 복구). 실 claude E2E: 서버 재시작 후 12 이벤트 전체 재생·덱 영속
+- ✅ Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — nginx가 /api 프록시(SSE) + SPA 폴백. 오픈소스 셀프호스트. 두 이미지 빌드→스택 기동→서빙/프록시 실검증
+- ✅ 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드) — APP_SETTINGS_CATALOG + SettingsService(부팅 hydrate). 실 E2E: PATCH→재시작 영속→앱 기본값이 미지정 생성에 반영
 
-## P3 — 딥리서치 + 할루시네이션 제로 ❌
+## P3 — 딥리서치 + 할루시네이션 제로 🔄 (데이터 파이프라인 완료)
 
-- `packages/research`: 검색 어댑터(Tavily 기본/Serper 폴백) + 스크레이핑(Firecrawl/Jina) + 유저 입력(URL/텍스트/문서) 동일 스키마 수용
-- 팩트 추출(소스 ID 부착) → **팩트 승인 게이트 UI**(Stitch `ai_2` 디자인: 승인/거절, Approve All, 출처 링크)
-- 인용 전파: 팩트→아웃라인→슬라이드 요소 `citationId` → 출처 각주/출처 슬라이드 렌더 + **소스 매니저 화면**(시장 공백 선점)
-- 원클릭 팩트체크(근거 강/약 플래깅) — Genspark 단독 기능 카피
-- 검증: 실 검색 API 통합 테스트 + 인용 역추적 E2E
+- ✅ `packages/research`: 검색 어댑터(Tavily/Serper, 키 주입) + URL 본문 fetch(태그 스트립) + 유저 입력(URL/텍스트) 동일 스키마 수용. leaf 패키지(LLM 콜백 주입, 순환 의존 없음)
+- ✅ 팩트 추출(소스ID 부착, 지어낸 출처 폐기, pending 상태) — 실 claude로 유저 텍스트→5팩트 추출 검증
+- ✅ 인용 전파: 팩트→아웃라인 `factIds`→슬라이드 `citationIds`→덱 `citations`. buildCitations(참조 소스만 번호부여). 실 E2E: 통계 팩트가 stat/chart 슬라이드에 배정+인용 역추적 무결성 검증
+- ✅ 워커 리서치 오케스트레이션(researchMode off/user_only/web/deep) + api 배선(user sources 요청, 잡 영속)
+- ❌ **팩트 승인 게이트 UI**(Stitch `ai_2`: 승인/거절, Approve All, 출처 링크) — P3b
+- ❌ **소스 매니저 화면** + 출처 각주/출처 슬라이드 렌더 — P3b
+- ❌ 원클릭 팩트체크(근거 강/약 플래깅) — P3b
+- 검증: 웹 검색은 실 키 필요(Tavily/Serper). 유저 자료 경로는 실 claude E2E 완료
 
-## P4 — HITL 완성 + 페이지 단위 AI 수정 ❌
+## P4 — HITL 완성 + 페이지 단위 AI 수정 🔄 (백엔드 게이트 완료)
 
-- **슬라이드별 계획 승인 게이트**(시장 공백 = 핵심 차별화): 페이지마다 디자인 의도+내용 요약 보고 → 승인 후 생성
-- 자율도 레벨 L0(전자동)~L3(페이지별 승인) 설정
-- AI Copilot 챗 패널(Stitch `ai_1`): 덱 전체 문맥 + 선택 슬라이드 문맥 주입 → 자연어 수정, 진행 shimmer, 출처 칩
-- 페이지 선택 → 해당 페이지만 재생성/수정, 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입
-- 검증: 게이트 3종(팩트/아웃라인/계획) 풀루프 E2E
+- ✅ **페이지 단위 AI 수정**: 에디터 Copilot에 지시 → 해당 페이지만 재생성(레이아웃 유지, 다른 페이지 불변). core `editSlide`/`replaceSlide`, POST /decks/:id/slides/:slideId/regenerate. 실 claude E2E 검증. NotebookLM식
+- ✅ AI Copilot 챗 패널(flow-deck-creator `ai_1` 구조): 선택 슬라이드 수정 실작동(진행 표시)
+- ✅ **슬라이드별 계획 게이트 백엔드**(시장 공백 = 핵심 차별화): core `generatePlans`(섹션별 designIntent+contentSummary), POST /decks/outline·/decks/plans 미리보기, POST /decks가 승인된 아웃라인+research 재사용. 실 claude E2E(피치덱 4슬라이드 계획 보고→승인→생성)
+- ✅ 생성 콘텐츠 품질 버그 봉합(QA): slide_system이 일부 필드에 메타 설명("~작성 완료","레이아웃에 맞춰 구성")을 넣던 잠복 버그 → 프롬프트 예시 + closing 레이아웃 필드 `.describe()`로 최종 문구만 출력
+- ✅ **게이트 승인 위저드 UI**(P4b): create 플로우가 프리셋별 게이트 오케스트레이션 — quick=스트림, 표준/내자료=목차 게이트, 정밀=목차+슬라이드별 계획 게이트. OutlineGate(편집/삭제)+PlanGate(의도/내용 카드)+소스 입력(URL/텍스트). **Playwright 하네스 구축** + 실 claude 게이트 흐름 브라우저 E2E 2건 그린
+- ❌ 자율도 L0~L3 세부 UI, 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입, 딥서치 탭 — 후속
 
-## P5 — WYSIWYG 에디터 심화 ❌
+## P5 — WYSIWYG 에디터 심화 🔄 (인라인 편집 완료)
 
-- 요소 선택/드래그/리사이즈/회전, 텍스트 인라인 편집, 속성 패널(우측: Copilot과 탭 전환)
-- 요소 추가 툴바(텍스트/이미지/도형/차트/표/아이콘), z-order, 정렬 가이드/스냅
-- 오버플로 자동 수정(폰트 메트릭 계측 → 단계 축소) — 렌더러/익스포터 공용
-- undo/redo + 버전 히스토리(스냅샷/복원)
-- 검증: 에디터 상호작용 Playwright 스위트
+- ✅ **텍스트 인라인 편집**: 편집 모드에서 캔버스 텍스트/리스트를 contentEditable로 직접 수정(블러 커밋, 불변 갱신), 요소 선택 아웃라인. 저장 버튼→PATCH /decks/:id 영속. 렌더러 `EditHandlers` 계약.
+- ✅ **QA로 잡은 버그**: 에디터 canvas 너비 측정(useWidth)이 마운트 시 로딩UI라 ref null→observer 미부착→직접URL/새로고침 시 캔버스 미렌더. 콜백 ref로 봉합.
+- ✅ **속성 패널 + undo/redo**(P5b): 요소 선택 시 위치(x/y/w/h)·텍스트 색상/폰트크기 폼 편집 + 요소 삭제. 히스토리 스택 undo/redo. Playwright E2E(선택→삭제→undo/redo→저장 영속)
+- ✅ **요소 드래그/리사이즈**(P5c): 선택 박스(이동 핸들+리사이즈 핸들), 화면 델타→캔버스 좌표 변환(scale), 드래그 중 라이브 갱신+종료 시 히스토리 커밋. window 리스너 패턴. Playwright E2E(드래그→위치 변경→저장 영속)
+- ✅ **요소 추가 툴바**(P5): 편집 모드에서 텍스트/이미지(URL)/도형 요소 추가. addElement/newElement 헬퍼. Playwright E2E(추가→저장→새로고침 영속)
+- ✅ **z-order**(P5): 속성 패널에서 요소 앞으로/뒤로(배열 순서=z-order). reorderElement 헬퍼
+- ✅ 검증: Playwright 편집 E2E 5건 + 공유 뷰어
+- ✅ 오버플로 자동 수정(넘칠 때 폰트 축소 — fitFontSize + PPTX normAutofit) / ❌ 정렬 스냅 — 후속
 
-## P6 — 템플릿 시스템 + 브랜드킷 ❌
+## P6 — 템플릿 시스템 + 브랜드킷 🔄 (브랜드킷 완료)
 
-- 템플릿 갤러리(Stitch `_2`): 카테고리/비율/컬러 필터, 15종+ 확장
-- 브랜드킷: 로고/팔레트/폰트 → 테마 토큰 오버라이드
-- **유저 PPTX 업로드 → 테마/레이아웃 제한적 추출**(python-pptx 파서 서비스 or Presenton 방식, placeholder 기반 v1)
-- 커스텀 템플릿 저장(내 템플릿), 기존 덱 복제→변형
-- 검증: 실 PPTX 샘플 5종 추출 통합 테스트
+- ✅ **브랜드킷**: 팔레트/폰트 → 테마 토큰 부분 오버라이드. `brandKitSchema`+`mergeBrandKit`, 덱이 자기 테마 소유(`deck.themeOverride` 인라인 토큰 — 정적 레지스트리 불변, 동적 저장 인프라 불필요). 설정 DB 영속+생성 시 적용. 웹 brand-kit 화면 실작동. 실 E2E(설정→생성 시 override 적용→재시작 영속)
+- ✅ **유저 PPTX 업로드 → 테마 추출**: jszip으로 theme1.xml clrScheme 파싱 → accent1/2·dk1/2·lt1을 브랜드 색상으로 매핑 → 브랜드킷 설정. POST /settings/brand-kit/from-pptx, 웹 brand-kit 업로드 버튼. 실 E2E(python-pptx Office 테마 5색 추출→생성 적용)
+- ✅ **덱 복제**: POST /decks/:id/duplicate(새 ID·"(사본)"·구조 동일) + 에디터 복제 버튼. 실 E2E
+- ✅ **템플릿 갤러리 확장**: 테마 6종(indigo/navy/forest/coral/slate/purple) → 템플릿 6종(각 카테고리·전 화면비). 갤러리는 3소스 병합 노출 구조 유지
+- ❌ 15종+로 추가 확장, 로고 업로드, 커스텀 템플릿 저장
 
-## P7 — 입력 확장 ❌
+## P7 — 입력 확장 🔄 (문서 업로드 완료)
 
-- PDF/DOCX/MD 업로드 → 덱 (파싱→팩트 파이프라인 재사용)
-- 장문 붙여넣기 3모드(generate/condense/**preserve** — Gamma 카피)
-- URL/웹페이지 임포트, 기존 PPTX 콘텐츠 임포트, CSV/Excel → 차트
-- Guide Mode(청중/목적/구조 사전 인터뷰 — Genspark 카피)
-- 검증: 입력 모드별 실파일 E2E
+- ✅ **문서 업로드 → 덱**: PDF(unpdf)/DOCX(mammoth)/TXT/MD 파싱 → 텍스트 추출 → user_text 소스로 리서치 파이프라인 재사용. POST /documents/extract(멀티파트, 10MB 제한, 미지원 형식 거부). 웹 create에 업로드 버튼. 실 E2E(pdf/txt/md/docx 추출 + 브라우저 업로드→소스 추가)
+- ✅ URL/텍스트 붙여넣기(기존 user_url/user_text 소스)
+- ✅ **CSV → 차트**: parseCsvToChart(첫 열 라벨·나머지 계열) → 단일 차트 슬라이드 덱. POST /decks/from-csv. 실 E2E(분기 매출/비용 CSV→native 차트 PPTX export·잘못된 CSV 거부)
+- ✅ **Guide Mode**: 생성 위저드에 청중/톤 사전 입력(config.audience/tone → 아웃라인 프롬프트 반영). Playwright E2E
+- ❌ 장문 3모드(condense는 P10 리라이트로 부분 대체), Excel(xlsx)→차트
 
-## P8 — 이미지/차트 고도화 ❌
+## P8 — 이미지/차트 고도화 🔄 (다이어그램 착수)
 
-- AI 이미지 생성(프로바이더 레지스트리: Gemini 이미지/DALL-E) + Pexels 스톡 폴백 혼합(단가 관리)
-- 차트 고도화: 컨설팅급(워터폴/Mekko — 시장 공백), 다이어그램(퍼널/타임라인/조직도/2×2)
-- 슬라이드당 디자인 변형 N개 제시→선택(Alai 카피)
-- 검증: 이미지 파이프라인 통합 + 차트 export 충실도 스냅샷
+- ✅ 차트 export 확인: 7종 차트(bar/line/pie/donut 등)가 PptxGenJS native chart로 export(기존 배선)
+- ✅ **프로세스 다이어그램 레이아웃**: 순차 단계를 카드+화살표로(2~5단계). LLM 선택 가능. 실 E2E(로드맵 프롬프트→process 선택→PPTX 유효 export)
+- ✅ **슬라이드당 디자인 변형 N개**: `generateVariants` — 슬라이드 제목/요약을 뽑아 다른 콘텐츠 레이아웃 3종으로 병렬 재생성. POST /decks/:id/slides/:slideId/variants. 실 claude E2E(bullets→two-col/stat/quote)
+- ✅ **AI 이미지 생성**(claude -p, 무키): `generateImage` — claude -p로 SVG 벡터 그래픽 생성 → data URI. 렌더러 `<img>`·exporter addImage(SVG→PNG 래스터) 모두 소비. POST /images/generate + 에디터 "이미지" 버튼(AI 개념 입력 또는 URL). 실 E2E(SVG 생성→덱 삽입→PPTX 미디어 임베드). 외부 이미지 API 키 불필요(구독 CLI)
+- ✅ 워터폴 차트(순차 증감 누적) / ❌ Pexels 스톡 사진 폴백(사진형은 키 필요), Mekko 차트
 
-## P9 — 발표 + 출력 확장 ❌
+## P9 — 발표 + 출력 확장 🔄 (발표 모드 완료)
 
-- 발표 모드 + 발표자 뷰(노트+다음 슬라이드) + AI 스피커 노트(문맥형 — Manus 수준)
-- 화면비 4:3/9:16 전 파이프라인 스윕, PNG export, 웹 링크 퍼블리싱(읽기 전용 공유)
-- 검증: 비율별 렌더/export 스냅샷 + 발표 모드 E2E
+- ✅ **발표 모드**: 전체화면 슬라이드 + 키보드 네비(←/→/Space/Esc) + 뷰포트 비율 유지 스케일 + 발표자 노트 토글(N키). Playwright E2E(열기→네비→종료)
+- ✅ **화면비 4:3/9:16 전 파이프라인 스윕**: `defineLayout`이 기준 1280×720로 빌드 후 타깃 캔버스로 프레임/폰트 비례 리매핑(레이아웃 코드 무변경, 16:9 하위호환). 렌더러·exporter는 이미 CANVAS_SIZES 기반. 생성 위저드 화면비 선택. 실 E2E(9:16 생성 시 전 요소 720×1280 안+PPTX 세로 크기 export)
+- ✅ **AI 스피커 노트**: `generateSpeakerNotes` — 슬라이드별 발표 대본 생성(slide.notes). claude CLI 메타 누출은 프롬프트 예시 + 후처리 가드(looksLikeMeta)로 이중 봉합. POST /decks/:id/speaker-notes. 실 E2E(4/4 클린)
+- ✅ **발표자 뷰**: 발표 모드에 다음 슬라이드 미리보기(우하단) 추가
+- ✅ **웹 링크 퍼블리싱**: 읽기 전용 공유 뷰어 `/share/:id`(에디터 크롬 없이 전 슬라이드 렌더 + 링크 복사) + 에디터 공유 버튼. Playwright E2E
+- ❌ PNG export(헤드리스 렌더 필요)
 
-## P10 — AI 부가 + 플랫폼 ❌
+## P10 — AI 부가 + 플랫폼 🔄 (접근성 검사 완료)
 
-- 덱 번역(전 슬라이드 일괄), 요약/확장/톤 리라이트, 접근성 검사(대비/알트텍스트 — 시장 공백)
-- 조회 애널리틱스(공유 링크 슬라이드별 체류), 예상 청중 질문 생성
-- 생성 REST API(+웹훅) 및 MCP 서버(신흥표준)
-- 검증: 전체 회귀 E2E + 성능/비용 계측
+- ✅ **접근성 검사(시장 공백)**: `checkAccessibility` — 텍스트 대비율 WCAG AA(4.5:1) + 이미지 alt 점검, 색 배경만 대비 계산(그라디언트/이미지 배경 스킵). GET /decks/:id/accessibility. 실 덱 검증(빌트인 테마 100점 확인)
+- ✅ **덱 번역**(전 슬라이드 일괄): `translateDeck` — 슬라이드별 텍스트 수집→번역→순서대로 재적용(레이아웃/좌표 불변), 개수 불일치 시 원문 유지. 원본 보존(새 덱). POST /decks/:id/translate. 실 claude E2E(한국어→영어, 구조 동일)
+- ✅ **덱 리라이트**(톤/길이): `rewriteDeck` — 지시("더 간결하게" 등)를 전 슬라이드에 적용, 구조 불변. POST /decks/:id/rewrite. 실 claude E2E(간결화 확인). translate와 transformSlide 공용
+- ✅ **MCP 서버**(신흥 표준): `apps/mcp` — generate_deck·list_layouts 도구를 stdio로 노출. Claude Desktop 등 MCP 클라이언트가 프레젠테이션 생성 가능(claude CLI 구독, 무키). 실 검증(SDK Client 스폰→tools/list→generate_deck 실 claude 3슬라이드)
+- ✅ **예상 청중 질문**: `generateAudienceQuestions` — 덱 목차 기반 날카로운 질문 5~7개. GET /decks/:id/questions. 실 E2E(ROI·인력·우선순위 질문 7개)
+- ❌ 조회 애널리틱스
+- ❌ 조회 애널리틱스, 예상 청중 질문 생성
+- ❌ 생성 REST API 문서화/웹훅, MCP 서버(신흥표준)
+- 참고: 생성 REST API 자체는 P1~P5로 대부분 구현됨(헤드리스 계약)
+
+## 품질 개선 트랙 (딥리서치 기반, 2026-07-04) 🔄
+
+> 상위 도구/스킬(Gamma·Genspark·open-design·design-diversity·ppt-master) + 프레젠테이션 이론(Minto Pyramid·Alley Assertion-Evidence·McKinsey) 딥서칭 → 콘텐츠 품질 레버 보완.
+
+- ✅ **Action Title 엔진**(ADR-009): 슬라이드 제목 = 주제 라벨 → **완결된 결론 문장(assertion)**. outline이 assertion 생성(title=짧은 라벨 분리), slide 헤드라인=assertion(폴백 title), `checkGhostDeck`(Titles Test 순수 검증) + 에디터 "제목 점검" 뷰 + OutlineGate assertion 편집. 실 claude E2E(상황→복잡성→통찰→해결→결론 스토리, Ghost Deck coherent) + Playwright
+- ✅ **발표 유형 시스템**(ADR-010): PT면접·컨설팅·IR·학술·세일즈·일반 6종 레시피(서사 골격+톤+디자인). 데이터 카탈로그(SSOT)→outline `renderScaffold` 주입, `/presentation-types` API, 생성 폼 `PresentationTypePicker`(선택 시 권장 슬라이드 수 제안). 실 claude E2E로 유형별 구조 차별화 확인(interview=STAR, ir_pitch=Kawasaki) + 스키마 4·Playwright 1
+- ✅ **유형별 디자인 자동 매칭**(ADR-010 확장, P0.6): 각 유형에 `defaultThemeId`(6종↔6테마 1:1). 테마 우선순위=명시>템플릿>유형기본>폴백(사용자 선택 항상 우선), `hasTheme` 안전폴백, 선택기 카드에 테마 색 점. 실 E2E: interview→deep-navy·ir_pitch→coral-energy 자동 적용+명시 override 확인
+- ✅ **발표 유형 4종 확장**(SSOT 실증): 교육·강의(교수설계)·워크숍·실습(경험학습)·실적 보고(경영 리뷰)·제품 데모(제품 스토리) → **총 10종**. 카탈로그 배열 항목 추가만으로 outline 스캐폴드·테마·선택기 전체 반영(코드 변경 0=데이터 SSOT 검증). 실 claude E2E로 lecture=학습목표→정리, business_review=성과+리스크 균형 구조 확인
+- ✅ **데이터 스토리텔링 + 레이아웃 다양성**(ADR-011): 차트 `highlightIndex`(핵심 데이터 포인트만 accent 강조, 나머지 흐리게 — 렌더러+익스포터 단일시리즈 포인트별 색), insight 'so what' 주석 강제(레이아웃 사이드카드), outline 레이아웃 리듬(2연속 금지). 실 claude E2E로 highlightIndex+insight 자동 생성·PPTX 6페이지 LibreOffice 렌더 확인(Action Title+차트+인사이트 카드 3요소)
+- ✅ **Deck Doctor 품질 진단**(ADR-012): 덱 JSON을 베스트프랙티스로 스캔하는 순수 함수 `diagnoseDeck`(6x6 글머리·텍스트벽·차트 스토리 누락·요소 과밀·빈 슬라이드), 점수(0~100)+슬라이드별 개선점·제안. `GET /decks/:id/doctor`, 에디터 "품질 진단" 뷰. 실 E2E: 정상덱 97점, 나쁜 슬라이드 주입 PATCH→78점 4이슈 포착 + 단위6·Playwright1
+- ✅ **Deck Doctor AI 자동 수정**(ADR-012 확장): `autoFixDeck` — 진단 이슈를 editSlide 지시로 번역해 슬라이드별 개선(기존 P4 편집 인프라 재사용, overcrowded 제외), before/after 점수 반환. `POST /decks/:id/doctor/fix`, 진단 뷰 "AI 자동 수정" 버튼. 생성→진단→**개선** 품질 루프 완결. 실 E2E: 나쁜 슬라이드 86→97점 자동 개선 + 단위2·Playwright1
 
 ## 이후 후보 (v2)
 
