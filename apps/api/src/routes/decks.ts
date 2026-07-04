@@ -6,6 +6,7 @@ import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSch
 import type { AppDeps } from '../deps.js'
 import { buildConfig } from '../lib/build-config.js'
 import { runResearchForConfig } from '../lib/research-runner.js'
+import { applyBrandKit } from '../lib/brand.js'
 
 const createBody = z
   .object({
@@ -50,7 +51,7 @@ export function deckRoutes(deps: AppDeps) {
       } else {
         research = await runResearchForConfig(deps, config, parsed.data.sources ?? [])
       }
-      const { deck, costUsd } = await generateDeck(
+      const gen = await generateDeck(
         config,
         { registry: deps.registry, prompts: deps.prompts },
         {
@@ -58,8 +59,9 @@ export function deckRoutes(deps: AppDeps) {
           ...(parsed.data.outline ? { outline: parsed.data.outline } : {}),
         },
       )
+      const deck = applyBrandKit(deps, gen.deck)
       await deps.decks.put(deck)
-      return c.json({ data: { deckId: deck.id, deck, costUsd } }, 201)
+      return c.json({ data: { deckId: deck.id, deck, costUsd: gen.costUsd } }, 201)
     })
     .get('/', async (c) => c.json({ data: await deps.decks.list() }))
     .get('/:id', async (c) => {

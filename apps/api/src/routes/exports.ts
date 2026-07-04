@@ -23,7 +23,8 @@ export function exportRoutes(deps: AppDeps) {
       const format = parsed.success ? parsed.data.format : 'pptx'
 
       // 테마 토큰 resolve — 빌트인 테마(P1). 커스텀 템플릿 테마는 P6에서 DB에서 주입
-      const tokens = getTheme(deck.themeId).tokens
+      // 브랜드킷 오버라이드가 있으면 그 인라인 토큰으로 export(웹과 동일 시각)
+      const tokens = deck.themeOverride ?? getTheme(deck.themeId).tokens
       const buffer = await exportDeckToPptx(deck, tokens, { includeNotes: true })
       const artifact: ExportArtifact = {
         id: nextExportId(),

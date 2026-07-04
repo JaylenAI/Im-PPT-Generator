@@ -145,6 +145,16 @@ export const api = {
       method: 'PATCH',
       body: JSON.stringify({ content }),
     }),
+
+  // 브랜드킷 — 색/폰트 오버라이드(다음 생성부터 반영)
+  getBrandKit: () => req<BrandKitView | null>('/settings/brand-kit'),
+  patchBrandKit: (kit: BrandKitView) =>
+    req<BrandKitView>('/settings/brand-kit', { method: 'PATCH', body: JSON.stringify(kit) }),
+}
+
+export interface BrandKitView {
+  colors?: { primary?: string; secondary?: string; accent?: string; background?: string; textPrimary?: string }
+  fonts?: { heading?: string; body?: string }
 }
 
 export interface ModelConnectionView {
