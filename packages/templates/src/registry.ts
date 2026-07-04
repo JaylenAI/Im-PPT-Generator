@@ -8,6 +8,7 @@ import { statLayout } from './layouts/stat.js'
 import { quoteLayout } from './layouts/quote.js'
 import { chartLayout } from './layouts/chart.js'
 import { closingLayout } from './layouts/closing.js'
+import { processLayout } from './layouts/process.js'
 import { referencesLayout } from './layouts/references.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
@@ -21,6 +22,7 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(statLayout),
   defineLayout(quoteLayout),
   defineLayout(chartLayout),
+  defineLayout(processLayout),
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]

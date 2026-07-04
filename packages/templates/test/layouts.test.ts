@@ -24,12 +24,21 @@ const FIXTURES: Record<string, unknown> = {
   },
   closing: { headline: '감사합니다', message: '질문을 환영합니다' },
   references: { title: '출처', items: ['시장 보고서 2026 — https://example.com/report', '내부 분석 메모'] },
+  process: {
+    title: '도입 4단계',
+    steps: [
+      { label: '진단', detail: '현황 파악' },
+      { label: '설계', detail: '로드맵 수립' },
+      { label: '실행', detail: '단계적 배포' },
+      { label: '정착', detail: '성과 측정' },
+    ],
+  },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 9종이 등록되어 있다(references는 hidden)', () => {
+  it('레이아웃 10종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bullets', 'chart', 'closing', 'quote', 'references', 'stat', 'title', 'two-col'],
+      ['agenda', 'bullets', 'chart', 'closing', 'process', 'quote', 'references', 'stat', 'title', 'two-col'],
     )
   })
 
