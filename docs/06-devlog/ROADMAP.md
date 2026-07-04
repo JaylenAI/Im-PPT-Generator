@@ -20,14 +20,14 @@
 - `apps/web`: **flow-deck-creator 편입**(TanStack Start, ADR-008) — 가짜 로직 4개(generation/SlideView/export/store)를 우리 API·렌더러·익스포터로 교체. 디자인 토큰(인디고/시안 이원 액센트, Geist+Inter+JetBrains Mono, 글래스) + 대시보드 + 생성 위저드(프롬프트→옵션: 장수/톤/청중/언어) + 아웃라인 승인 화면 + 덱 뷰어 + PPTX/PDF 다운로드
 - 검증: 실 API로 덱 1개 관통 E2E(Playwright) + exporter 스냅샷 테스트 + LibreOffice 렌더 육안 QA
 
-## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 ❌
+## P2 — 영속화 + 잡 인프라 + 실시간 스트리밍 🔄 (일부 완료)
 
-- `packages/db`: 순수 Postgres + Drizzle ORM ([ADR-006](../02-architecture/ADR-006-postgres-selfhost.md)) — decks/slides/sources/facts/jobs/settings, `workspace_id` 격리, 데이터 접근은 이 패키지만(ESLint 가드). docker-compose로 로컬 인스턴스
-- Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — 오픈소스 셀프호스트
-- Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 파이프라인 detached 잡화
-- SSE 스트리밍: `slide_started/slide_delta/slide_done` — **AI가 슬라이드를 실시간으로 그리는 뷰**(부분 JSON 렌더), 재접속 시 이벤트 재생(잡 테이블 영속)
-- 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드)
-- 검증: SSE E2E(생성 중 새로고침 재접속 포함)
+- ✅ `packages/db`: 순수 Postgres + Drizzle ORM ([ADR-006](../02-architecture/ADR-006-postgres-selfhost.md)) — decks JSONB + `workspace_id` 격리, PgDeckStore/MemoryDeckStore 공통 인터페이스, ensureSchema. 실 PG 통합 + 서버 재시작 E2E 검증
+- ✅ SSE 스트리밍: `outline_ready/slide_started/slide_done/deck_done` — **AI가 슬라이드를 실시간으로 만드는 뷰**(웹 활동 로그+진행바). POST /decks/stream(hono streamSSE). 실 claude 이벤트 흐름 검증
+- ❌ Postgres 잡큐(`FOR UPDATE SKIP LOCKED`+지수백오프) — 생성 detached 잡화 + 재접속 이벤트 재생(잡 테이블 영속)
+- ❌ Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — 오픈소스 셀프호스트 (db 서비스는 존재)
+- ❌ 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드) — /settings API+화면은 있음, DB 영속+동적카탈로그 미완
+- 잔여 검증: 잡 재접속 재생 E2E
 
 ## P3 — 딥리서치 + 할루시네이션 제로 ❌
 
@@ -37,13 +37,14 @@
 - 원클릭 팩트체크(근거 강/약 플래깅) — Genspark 단독 기능 카피
 - 검증: 실 검색 API 통합 테스트 + 인용 역추적 E2E
 
-## P4 — HITL 완성 + 페이지 단위 AI 수정 ❌
+## P4 — HITL 완성 + 페이지 단위 AI 수정 🔄 (일부 완료)
 
-- **슬라이드별 계획 승인 게이트**(시장 공백 = 핵심 차별화): 페이지마다 디자인 의도+내용 요약 보고 → 승인 후 생성
-- 자율도 레벨 L0(전자동)~L3(페이지별 승인) 설정
-- AI Copilot 챗 패널(Stitch `ai_1`): 덱 전체 문맥 + 선택 슬라이드 문맥 주입 → 자연어 수정, 진행 shimmer, 출처 칩
-- 페이지 선택 → 해당 페이지만 재생성/수정, 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입
-- 검증: 게이트 3종(팩트/아웃라인/계획) 풀루프 E2E
+- ✅ **페이지 단위 AI 수정**: 에디터 Copilot에 지시 → 해당 페이지만 재생성(레이아웃 유지, 다른 페이지 불변). core `editSlide`/`replaceSlide`, POST /decks/:id/slides/:slideId/regenerate. 실 claude E2E 검증. NotebookLM식
+- ✅ AI Copilot 챗 패널(flow-deck-creator `ai_1` 구조): 선택 슬라이드 수정 실작동(진행 표시)
+- ❌ **슬라이드별 계획 승인 게이트**(시장 공백 = 핵심 차별화): 페이지마다 디자인 의도+내용 요약 보고 → 승인 후 생성
+- ❌ 자율도 레벨 L0~L3 UI(스키마 GenerationConfig는 P0 완료, UI 미배선)
+- ❌ 레이아웃 스왑, 문맥 맞춤 단일 슬라이드 삽입, 딥서치 탭 실배선
+- 잔여 검증: 게이트 3종(팩트/아웃라인/계획) 풀루프 E2E
 
 ## P5 — WYSIWYG 에디터 심화 ❌
 
