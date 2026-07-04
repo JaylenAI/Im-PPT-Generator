@@ -60,9 +60,9 @@ function BrandKitPage() {
   return (
     <AppShell>
       <div className="mx-auto max-w-5xl px-10 py-10">
-        <h1 className="text-4xl font-bold tracking-tight">Brand Kit</h1>
+        <h1 className="text-4xl font-bold tracking-tight">브랜드 킷</h1>
         <p className="mt-2 text-muted-foreground">
-          Set it once — every AI-generated deck inherits your logo, colors, and typography.
+          한 번 설정하면 이후 AI가 생성하는 모든 덱에 색상·폰트가 반영됩니다.
         </p>
 
         <section className="mt-10 grid gap-6 md:grid-cols-2">
@@ -90,7 +90,7 @@ function BrandKitPage() {
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-6 shadow-soft">
-            <h2 className="mb-4 text-lg font-bold">Color Palette</h2>
+            <h2 className="mb-4 text-lg font-bold">컬러 팔레트</h2>
             <div className="grid grid-cols-2 gap-3">
               {PALETTES.map((p, i) => (
                 <button
@@ -118,12 +118,12 @@ function BrandKitPage() {
 
         <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-soft">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-bold">
-            <TypeIcon className="h-5 w-5 text-primary" /> Typography
+            <TypeIcon className="h-5 w-5 text-primary" /> 타이포그래피
           </h2>
           <div className="grid gap-6 md:grid-cols-2">
             {[
-              { label: "Heading font", value: heading, set: setHeading },
-              { label: "Body font", value: body, set: setBody },
+              { label: "제목 폰트", value: heading, set: setHeading },
+              { label: "본문 폰트", value: body, set: setBody },
             ].map((f) => (
               <div key={f.label}>
                 <label className="mb-2 block text-sm font-medium text-muted-foreground">{f.label}</label>
@@ -141,10 +141,10 @@ function BrandKitPage() {
           </div>
           <div className="mt-6 rounded-xl border border-border bg-secondary/40 p-8">
             <div className="text-3xl font-bold" style={{ fontFamily: heading }}>
-              Aa — {heading} headings
+              Aa — 제목은 {heading}
             </div>
             <p className="mt-3 text-muted-foreground" style={{ fontFamily: body }}>
-              The quick brown fox jumps over the lazy dog. Body copy set in {body}.
+              다람쥐 헌 쳇바퀴에 타고파. 본문은 {body}로 표시됩니다.
             </p>
           </div>
         </section>
