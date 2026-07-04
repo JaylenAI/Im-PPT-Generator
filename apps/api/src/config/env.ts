@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 /** 환경 설정 — 모든 값은 여기서만 읽는다(코드 내 process.env 직접 접근 금지) */
 const envSchema = z.object({
-  PORT: z.coerce.number().int().positive().default(8787),
+  PORT: z.coerce.number().int().positive().default(8788),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
   /** 있으면 Postgres 영속, 없으면 인메모리 폴백 */
   DATABASE_URL: z.string().optional(),

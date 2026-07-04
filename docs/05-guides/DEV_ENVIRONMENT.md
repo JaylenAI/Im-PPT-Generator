@@ -59,7 +59,7 @@ pnpm -F @im-ppt/schema test   # 특정 패키지만
 
 ```
 apps/
-  api/          @im-ppt/api    — Hono API 서버 (PORT=8787)
+  api/          @im-ppt/api    — Hono API 서버 (PORT=8788)
   web/          @im-ppt/web    — TanStack Start (P1, flow-deck-creator 편입)
 packages/
   schema/       @im-ppt/schema — zod SSOT (의존성 zod뿐 — 최하층)
