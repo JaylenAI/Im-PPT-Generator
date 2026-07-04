@@ -110,6 +110,7 @@
 
 - ✅ **Action Title 엔진**(ADR-009): 슬라이드 제목 = 주제 라벨 → **완결된 결론 문장(assertion)**. outline이 assertion 생성(title=짧은 라벨 분리), slide 헤드라인=assertion(폴백 title), `checkGhostDeck`(Titles Test 순수 검증) + 에디터 "제목 점검" 뷰 + OutlineGate assertion 편집. 실 claude E2E(상황→복잡성→통찰→해결→결론 스토리, Ghost Deck coherent) + Playwright
 - ✅ **발표 유형 시스템**(ADR-010): PT면접·컨설팅·IR·학술·세일즈·일반 6종 레시피(서사 골격+톤+디자인). 데이터 카탈로그(SSOT)→outline `renderScaffold` 주입, `/presentation-types` API, 생성 폼 `PresentationTypePicker`(선택 시 권장 슬라이드 수 제안). 실 claude E2E로 유형별 구조 차별화 확인(interview=STAR, ir_pitch=Kawasaki) + 스키마 4·Playwright 1
+- ✅ **유형별 디자인 자동 매칭**(ADR-010 확장, P0.6): 각 유형에 `defaultThemeId`(6종↔6테마 1:1). 테마 우선순위=명시>템플릿>유형기본>폴백(사용자 선택 항상 우선), `hasTheme` 안전폴백, 선택기 카드에 테마 색 점. 실 E2E: interview→deep-navy·ir_pitch→coral-energy 자동 적용+명시 override 확인
 - ✅ **데이터 스토리텔링 + 레이아웃 다양성**(ADR-011): 차트 `highlightIndex`(핵심 데이터 포인트만 accent 강조, 나머지 흐리게 — 렌더러+익스포터 단일시리즈 포인트별 색), insight 'so what' 주석 강제(레이아웃 사이드카드), outline 레이아웃 리듬(2연속 금지). 실 claude E2E로 highlightIndex+insight 자동 생성·PPTX 6페이지 LibreOffice 렌더 확인(Action Title+차트+인사이트 카드 3요소)
 
 ## 이후 후보 (v2)

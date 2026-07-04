@@ -51,6 +51,8 @@ export const presentationTypeSchema = z.object({
   tone: z.string().min(1),
   /** 디자인 방향(색/레이아웃/비주얼) */
   designHints: z.string().min(1),
+  /** 장르에 어울리는 기본 테마 id — 사용자가 테마/템플릿 미선택 시 자동 적용(templates 테마 키) */
+  defaultThemeId: z.string().min(1),
 })
 export type PresentationType = z.infer<typeof presentationTypeSchema>
 
@@ -74,6 +76,7 @@ export const PRESENTATION_TYPES: readonly PresentationType[] = [
     defaultSlides: 8,
     tone: '명료하고 균형 잡힌, 신뢰감 있는',
     designHints: '절제된 색 1~2개, 요점당 여백 충분히, 도입/결론은 강조 레이아웃',
+    defaultThemeId: 'stitch-indigo',
   },
   {
     id: 'interview',
@@ -92,6 +95,7 @@ export const PRESENTATION_TYPES: readonly PresentationType[] = [
     defaultSlides: 6,
     tone: '자신감 있고 진정성 있는, 1인칭 능동태, 과장 없이 구체적',
     designHints: '깔끔하고 신뢰감 있는 톤, 절제된 포인트 컬러 1개, STAR는 타임라인/단계 레이아웃, 결과 수치는 크게 강조',
+    defaultThemeId: 'deep-navy',
   },
   {
     id: 'consulting',
@@ -111,6 +115,7 @@ export const PRESENTATION_TYPES: readonly PresentationType[] = [
     defaultSlides: 10,
     tone: '논리적이고 단정적, 데이터 기반, 군더더기 없는 프로페셔널',
     designHints: '차트·표·프레임워크 도식 다수, 절제된 남색/회색 팔레트, 슬라이드당 메시지 1개, 근거는 exhibit로 분리',
+    defaultThemeId: 'mono-slate',
   },
   {
     id: 'ir_pitch',
@@ -131,6 +136,7 @@ export const PRESENTATION_TYPES: readonly PresentationType[] = [
     defaultSlides: 11,
     tone: '비전 있고 설득적, 임팩트 있는 단문, 자신감 있되 근거 있는',
     designHints: '큰 수치·핵심 지표 대형 강조, 임팩트 있는 비주얼, 브랜드 컬러 강하게, 트랙션은 성장 차트로',
+    defaultThemeId: 'coral-energy',
   },
   {
     id: 'academic',
@@ -150,6 +156,7 @@ export const PRESENTATION_TYPES: readonly PresentationType[] = [
     defaultSlides: 10,
     tone: '객관적이고 정밀한, 단정 대신 근거 기반, 인용 명시',
     designHints: '그래프·도표 중심, 절제된 학술 팔레트, 각 결과에 출처/통계 표기, 텍스트 최소화',
+    defaultThemeId: 'forest-green',
   },
   {
     id: 'sales',
@@ -169,6 +176,7 @@ export const PRESENTATION_TYPES: readonly PresentationType[] = [
     defaultSlides: 8,
     tone: '고객 중심, 이득을 앞세운 설득적 어조, 신뢰를 주는',
     designHints: '고객 로고·후기 요소, 핵심 수치(ROI/절감) 대형 강조, 강한 CTA 슬라이드, 브랜드 컬러 + 신뢰 톤',
+    defaultThemeId: 'royal-purple',
   },
 ] as const
 
