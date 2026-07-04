@@ -71,7 +71,8 @@
 
 - ✅ **문서 업로드 → 덱**: PDF(unpdf)/DOCX(mammoth)/TXT/MD 파싱 → 텍스트 추출 → user_text 소스로 리서치 파이프라인 재사용. POST /documents/extract(멀티파트, 10MB 제한, 미지원 형식 거부). 웹 create에 업로드 버튼. 실 E2E(pdf/txt/md/docx 추출 + 브라우저 업로드→소스 추가)
 - ✅ URL/텍스트 붙여넣기(기존 user_url/user_text 소스)
-- ❌ 장문 3모드(condense는 P10 리라이트로 부분 대체), CSV/Excel→차트, Guide Mode
+- ✅ **CSV → 차트**: parseCsvToChart(첫 열 라벨·나머지 계열) → 단일 차트 슬라이드 덱. POST /decks/from-csv. 실 E2E(분기 매출/비용 CSV→native 차트 PPTX export·잘못된 CSV 거부)
+- ❌ 장문 3모드(condense는 P10 리라이트로 부분 대체), Excel(xlsx)→차트, Guide Mode
 
 ## P8 — 이미지/차트 고도화 🔄 (다이어그램 착수)
 
