@@ -49,14 +49,24 @@ export function PresentMode({
   const notesH = showNotes ? 140 : 0
   const availH = vp.h - notesH
   const slideW = Math.min(vp.w * 0.96, (availH - 40) * aspect)
+  const nextSlide = deck.slides[active + 1]
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black" data-testid="present-mode">
-      <div className="flex flex-1 items-center justify-center overflow-hidden">
+      <div className="relative flex flex-1 items-center justify-center overflow-hidden">
         {slide && (
           <ScaledSlide width={slideW} aspectRatio={deck.aspectRatio}>
             <SlideView slide={slide} theme={theme} aspectRatio={deck.aspectRatio} />
           </ScaledSlide>
+        )}
+        {/* 발표자 뷰 — 다음 슬라이드 미리보기(우하단) */}
+        {nextSlide && (
+          <div className="absolute bottom-4 right-4 hidden overflow-hidden rounded-lg border border-white/20 opacity-80 md:block" data-testid="present-next-preview">
+            <div className="bg-black/70 px-2 py-0.5 text-[10px] text-white/60">다음</div>
+            <ScaledSlide width={200} aspectRatio={deck.aspectRatio}>
+              <SlideView slide={nextSlide} theme={theme} aspectRatio={deck.aspectRatio} />
+            </ScaledSlide>
+          </div>
         )}
       </div>
 

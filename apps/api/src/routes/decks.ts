@@ -7,6 +7,7 @@ import type { AppDeps } from '../deps.js'
 import { buildConfig } from '../lib/build-config.js'
 import { runResearchForConfig } from '../lib/research-runner.js'
 import { applyBrandKit } from '../lib/brand.js'
+import { newDeckId } from '../lib/ids.js'
 
 const createBody = z
   .object({
@@ -158,6 +159,14 @@ export function deckRoutes(deps: AppDeps) {
       } catch (e) {
         return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
       }
+    })
+    // 덱 복제(P6) — 원본 그대로 새 ID로 사본 생성(변형 시작점)
+    .post('/:id/duplicate', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      const copy = { ...deck, id: newDeckId(), title: `${deck.title} (사본)`, version: 1 }
+      await deps.decks.put(copy)
+      return c.json({ data: { deckId: copy.id, deck: copy } }, 201)
     })
     // 디자인 변형(P8) — 같은 내용을 다른 레이아웃 N개로 재생성해 선택지 제공
     .post('/:id/slides/:slideId/variants', async (c) => {

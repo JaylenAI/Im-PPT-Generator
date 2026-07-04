@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -257,6 +257,17 @@ function EditorPage() {
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckIcon className="h-4 w-4" />} 저장
               </button>
             )}
+            <button
+              onClick={async () => {
+                const { deck: copy } = await api.duplicateDeck(deck.id)
+                addDeck(copy)
+                navigate({ to: '/editor/$id', params: { id: copy.id } })
+              }}
+              data-testid="duplicate-btn"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary"
+            >
+              <Copy className="h-4 w-4" /> 복제
+            </button>
             <button
               onClick={download}
               disabled={downloading}

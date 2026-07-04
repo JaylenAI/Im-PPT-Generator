@@ -115,6 +115,10 @@ export const api = {
   updateDeck: (id: string, deck: Deck) =>
     req<Deck>(`/decks/${id}`, { method: 'PATCH', body: JSON.stringify(deck) }),
 
+  // 덱 복제(P6)
+  duplicateDeck: (id: string) =>
+    req<{ deckId: string; deck: Deck }>(`/decks/${id}/duplicate`, { method: 'POST' }),
+
   regenerateSlide: (deckId: string, slideId: string, instruction: string) =>
     req<{ slide: import('@im-ppt/schema').Slide; deck: Deck; costUsd: number }>(
       `/decks/${deckId}/slides/${slideId}/regenerate`,
