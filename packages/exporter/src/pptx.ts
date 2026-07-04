@@ -1,4 +1,5 @@
 import PptxGenJSImport from 'pptxgenjs'
+import type pptxgen from 'pptxgenjs'
 import type { Deck, SlideBackground, ThemeTokens } from '@im-ppt/schema'
 
 // ESM/CJS interop: 일부 런타임(node+tsx)에서 default가 이중 래핑됨 → 언래핑
@@ -13,7 +14,7 @@ export interface ExportOptions {
   includeNotes?: boolean
 }
 
-function applyBackground(slide: PptxGenJS.Slide, bg: SlideBackground, tokens: ThemeTokens): void {
+function applyBackground(slide: pptxgen.Slide, bg: SlideBackground, tokens: ThemeTokens): void {
   if (bg.kind === 'color') {
     slide.background = { color: resolveColor(bg.color, tokens) }
   } else if (bg.kind === 'gradient') {

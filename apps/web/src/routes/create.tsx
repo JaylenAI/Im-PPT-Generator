@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Sparkles, Loader2, Check } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
 import { useAppStore } from '@/lib/store'
 import type { TemplateMeta } from '@im-ppt/schema'
@@ -18,34 +18,64 @@ const PRESETS: Array<{ id: Preset; label: string; desc: string }> = [
 ]
 const EXAMPLES = ['재생에너지의 미래', 'Q4 시장 진입 전략', '초보자를 위한 머신러닝 입문']
 
+interface LogLine {
+  text: string
+  done: boolean
+}
+
 function CreatePage() {
   const navigate = useNavigate()
-  const generate = useAppStore((s) => s.generate)
+  const addDeck = useAppStore((s) => s.addDeck)
+  const loadThemes = useAppStore((s) => s.loadThemes)
   const [topic, setTopic] = useState('')
   const [preset, setPreset] = useState<Preset>('quick')
   const [slideCount, setSlideCount] = useState(8)
   const [templateId, setTemplateId] = useState('')
   const [templates, setTemplates] = useState<TemplateMeta[]>([])
   const [busy, setBusy] = useState(false)
+  const [log, setLog] = useState<LogLine[]>([])
+  const [progress, setProgress] = useState({ done: 0, total: 0 })
   const [error, setError] = useState<string | null>(null)
+  const logRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     api.listTemplates().then((t) => { setTemplates(t); setTemplateId(t[0]?.id ?? '') }).catch(() => {})
   }, [])
+  useEffect(() => {
+    logRef.current?.scrollTo({ top: logRef.current.scrollHeight })
+  }, [log])
+
+  const addLog = (text: string, done = false) => setLog((l) => [...l, { text, done }])
 
   const start = async () => {
     if (!topic.trim() || busy) return
     setBusy(true)
     setError(null)
+    setLog([])
+    setProgress({ done: 0, total: 0 })
+    await loadThemes()
     try {
-      const deck = await generate({
-        prompt: topic.trim(),
-        preset,
-        slideCount,
-        language: '한국어',
-        ...(templateId ? { templateId } : {}),
-      })
-      navigate({ to: '/editor/$id', params: { id: deck.id } })
+      await api.streamDeck(
+        { prompt: topic.trim(), preset, slideCount, language: '한국어', ...(templateId ? { templateId } : {}) },
+        (e) => {
+          if (e.type === 'job_started') addLog('생성 시작…')
+          else if (e.type === 'outline_ready') {
+            setProgress({ done: 0, total: e.outline.sections.length })
+            addLog(`목차 완성 — ${e.outline.sections.length}개 섹션`, true)
+            e.outline.sections.forEach((s, i) => addLog(`슬라이드 ${i + 1}: ${s.title}`))
+          } else if (e.type === 'slide_done') {
+            setProgress((p) => ({ ...p, done: p.done + 1 }))
+            addLog(`슬라이드 완성 (${e.slide.layoutType})`, true)
+          } else if (e.type === 'deck_saved') {
+            addDeck(e.deck)
+            addLog('완료! 에디터로 이동합니다…', true)
+            setTimeout(() => navigate({ to: '/editor/$id', params: { id: e.deck.id } }), 600)
+          } else if (e.type === 'job_error') {
+            setError(e.message)
+            setBusy(false)
+          }
+        },
+      )
     } catch (e) {
       setError((e as Error).message)
       setBusy(false)
@@ -53,14 +83,39 @@ function CreatePage() {
   }
 
   if (busy) {
+    const pct = progress.total ? Math.round((progress.done / progress.total) * 100) : 0
     return (
       <AppShell>
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-brand shadow-brand">
-            <Loader2 className="h-8 w-8 animate-spin text-white" />
+        <div className="mx-auto max-w-2xl px-10 py-16">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-brand shadow-brand">
+              <Loader2 className="h-6 w-6 animate-spin text-white" />
+            </div>
+            <div>
+              <div className="font-display text-xl font-bold">실시간 생성 중</div>
+              <div className="font-mono text-xs text-teal">
+                {progress.total ? `${progress.done}/${progress.total} 슬라이드` : 'AI가 설계하고 있습니다…'}
+              </div>
+            </div>
           </div>
-          <p className="font-mono text-sm text-teal">AI가 프레젠테이션을 설계하고 있습니다…</p>
-          <p className="text-sm text-muted-foreground">아웃라인 생성 후 슬라이드를 병렬로 만듭니다 (약 1~2분)</p>
+          {progress.total > 0 && (
+            <div className="mb-5 h-2 w-full overflow-hidden rounded-full bg-secondary">
+              <div className="h-full rounded-full bg-gradient-brand transition-all" style={{ width: `${pct}%` }} />
+            </div>
+          )}
+          <div ref={logRef} className="max-h-[420px] overflow-y-auto rounded-2xl border border-border bg-card p-5">
+            {log.map((l, i) => (
+              <div key={i} className="flex items-center gap-2 py-1 text-sm">
+                {l.done ? (
+                  <Check className="h-4 w-4 shrink-0 text-teal" />
+                ) : (
+                  <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-primary" />
+                )}
+                <span className={l.done ? 'text-foreground' : 'text-muted-foreground'}>{l.text}</span>
+              </div>
+            ))}
+          </div>
+          {error && <p className="mt-4 text-sm text-destructive">{error}</p>}
         </div>
       </AppShell>
     )
