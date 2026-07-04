@@ -12,7 +12,10 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.0",
+    "@im-ppt/core": "workspace:*",
+    "@im-ppt/exporter": "workspace:*",
     "@im-ppt/schema": "workspace:*",
+    "@im-ppt/templates": "workspace:*",
     "hono": "^4.8.0",
     "zod": "^4.0.0"
   },

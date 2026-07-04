@@ -1,22 +1,32 @@
 import { Hono } from 'hono'
 import { healthRoutes } from './routes/health.js'
+import { deckRoutes } from './routes/decks.js'
+import { exportRoutes } from './routes/exports.js'
+import { catalogRoutes } from './routes/catalog.js'
+import { settingsRoutes } from './routes/settings.js'
+import { createDefaultDeps, type AppDeps } from './deps.js'
 
 /**
  * 앱 팩토리 — 서버 기동과 분리해 테스트에서 app.request()로 직접 검증.
- * 도메인 라우터는 여기서만 마운트한다(모놀리식 라우트 파일 금지).
+ * deps 주입으로 라우트를 오프라인 테스트 가능(가짜 프로바이더). 도메인 라우터만 마운트.
  */
-export function createApp() {
+export function createApp(deps: AppDeps = createDefaultDeps()) {
   const app = new Hono().basePath('/api/v1')
 
   app.route('/health', healthRoutes)
+  app.route('/decks', deckRoutes(deps))
+  app.route('/', exportRoutes(deps)) // /decks/:id/export, /exports/:id/download
+  app.route('/', catalogRoutes) // /templates, /themes, /layouts
+  app.route('/settings', settingsRoutes(deps))
 
   app.notFound((c) =>
     c.json({ error: { code: 'NOT_FOUND', message: '요청한 리소스를 찾을 수 없습니다' } }, 404),
   )
 
-  app.onError((err, c) =>
-    c.json({ error: { code: 'INTERNAL', message: err.message } }, 500),
-  )
+  app.onError((err, c) => {
+    process.stderr.write(`[api error] ${err.stack ?? err.message}\n`)
+    return c.json({ error: { code: 'INTERNAL', message: err.message } }, 500)
+  })
 
   return app
 }
