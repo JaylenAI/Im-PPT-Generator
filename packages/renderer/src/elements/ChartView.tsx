@@ -13,12 +13,23 @@ export function ChartView({ el, tokens }: { el: ChartElement; tokens: ThemeToken
   ]).map((c) => resolveCssColor(c, tokens))
   const color = (i: number) => palette[i % palette.length] ?? '#4F46E5'
 
+  // 데이터 스토리텔링(ADR-011) — 강조 포인트가 있으면 그 외는 흐리게(핵심 수치 부각)
+  const hi = el.options.highlightIndex
+  const hiColor = resolveCssColor('token:colors.accent', tokens)
+  // 강조 인덱스가 있을 때 i번째 막대/점의 채움색과 불투명도
+  const barFill = (i: number, si: number) => (hi !== undefined && i === hi ? hiColor : color(si))
+  const barOpacity = (i: number) => (hi !== undefined && i !== hi ? 0.35 : 1)
+
   const all = el.data.series.flatMap((s) => s.values)
   const max = Math.max(1, ...all)
   const pad = 8
 
   if (el.chartType === 'pie' || el.chartType === 'donut') {
-    return <PieChart el={el} size={Math.min(w, h)} color={color} donut={el.chartType === 'donut'} />
+    return (
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ overflow: 'visible' }}>
+        <PieChart el={el} size={Math.min(w, h)} color={color} hi={hi} hiColor={hiColor} donut={el.chartType === 'donut'} />
+      </svg>
+    )
   }
 
   // bar/hbar/line/area/scatter는 카테시안 좌표로 근사
@@ -41,6 +52,8 @@ export function ChartView({ el, tokens }: { el: ChartElement; tokens: ThemeToken
             fill={el.chartType === 'area'}
             dots={el.chartType === 'scatter'}
             stroke={color(si)}
+            hi={hi}
+            hiColor={hiColor}
           />
         ) : (
           <g key={si}>
@@ -55,7 +68,8 @@ export function ChartView({ el, tokens }: { el: ChartElement; tokens: ThemeToken
                   y={pad + plotH - bh}
                   width={Math.max(1, barW - 2)}
                   height={bh}
-                  fill={color(si)}
+                  fill={barFill(i, si)}
+                  opacity={barOpacity(i)}
                   rx={2}
                 />
               )
@@ -68,10 +82,10 @@ export function ChartView({ el, tokens }: { el: ChartElement; tokens: ThemeToken
 }
 
 function LineSeries({
-  values, groupW, plotH, pad, max, fill, dots, stroke,
+  values, groupW, plotH, pad, max, fill, dots, stroke, hi, hiColor,
 }: {
   values: number[]; groupW: number; plotH: number; pad: number; max: number
-  fill: boolean; dots: boolean; stroke: string
+  fill: boolean; dots: boolean; stroke: string; hi: number | undefined; hiColor: string
 }) {
   const pts = values.map((v, i) => ({
     x: pad + i * groupW + groupW / 2,
@@ -88,24 +102,35 @@ function LineSeries({
         />
       )}
       {!dots && <path d={line} fill="none" stroke={stroke} strokeWidth={2} />}
-      {pts.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={dots ? 4 : 3} fill={stroke} />
-      ))}
+      {pts.map((p, i) => {
+        const on = hi !== undefined && i === hi
+        return (
+          <circle
+            key={i}
+            cx={p.x}
+            cy={p.y}
+            r={on ? 6 : dots ? 4 : 3}
+            fill={on ? hiColor : stroke}
+            opacity={hi !== undefined && !on ? 0.35 : 1}
+          />
+        )
+      })}
     </g>
   )
 }
 
 function PieChart({
-  el, size, color, donut,
+  el, size, color, donut, hi, hiColor,
 }: {
   el: ChartElement; size: number; color: (i: number) => string; donut: boolean
+  hi: number | undefined; hiColor: string
 }) {
   const r = size / 2
   const values = el.data.series[0]?.values ?? []
   const total = Math.max(1, values.reduce((a, b) => a + b, 0))
   let angle = -Math.PI / 2
   return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+    <g>
       {values.map((v, i) => {
         const slice = (v / total) * Math.PI * 2
         const x1 = r + r * Math.cos(angle)
@@ -114,15 +139,17 @@ function PieChart({
         const x2 = r + r * Math.cos(angle)
         const y2 = r + r * Math.sin(angle)
         const large = slice > Math.PI ? 1 : 0
+        const on = hi !== undefined && i === hi
         return (
           <path
             key={i}
             d={`M${r},${r} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z`}
-            fill={color(i)}
+            fill={on ? hiColor : color(i)}
+            opacity={hi !== undefined && !on ? 0.4 : 1}
           />
         )
       })}
       {donut && <circle cx={r} cy={r} r={r * 0.55} fill="#ffffff" />}
-    </svg>
+    </g>
   )
 }

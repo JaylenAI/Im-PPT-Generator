@@ -69,6 +69,8 @@ export const chartElementSchema = z.object({
       showLegend: z.boolean().default(true),
       showValues: z.boolean().default(false),
       palette: z.array(colorSchema).optional(),
+      /** 데이터 스토리텔링(ADR-011) — 강조할 데이터 포인트 인덱스(labels 기준). 나머지는 흐리게 */
+      highlightIndex: z.number().int().min(0).optional(),
     })
     .prefault({}),
   citationIds: z.array(idSchema).default([]),

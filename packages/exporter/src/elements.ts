@@ -114,6 +114,15 @@ export function addElement(
         labels: el.data.labels,
         values: s.values,
       }))
+      // 데이터 스토리텔링(ADR-011) — 단일 시리즈면 강조 포인트만 accent, 나머지는 흐린 색
+      // (PptxGenJS는 시리즈 1개일 때 chartColors를 데이터 포인트별로 적용)
+      const hi = el.options.highlightIndex
+      const highlightColors =
+        hi !== undefined && el.data.series.length === 1
+          ? el.data.labels.map((_, i) =>
+              i === hi ? resolveColor('token:colors.accent', tokens) : resolveColor('token:colors.border', tokens),
+            )
+          : undefined
       slide.addChart(
         type,
         data,
@@ -123,7 +132,7 @@ export function addElement(
           holeSize: el.chartType === 'donut' ? 50 : undefined,
           showLegend: el.options.showLegend,
           showValue: el.options.showValues,
-          chartColors: el.options.palette?.map((c) => resolveColor(c, tokens)),
+          chartColors: highlightColors ?? el.options.palette?.map((c) => resolveColor(c, tokens)),
         }),
       )
       break
