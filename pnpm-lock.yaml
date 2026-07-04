@@ -56,6 +56,9 @@ importers:
       hono:
         specifier: ^4.8.0
         version: 4.12.27
+      jszip:
+        specifier: ^3.10.0
+        version: 3.10.1
       mammoth:
         specifier: ^1.8.0
         version: 1.12.0

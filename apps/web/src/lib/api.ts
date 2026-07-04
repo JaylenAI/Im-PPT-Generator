@@ -165,6 +165,21 @@ export const api = {
   getBrandKit: () => req<BrandKitView | null>('/settings/brand-kit'),
   patchBrandKit: (kit: BrandKitView) =>
     req<BrandKitView>('/settings/brand-kit', { method: 'PATCH', body: JSON.stringify(kit) }),
+
+  // 브랜드 PPTX 업로드 → 테마 색상 추출 → 브랜드킷 설정
+  brandKitFromPptx: async (file: File): Promise<BrandKitView> => {
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch(`${BASE}/settings/brand-kit/from-pptx`, { method: 'POST', body: fd })
+    const body = (await res.json().catch(() => null)) as
+      | { data: BrandKitView }
+      | { error: { message: string } }
+      | null
+    if (!res.ok || !body || 'error' in body) {
+      throw new Error(body && 'error' in body ? body.error.message : 'PPTX 추출 실패')
+    }
+    return body.data
+  },
 }
 
 export interface BrandKitView {
