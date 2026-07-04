@@ -6,7 +6,7 @@ import { MARGIN, CONTENT_W, rect, text } from './helpers.js'
 
 const contentSchema = z.object({
   title: z.string().min(1).max(70),
-  chartType: z.enum(['bar', 'horizontalBar', 'line', 'area', 'pie', 'donut', 'scatter']),
+  chartType: z.enum(['bar', 'horizontalBar', 'line', 'area', 'pie', 'donut', 'scatter', 'waterfall']),
   data: z.object({
     labels: z.array(z.string().min(1).max(24)).min(1).max(12),
     series: z

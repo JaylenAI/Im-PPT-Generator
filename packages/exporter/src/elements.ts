@@ -1,5 +1,6 @@
 import type pptxgen from 'pptxgenjs'
 import type { SlideElement, ThemeTokens } from '@im-ppt/schema'
+import { computeWaterfall } from '@im-ppt/schema'
 import { pxToInch, resolveColor, fontSizePt, fontFace } from './units.js'
 
 type PptxSlide = pptxgen.Slide
@@ -108,6 +109,35 @@ export function addElement(
       break
     }
     case 'chart': {
+      // 워터폴 — native 미지원이라 스택 막대로 구현(투명 base + 증가/감소/총계 시리즈)
+      if (el.chartType === 'waterfall') {
+        const values = el.data.series[0]?.values ?? []
+        const wf = computeWaterfall(values, el.options.waterfallTotalLast ?? false)
+        const wfData = [
+          { name: '', labels: el.data.labels, values: wf.base }, // 투명 오프셋
+          { name: '증가', labels: el.data.labels, values: wf.rise.map((v, i) => (!wf.isTotal[i] ? v : 0)) },
+          { name: '감소', labels: el.data.labels, values: wf.fall.map((v, i) => (!wf.isTotal[i] ? v : 0)) },
+          { name: '총계', labels: el.data.labels, values: wf.rise.map((v, i) => (wf.isTotal[i] ? v + (wf.fall[i] ?? 0) : 0)) },
+        ]
+        slide.addChart(
+          'bar' as pptxgen.CHART_NAME,
+          wfData,
+          clean<pptxgen.IChartOpts>({
+            ...p,
+            barDir: 'col',
+            barGrouping: 'stacked',
+            showLegend: el.options.showLegend,
+            showValue: false,
+            chartColors: [
+              resolveColor('token:colors.background', tokens), // base = 배경색(보이지 않게)
+              resolveColor('token:colors.success', tokens),
+              resolveColor('token:colors.error', tokens),
+              resolveColor('token:colors.primary', tokens),
+            ],
+          }),
+        )
+        break
+      }
       const type = (CHART_TYPE[el.chartType] ?? 'bar') as pptxgen.CHART_NAME
       const data = el.data.series.map((s) => ({
         name: s.name,

@@ -93,6 +93,22 @@ describe('SlideView (SSR 렌더)', () => {
     expect(html).toContain('0.35')
   })
 
+  it('워터폴 차트: 증가=success·감소=error·총계=primary 막대를 렌더', () => {
+    const chartEl: ChartElement = {
+      id: 'wf', type: 'chart', chartType: 'waterfall',
+      frame: { x: 100, y: 100, w: 600, h: 400 }, rotation: 0, opacity: 1, locked: false,
+      data: { labels: ['시작', '증가', '감소', '총계'], series: [{ name: '매출', values: [100, 50, -30, 120] }] },
+      options: { showLegend: false, showValues: false, waterfallTotalLast: true }, citationIds: [],
+    }
+    const slide: Slide = { id: 's1', layoutType: 'chart', elements: [chartEl], notes: '', citationIds: [], status: 'draft' }
+    const html = renderToStaticMarkup(<SlideView slide={slide} theme={theme} />).toLowerCase()
+    expect(html).toContain('<rect')
+    // 증가(success)·감소(error)·총계(primary) 색이 모두 등장
+    expect(html).toContain(theme.tokens.colors.success.toLowerCase())
+    expect(html).toContain(theme.tokens.colors.error.toLowerCase())
+    expect(html).toContain(theme.tokens.colors.primary.toLowerCase())
+  })
+
   it('데이터 스토리텔링: 차트 레이아웃이 highlightIndex를 element로 전달', () => {
     const slide = slideFrom('chart', {
       title: '전기차 판매',

@@ -1,10 +1,15 @@
 import type { ChartElement, ThemeTokens } from '@im-ppt/schema'
+import { computeWaterfall } from '@im-ppt/schema'
 import { resolveCssColor } from '../theme-context.js'
 
-/** 의존성 없는 인라인 SVG 차트 — SSR 안전. bar/hbar/line/area/pie/donut/scatter 최소 렌더 */
+/** 의존성 없는 인라인 SVG 차트 — SSR 안전. bar/hbar/line/area/pie/donut/scatter/waterfall 최소 렌더 */
 export function ChartView({ el, tokens }: { el: ChartElement; tokens: ThemeTokens }) {
   const w = el.frame.w
   const h = el.frame.h
+
+  if (el.chartType === 'waterfall') {
+    return <WaterfallChart el={el} tokens={tokens} w={w} h={h} />
+  }
   const palette = (el.options.palette ?? [
     'token:colors.primary',
     'token:colors.accent',
@@ -151,5 +156,52 @@ function PieChart({
       })}
       {donut && <circle cx={r} cy={r} r={r * 0.55} fill="#ffffff" />}
     </g>
+  )
+}
+
+/** 워터폴 차트 — 순차 증감이 누적에 미치는 영향을 떠 있는 막대로. 증가=success, 감소=error, 총계=primary */
+function WaterfallChart({ el, tokens, w, h }: { el: ChartElement; tokens: ThemeTokens; w: number; h: number }) {
+  const values = el.data.series[0]?.values ?? []
+  const wf = computeWaterfall(values, el.options.waterfallTotalLast ?? false)
+  const upColor = resolveCssColor('token:colors.success', tokens)
+  const downColor = resolveCssColor('token:colors.error', tokens)
+  const totalColor = resolveCssColor('token:colors.primary', tokens)
+  const gridColor = resolveCssColor('token:colors.textSecondary', tokens)
+
+  const pad = 8
+  const plotW = w - pad * 2
+  const plotH = h - pad * 2
+  const n = values.length
+  const groupW = plotW / Math.max(1, n)
+  const span = wf.axisMax - wf.axisMin || 1
+  // 값 → y좌표(위가 큰 값)
+  const y = (v: number) => pad + plotH - ((v - wf.axisMin) / span) * plotH
+  const zeroY = y(0)
+
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ overflow: 'visible' }}>
+      {/* 0 기준선 */}
+      <line x1={pad} y1={zeroY} x2={pad + plotW} y2={zeroY} stroke={gridColor} strokeWidth={1} opacity={0.3} />
+      {values.map((_, i) => {
+        const barW = groupW * 0.6
+        const bx = pad + i * groupW + groupW * 0.2
+        const bottom = wf.base[i]!
+        const height = wf.rise[i]! + wf.fall[i]!
+        const top = bottom + height
+        const yTop = y(top)
+        const yBottom = y(bottom)
+        const fill = wf.isTotal[i] ? totalColor : wf.rise[i]! > 0 ? upColor : downColor
+        // 누적 연결선(다음 막대로)
+        const connX2 = pad + (i + 1) * groupW + groupW * 0.2
+        return (
+          <g key={i}>
+            <rect x={bx} y={yTop} width={Math.max(1, barW)} height={Math.max(1, yBottom - yTop)} fill={fill} rx={2} />
+            {i < n - 1 && !wf.isTotal[i] && (
+              <line x1={bx + barW} y1={y(wf.cum[i]!)} x2={connX2} y2={y(wf.cum[i]!)} stroke={gridColor} strokeWidth={1} strokeDasharray="3 2" opacity={0.4} />
+            )}
+          </g>
+        )
+      })}
+    </svg>
   )
 }

@@ -94,6 +94,7 @@ export const PROMPT_CATALOG = {
 - **차트를 만들 때(데이터 스토리텔링)**: 데이터를 나열만 하지 말고 "그래서 무엇을 말하는가"를 담으세요.
   · insight 필드에 그 차트의 핵심 메시지를 완결된 한 문장으로 반드시 넣으세요(예: "3분기 이후 성장이 가속됐다").
   · highlightIndex 필드에 **가장 중요한 데이터 포인트의 인덱스**(labels 기준 0부터)를 넣어 그 값만 강조되게 하세요.
+  · 매출 구성·손익 변화처럼 **순차 증감이 누적**되는 데이터는 chartType을 waterfall로 하세요(values=각 단계 증감분, 증가는 양수·감소는 음수). 마지막을 총계로 표시하려면 options.waterfallTotalLast를 true로 하고 마지막 value에 총계를 넣으세요.
 - 모든 텍스트는 {language}로 작성합니다.`,
   },
   slide_plan_system: {
