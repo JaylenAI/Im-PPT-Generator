@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -12,7 +12,7 @@ import { PropertyPanel } from '@/components/PropertyPanel'
 import { PresentMode } from '@/components/PresentMode'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
-import { editText, editListItem, updateFrame, updateTextStyle, deleteElement } from '@/lib/deck-edit'
+import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement } from '@/lib/deck-edit'
 import { makeId, type ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -288,6 +288,20 @@ function EditorPage() {
             <div className="flex flex-1 flex-col overflow-hidden p-6">
               <div className="mb-3 flex items-center justify-between text-sm">
                 <span className="font-mono text-muted-foreground">슬라이드 {active + 1} / {deck.slides.length}</span>
+                {editMode && slide && (
+                  <div className="flex items-center gap-1" data-testid="add-toolbar">
+                    <span className="mr-1 text-xs text-muted-foreground">추가</span>
+                    <button data-testid="add-text" onClick={() => { const el = newElement('text'); commit(addElement(deck, slide.id, el)); setSelectedId(el.id) }}
+                      className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><TypeIcon className="h-3.5 w-3.5" /> 텍스트</button>
+                    <button data-testid="add-image" onClick={() => {
+                      const url = window.prompt('이미지 URL')
+                      if (!url) return
+                      const el = newElement('image', { src: url }); commit(addElement(deck, slide.id, el)); setSelectedId(el.id)
+                    }} className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><ImageIcon className="h-3.5 w-3.5" /> 이미지</button>
+                    <button data-testid="add-shape" onClick={() => { const el = newElement('shape'); commit(addElement(deck, slide.id, el)); setSelectedId(el.id) }}
+                      className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><Square className="h-3.5 w-3.5" /> 도형</button>
+                  </div>
+                )}
                 <span className="rounded-md bg-secondary px-2 py-1 font-mono text-xs">{deck.aspectRatio}</span>
               </div>
               <div className="flex flex-1 items-center justify-center">
