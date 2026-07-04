@@ -33,12 +33,18 @@ const FIXTURES: Record<string, unknown> = {
       { label: '정착', detail: '성과 측정' },
     ],
   },
+  timeline: { title: '연혁', milestones: [{ date: '2023', label: '창업' }, { date: '2024', label: '성장', detail: '시리즈A' }, { date: '2025', label: '확장' }] },
+  comparison: { title: '비교', left: { heading: '현재', items: ['느림', '수동'] }, right: { heading: '개선', items: ['빠름', '자동'] } },
+  'kpi-grid': { title: '실적', kpis: [{ value: '92%', label: '만족도', delta: '+5%' }, { value: '3.4배', label: '성장' }, { value: '#1', label: '점유율' }] },
+  cards: { title: '특징', cards: [{ heading: '빠름', body: '즉시 생성' }, { heading: '정확', body: '출처 검증' }, { heading: '편함', body: '원클릭' }] },
+  bignum: { value: '268곳', caption: '전국 소멸위험 지역', context: 'AI가 청년과 매칭' },
+  roadmap: { title: '로드맵', phases: [{ name: '진단', items: ['현황', '목표'] }, { name: '실행', items: ['개발', '배포'] }, { name: '확산', items: ['운영'] }] },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 10종이 등록되어 있다(references는 hidden)', () => {
+  it('레이아웃 16종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bullets', 'chart', 'closing', 'process', 'quote', 'references', 'stat', 'title', 'two-col'],
+      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'kpi-grid', 'process', 'quote', 'references', 'roadmap', 'stat', 'timeline', 'title', 'two-col'],
     )
   })
 
