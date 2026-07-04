@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Sparkles, Loader2, Check, Plus, X } from 'lucide-react'
+import { Sparkles, Loader2, Check, Plus, X, Upload } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
 import { OutlineGate } from '@/components/gates/OutlineGate'
 import { PlanGate } from '@/components/gates/PlanGate'
@@ -67,6 +67,17 @@ function CreatePage() {
     if (!t) return
     const src: UserSource = /^https?:\/\//i.test(t) ? { kind: 'user_url', url: t } : { kind: 'user_text', text: t }
     setSources((s) => [...s, src]); setSrcText('')
+  }
+
+  const uploadDoc = async (file: File | undefined) => {
+    if (!file) return
+    setError(null)
+    try {
+      const { text, filename } = await api.extractDocument(file)
+      setSources((s) => [...s, { kind: 'user_text', text, title: filename }])
+    } catch (e) {
+      setError((e as Error).message)
+    }
   }
 
   // 진입점 — quick은 즉시 스트림, 나머지는 아웃라인 게이트로
@@ -229,6 +240,12 @@ function CreatePage() {
                   placeholder="https://... 또는 참고할 텍스트"
                   className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
                 <button onClick={addSource} className="rounded-lg border border-border px-3 hover:border-primary" aria-label="자료 추가"><Plus className="h-4 w-4" /></button>
+                <label className="flex cursor-pointer items-center rounded-lg border border-border px-3 hover:border-primary" title="문서 업로드(DOCX/TXT/MD)">
+                  <Upload className="h-4 w-4" />
+                  <input type="file" accept=".docx,.txt,.md,.markdown" className="hidden"
+                    data-testid="doc-upload"
+                    onChange={(e) => { void uploadDoc(e.target.files?.[0]); e.target.value = '' }} />
+                </label>
               </div>
               {sources.map((s, i) => (
                 <div key={i} className="mt-2 flex items-center gap-2 text-xs">

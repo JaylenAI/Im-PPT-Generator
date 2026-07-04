@@ -63,13 +63,11 @@
 - ❌ 템플릿 갤러리 15종+ (현재 빌트인 2종)
 - ❌ 로고 업로드, 유저 PPTX 업로드 추출(파서 서비스), 커스텀 템플릿 저장, 덱 복제
 
-## P7 — 입력 확장 ❌
+## P7 — 입력 확장 🔄 (문서 업로드 완료)
 
-- PDF/DOCX/MD 업로드 → 덱 (파싱→팩트 파이프라인 재사용)
-- 장문 붙여넣기 3모드(generate/condense/**preserve** — Gamma 카피)
-- URL/웹페이지 임포트, 기존 PPTX 콘텐츠 임포트, CSV/Excel → 차트
-- Guide Mode(청중/목적/구조 사전 인터뷰 — Genspark 카피)
-- 검증: 입력 모드별 실파일 E2E
+- ✅ **문서 업로드 → 덱**: DOCX(mammoth)/TXT/MD 파싱 → 텍스트 추출 → user_text 소스로 리서치 파이프라인 재사용. POST /documents/extract(멀티파트, 10MB 제한, 미지원 형식 거부). 웹 create에 업로드 버튼. 실 E2E(txt/md/docx 추출 + 브라우저 업로드→소스 추가)
+- ✅ URL/텍스트 붙여넣기(기존 user_url/user_text 소스)
+- ❌ PDF 파싱(파서 추가 필요), 장문 3모드(condense는 P10 리라이트로 부분 대체), CSV/Excel→차트, Guide Mode
 
 ## P8 — 이미지/차트 고도화 🔄 (다이어그램 착수)
 
