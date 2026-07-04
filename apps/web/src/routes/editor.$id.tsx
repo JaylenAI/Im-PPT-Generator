@@ -43,6 +43,7 @@ function EditorPage() {
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [tab, setTab] = useState<'chat' | 'search'>('chat')
+  const [editing, setEditing] = useState(false)
   const { ref, width } = useWidth<HTMLDivElement>()
 
   // 스토어에 없으면(새로고침/직접 URL) 백엔드에서 로드
@@ -87,20 +88,21 @@ function EditorPage() {
     }
   }
 
-  const send = () => {
-    if (!input.trim()) return
+  const send = async () => {
+    if (!input.trim() || editing || !slide) return
     const text = input.trim()
     setInput('')
-    setChat((c) => [
-      ...c,
-      { id: makeId(), role: 'user', content: text, createdAt: Date.now() },
-      {
-        id: makeId(),
-        role: 'assistant',
-        content: '페이지 단위 AI 수정은 다음 단계(P4)에서 연결됩니다. 지금은 슬라이드 보기와 PPTX 다운로드가 가능합니다.',
-        createdAt: Date.now(),
-      },
-    ])
+    setChat((c) => [...c, { id: makeId(), role: 'user', content: text, createdAt: Date.now() }])
+    setEditing(true)
+    try {
+      const { deck: updated } = await api.regenerateSlide(deck.id, slide.id, text)
+      setDeck(updated) // 해당 페이지만 바뀐 새 덱
+      setChat((c) => [...c, { id: makeId(), role: 'assistant', content: `"${slide.layoutType}" 슬라이드를 수정했습니다.`, createdAt: Date.now() }])
+    } catch (e) {
+      setChat((c) => [...c, { id: makeId(), role: 'assistant', content: `수정 실패: ${(e as Error).message}`, createdAt: Date.now() }])
+    } finally {
+      setEditing(false)
+    }
   }
 
   return (
@@ -199,6 +201,12 @@ function EditorPage() {
                   </div>
                 </div>
               ))}
+              {editing && (
+                <div className="flex items-center gap-2 text-xs text-teal">
+                  <span className="h-2 w-2 animate-ping rounded-full bg-teal" />
+                  <span className="font-mono">이 페이지를 수정하고 있습니다…</span>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-sidebar-border p-4">
@@ -207,10 +215,11 @@ function EditorPage() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send()}
-                  placeholder="요청을 입력하세요…"
-                  className="w-full rounded-xl border border-sidebar-border bg-sidebar-accent py-3 pl-4 pr-11 text-sm text-white outline-none placeholder:text-sidebar-foreground/40 focus:border-primary"
+                  placeholder="예: 더 간결하게 / 통계 추가 / 톤 바꿔줘"
+                  disabled={editing}
+                  className="w-full rounded-xl border border-sidebar-border bg-sidebar-accent py-3 pl-4 pr-11 text-sm text-white outline-none placeholder:text-sidebar-foreground/40 focus:border-primary disabled:opacity-50"
                 />
-                <button onClick={send} disabled={!input.trim()} className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-brand p-2 text-white disabled:opacity-40">
+                <button onClick={send} disabled={!input.trim() || editing} className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-lg bg-gradient-brand p-2 text-white disabled:opacity-40">
                   <Send className="h-4 w-4" />
                 </button>
               </div>
