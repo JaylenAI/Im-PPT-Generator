@@ -4,8 +4,9 @@ import { Sparkles, Loader2, Check, Plus, X, Upload } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
 import { OutlineGate } from '@/components/gates/OutlineGate'
 import { PlanGate } from '@/components/gates/PlanGate'
+import { PresentationTypePicker } from '@/components/PresentationTypePicker'
 import { useAppStore } from '@/lib/store'
-import type { TemplateMeta, Outline, Source, Fact, SlidePlan } from '@im-ppt/schema'
+import type { TemplateMeta, Outline, Source, Fact, SlidePlan, PresentationTypeId } from '@im-ppt/schema'
 import { api, type GenerateInput, type UserSource } from '@/lib/api'
 
 export const Route = createFileRoute('/create')({ component: CreatePage })
@@ -33,6 +34,7 @@ function CreatePage() {
   const [phase, setPhase] = useState<Phase>('input')
   const [topic, setTopic] = useState('')
   const [preset, setPreset] = useState<Preset>('quick')
+  const [presentationType, setPresentationType] = useState<PresentationTypeId>('general')
   const [slideCount, setSlideCount] = useState(8)
   const [templateId, setTemplateId] = useState('')
   const [aspectRatio, setAspectRatio] = useState<NonNullable<GenerateInput['aspectRatio']>>('16:9')
@@ -59,7 +61,7 @@ function CreatePage() {
   useEffect(() => { logRef.current?.scrollTo({ top: logRef.current.scrollHeight }) }, [log])
 
   const input = (): GenerateInput => ({
-    prompt: topic.trim(), preset, slideCount, language: '한국어', aspectRatio, tone,
+    prompt: topic.trim(), preset, slideCount, language: '한국어', aspectRatio, tone, presentationType,
     ...(audience.trim() ? { audience: audience.trim() } : {}),
     ...(templateId ? { templateId } : {}),
     ...(usesSources(preset) && sources.length ? { sources } : {}),
@@ -221,6 +223,11 @@ function CreatePage() {
               <button key={ex} onClick={() => setTopic(ex)} className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground hover:border-primary hover:text-primary">{ex}</button>
             ))}
           </div>
+
+          <PresentationTypePicker
+            value={presentationType}
+            onChange={(id, type) => { setPresentationType(id); setSlideCount(type.defaultSlides) }}
+          />
 
           <div className="mt-5 flex flex-wrap items-center gap-2">
             {PRESETS.map((p) => (

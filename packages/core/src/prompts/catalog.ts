@@ -16,7 +16,7 @@ export const PROMPT_CATALOG = {
   outline_system: {
     description: '주제로부터 발표 아웃라인(섹션 목록)을 생성',
     category: 'outline',
-    variables: ['topic', 'slideCount', 'tone', 'audience', 'language', 'layoutCatalog', 'facts'],
+    variables: ['topic', 'slideCount', 'tone', 'audience', 'language', 'layoutCatalog', 'facts', 'scaffold'],
     content: `당신은 전문 프레젠테이션 기획자입니다. 주제에 대해 논리적이고 설득력 있는 발표 아웃라인을 설계하세요.
 
 주제: {topic}
@@ -24,6 +24,8 @@ export const PROMPT_CATALOG = {
 톤: {tone}
 청중: {audience}
 언어: {language}
+
+{scaffold}
 
 사용 가능한 레이아웃(각 섹션에 가장 적합한 것을 고르세요):
 {layoutCatalog}
@@ -33,6 +35,7 @@ export const PROMPT_CATALOG = {
 
 규칙:
 - **정확히 {slideCount}개의 섹션**을 만드세요. 섹션 1개 = 슬라이드 1장입니다.
+- 위에 **권장 골격**이 주어졌으면 그 서사 순서와 논리를 따르되, {slideCount}장에 맞게 비트별 장수를 늘리거나 합치세요(골격의 논리 흐름은 유지).
 - 첫 섹션은 title 레이아웃, 마지막은 closing 레이아웃을 권장합니다.
 - 각 섹션은 title(짧은 라벨), **assertion(핵심 주장)**, summary(한 줄 요약), layoutHint를 가집니다.
 - **assertion = 그 슬라이드의 결론을 담은 완결된 한 문장**(주제 라벨 금지). 이게 슬라이드 헤드라인이 됩니다.
