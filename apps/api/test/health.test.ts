@@ -21,7 +21,7 @@ describe('GET /api/v1/health', () => {
 describe('loadEnv', () => {
   it('기본값을 채운다', () => {
     const env = loadEnv({})
-    expect(env.PORT).toBe(8787)
+    expect(env.PORT).toBe(8788)
     expect(env.LOG_LEVEL).toBe('info')
   })
 

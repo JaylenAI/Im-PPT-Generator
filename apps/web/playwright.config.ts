@@ -20,8 +20,8 @@ export default defineConfig({
     {
       command: 'node --import tsx src/index.ts',
       cwd: '../api',
-      port: 8787,
-      env: { PORT: '8787', LOG_LEVEL: 'warn' },
+      port: 8788,
+      env: { PORT: '8788', LOG_LEVEL: 'warn' },
       reuseExistingServer: true,
       timeout: 30_000,
     },
