@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -12,7 +12,7 @@ import { PropertyPanel } from '@/components/PropertyPanel'
 import { PresentMode } from '@/components/PresentMode'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
-import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement } from '@/lib/deck-edit'
+import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement } from '@/lib/deck-edit'
 import { makeId, type ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -275,6 +275,10 @@ function EditorPage() {
             >
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
             </button>
+            <a href={`/share/${deck.id}`} target="_blank" rel="noreferrer" data-testid="share-btn"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary">
+              <Share2 className="h-4 w-4" /> 공유
+            </a>
             <button onClick={() => setPresenting(true)} data-testid="present-btn"
               className="flex items-center gap-1.5 rounded-lg bg-gradient-brand px-4 py-1.5 text-sm font-semibold text-white shadow-brand">
               <Play className="h-4 w-4" /> 발표
@@ -360,6 +364,7 @@ function EditorPage() {
                 element={selectedEl}
                 onFrame={(patch) => deck && commit(updateFrame(deck, slide.id, selectedEl.id, patch))}
                 onStyle={(patch) => deck && commit(updateTextStyle(deck, slide.id, selectedEl.id, patch))}
+                onReorder={(dir) => deck && commit(reorderElement(deck, slide.id, selectedEl.id, dir))}
                 onDelete={() => {
                   if (deck) commit(deleteElement(deck, slide.id, selectedEl.id))
                   setSelectedId(undefined)

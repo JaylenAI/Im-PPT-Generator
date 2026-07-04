@@ -1,4 +1,4 @@
-import { Trash2, Move, Type as TypeIcon } from 'lucide-react'
+import { Trash2, Move, Type as TypeIcon, BringToFront, SendToBack } from 'lucide-react'
 import type { Deck, Frame } from '@im-ppt/schema'
 
 type Element = Deck['slides'][number]['elements'][number]
@@ -27,11 +27,13 @@ export function PropertyPanel({
   element,
   onFrame,
   onStyle,
+  onReorder,
   onDelete,
 }: {
   element: Element
   onFrame: (patch: Partial<Frame>) => void
   onStyle: (patch: Partial<TextStyle>) => void
+  onReorder: (dir: 'forward' | 'backward') => void
   onDelete: () => void
 }) {
   return (
@@ -82,6 +84,20 @@ export function PropertyPanel({
           </div>
         </div>
       )}
+
+      <div>
+        <div className="mb-2 text-xs font-medium text-sidebar-foreground/60">순서 (z-order)</div>
+        <div className="flex gap-2">
+          <button onClick={() => onReorder('forward')} data-testid="prop-forward"
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border py-1.5 text-xs hover:border-primary">
+            <BringToFront className="h-3.5 w-3.5" /> 앞으로
+          </button>
+          <button onClick={() => onReorder('backward')} data-testid="prop-backward"
+            className="flex flex-1 items-center justify-center gap-1 rounded-lg border border-border py-1.5 text-xs hover:border-primary">
+            <SendToBack className="h-3.5 w-3.5" /> 뒤로
+          </button>
+        </div>
+      </div>
 
       <button
         onClick={onDelete}

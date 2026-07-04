@@ -14,6 +14,7 @@ import { Route as RecentRouteImport } from './routes/recent'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as BrandKitRouteImport } from './routes/brand-kit'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ShareIdRouteImport } from './routes/share.$id'
 import { Route as EditorIdRouteImport } from './routes/editor.$id'
 
 const TemplatesRoute = TemplatesRouteImport.update({
@@ -41,6 +42,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ShareIdRoute = ShareIdRouteImport.update({
+  id: '/share/$id',
+  path: '/share/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorIdRoute = EditorIdRouteImport.update({
   id: '/editor/$id',
   path: '/editor/$id',
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/recent': typeof RecentRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
+  '/share/$id': typeof ShareIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/recent': typeof RecentRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
+  '/share/$id': typeof ShareIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,13 +79,27 @@ export interface FileRoutesById {
   '/recent': typeof RecentRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
+  '/share/$id': typeof ShareIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/brand-kit' | '/create' | '/recent' | '/templates' | '/editor/$id'
+    | '/'
+    | '/brand-kit'
+    | '/create'
+    | '/recent'
+    | '/templates'
+    | '/editor/$id'
+    | '/share/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/brand-kit' | '/create' | '/recent' | '/templates' | '/editor/$id'
+  to:
+    | '/'
+    | '/brand-kit'
+    | '/create'
+    | '/recent'
+    | '/templates'
+    | '/editor/$id'
+    | '/share/$id'
   id:
     | '__root__'
     | '/'
@@ -86,6 +108,7 @@ export interface FileRouteTypes {
     | '/recent'
     | '/templates'
     | '/editor/$id'
+    | '/share/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,6 +118,7 @@ export interface RootRouteChildren {
   RecentRoute: typeof RecentRoute
   TemplatesRoute: typeof TemplatesRoute
   EditorIdRoute: typeof EditorIdRoute
+  ShareIdRoute: typeof ShareIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/share/$id': {
+      id: '/share/$id'
+      path: '/share/$id'
+      fullPath: '/share/$id'
+      preLoaderRoute: typeof ShareIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editor/$id': {
       id: '/editor/$id'
       path: '/editor/$id'
@@ -151,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecentRoute: RecentRoute,
   TemplatesRoute: TemplatesRoute,
   EditorIdRoute: EditorIdRoute,
+  ShareIdRoute: ShareIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
