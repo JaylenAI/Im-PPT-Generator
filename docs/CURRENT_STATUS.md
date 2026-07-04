@@ -14,8 +14,9 @@
 | `packages/renderer` — React 슬라이드 렌더러 | ✅ 완료 | P1, 단위 5 |
 | `apps/api` — 덱/Export/카탈로그/설정 라우트 | ✅ 완료 | P1, 단위 13 |
 | `apps/web` — Vite+React 브라우저 MVP | ✅ 완료 | P1, 빌드+HTTP E2E 검증 |
+| `packages/db` — Postgres+Drizzle 덱 영속 | 🔄 진행중 (2026-07-04) | P2, 단위+실PG 통합 |
+| SSE 실시간 생성 스트리밍 | ✅ 완료 (2026-07-04) | P2, 실 claude 검증 |
 | `packages/research` — 딥서치+인용 | ❌ 미개발 | P3 |
-| `packages/db` — Postgres+Drizzle 데이터 계층 | ❌ 미개발 | P2 |
 
 ## P1 MVP 상태: ✅ 관통 완료 (v0.1.0 후보)
 

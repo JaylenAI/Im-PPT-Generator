@@ -3,10 +3,9 @@ import { TEMPLATES, getTheme } from '@im-ppt/templates'
 import { generateOutline } from './outline.js'
 import { generateSlide, type SlideDeps } from './slide.js'
 
-let deckCounter = 0
+/** 충돌 안전 덱 ID — 서버 재시작에도 카운터 리셋으로 인한 PK 충돌 없음 */
 function nextDeckId(): string {
-  deckCounter += 1
-  return `deck_${deckCounter}`
+  return `deck_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`
 }
 
 /** config.templateId → 템플릿, 미지정 시 기본(corporate-indigo). 테마도 함께 resolve */

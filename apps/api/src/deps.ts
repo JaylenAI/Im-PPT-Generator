@@ -1,7 +1,7 @@
-import type { Deck } from '@im-ppt/schema'
 import { ProviderRegistry, PromptStore, createDefaultRegistry } from '@im-ppt/core'
+import { MemoryDeckStore, type DeckStore } from '@im-ppt/db'
 
-/** 인메모리 저장소 — P1. P2에서 packages/db(Postgres)로 교체(동일 인터페이스) */
+/** 이펨럴 인메모리 저장소(export 산출물 등) — 재시작 시 재생성 가능해 영속 불필요 */
 export class MemoryStore<T extends { id: string }> {
   private items = new Map<string, T>()
   put(item: T): T {
@@ -29,20 +29,21 @@ export interface ExportArtifact {
 
 /**
  * 앱 의존성 — 라우트는 이것만 통해 도메인 로직에 접근(비즈니스 로직 직접 소유 금지, ADR-007).
- * 테스트는 registry에 가짜 프로바이더를 주입해 오프라인 검증.
+ * decks는 DeckStore(비동기, Postgres/인메모리 교체 가능). 테스트는 MemoryDeckStore 주입.
  */
 export interface AppDeps {
   registry: ProviderRegistry
   prompts: PromptStore
-  decks: MemoryStore<Deck>
+  decks: DeckStore
   exports: MemoryStore<ExportArtifact>
 }
 
+/** 기본 deps — DB 없이 인메모리(테스트/개발 폴백). 서버 기동은 index.ts에서 DB 배선 */
 export function createDefaultDeps(): AppDeps {
   return {
     registry: createDefaultRegistry(),
     prompts: new PromptStore(),
-    decks: new MemoryStore<Deck>(),
+    decks: new MemoryDeckStore(),
     exports: new MemoryStore<ExportArtifact>(),
   }
 }

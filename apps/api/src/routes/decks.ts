@@ -31,17 +31,17 @@ export function deckRoutes(deps: AppDeps) {
         registry: deps.registry,
         prompts: deps.prompts,
       })
-      deps.decks.put(deck)
+      await deps.decks.put(deck)
       return c.json({ data: { deckId: deck.id, deck, costUsd } }, 201)
     })
-    .get('/', (c) => c.json({ data: deps.decks.list() }))
-    .get('/:id', (c) => {
-      const deck = deps.decks.get(c.req.param('id'))
+    .get('/', async (c) => c.json({ data: await deps.decks.list() }))
+    .get('/:id', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
       if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       return c.json({ data: deck })
     })
-    .delete('/:id', (c) => {
-      const ok = deps.decks.delete(c.req.param('id'))
+    .delete('/:id', async (c) => {
+      const ok = await deps.decks.delete(c.req.param('id'))
       if (!ok) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       return c.json({ data: { deleted: true } })
     })

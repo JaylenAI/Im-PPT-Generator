@@ -29,7 +29,7 @@ export function streamRoutes(deps: AppDeps) {
       await send({ type: 'job_started' })
       try {
         const deck = await generateDeckStreaming(config, { registry: deps.registry, prompts: deps.prompts }, send)
-        deps.decks.put(deck)
+        await deps.decks.put(deck)
         await send({ type: 'deck_saved', deckId: deck.id, deck })
       } catch (e) {
         await send({ type: 'job_error', message: (e as Error).message })

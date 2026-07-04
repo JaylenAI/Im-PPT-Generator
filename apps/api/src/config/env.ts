@@ -4,6 +4,9 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8787),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  /** 있으면 Postgres 영속, 없으면 인메모리 폴백 */
+  DATABASE_URL: z.string().optional(),
+  WORKSPACE_ID: z.string().default('default'),
 })
 
 export type Env = z.infer<typeof envSchema>

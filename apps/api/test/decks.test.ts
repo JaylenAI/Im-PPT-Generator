@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { ProviderRegistry, PromptStore, type ProviderAdapter } from '@im-ppt/core'
+import { MemoryDeckStore } from '@im-ppt/db'
+import type { Deck } from '@im-ppt/schema'
 import { createApp } from '../src/app.js'
 import { MemoryStore, type AppDeps, type ExportArtifact } from '../src/deps.js'
-import type { Deck } from '@im-ppt/schema'
 
 /** 모든 레이아웃에 대응하는 콘텐츠를 반환하는 가짜 프로바이더(오프라인 라우트 테스트) */
 function fakeProvider(): ProviderAdapter {
@@ -34,7 +35,7 @@ function testDeps(): AppDeps {
   return {
     registry,
     prompts: new PromptStore(),
-    decks: new MemoryStore<Deck>(),
+    decks: new MemoryDeckStore(),
     exports: new MemoryStore<ExportArtifact>(),
   }
 }

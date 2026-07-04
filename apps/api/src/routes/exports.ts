@@ -17,7 +17,7 @@ function safeName(title: string): string {
 export function exportRoutes(deps: AppDeps) {
   return new Hono()
     .post('/decks/:id/export', async (c) => {
-      const deck = deps.decks.get(c.req.param('id'))
+      const deck = await deps.decks.get(c.req.param('id'))
       if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       const parsed = exportBody.safeParse(await c.req.json().catch(() => ({})))
       const format = parsed.success ? parsed.data.format : 'pptx'
