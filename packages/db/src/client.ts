@@ -30,5 +30,23 @@ export async function ensureSchema(handle: DbHandle): Promise<void> {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
     );
     CREATE INDEX IF NOT EXISTS decks_workspace_idx ON decks (workspace_id, updated_at DESC);
+
+    CREATE TABLE IF NOT EXISTS jobs (
+      id TEXT PRIMARY KEY,
+      workspace_id TEXT NOT NULL DEFAULT 'default',
+      deck_id TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'queued',
+      config JSONB NOT NULL,
+      events JSONB NOT NULL DEFAULT '[]'::jsonb,
+      error TEXT,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      max_attempts INTEGER NOT NULL DEFAULT 3,
+      locked_at TIMESTAMPTZ,
+      run_after TIMESTAMPTZ NOT NULL DEFAULT now(),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    );
+    -- 워커 claim이 스캔하는 인덱스(대기/스테일 후보를 run_after 순으로)
+    CREATE INDEX IF NOT EXISTS jobs_claim_idx ON jobs (workspace_id, status, run_after);
   `)
 }

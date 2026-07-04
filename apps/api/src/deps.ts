@@ -1,5 +1,5 @@
 import { ProviderRegistry, PromptStore, createDefaultRegistry } from '@im-ppt/core'
-import { MemoryDeckStore, type DeckStore } from '@im-ppt/db'
+import { MemoryDeckStore, MemoryJobStore, type DeckStore, type JobStore } from '@im-ppt/db'
 
 /** 이펨럴 인메모리 저장소(export 산출물 등) — 재시작 시 재생성 가능해 영속 불필요 */
 export class MemoryStore<T extends { id: string }> {
@@ -35,6 +35,7 @@ export interface AppDeps {
   registry: ProviderRegistry
   prompts: PromptStore
   decks: DeckStore
+  jobs: JobStore
   exports: MemoryStore<ExportArtifact>
 }
 
@@ -44,6 +45,7 @@ export function createDefaultDeps(): AppDeps {
     registry: createDefaultRegistry(),
     prompts: new PromptStore(),
     decks: new MemoryDeckStore(),
+    jobs: new MemoryJobStore(),
     exports: new MemoryStore<ExportArtifact>(),
   }
 }

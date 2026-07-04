@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { ProviderRegistry, PromptStore, type ProviderAdapter } from '@im-ppt/core'
-import { MemoryDeckStore } from '@im-ppt/db'
+import { MemoryDeckStore, MemoryJobStore } from '@im-ppt/db'
 import type { Deck } from '@im-ppt/schema'
 import { createApp } from '../src/app.js'
 import { MemoryStore, type AppDeps, type ExportArtifact } from '../src/deps.js'
@@ -36,6 +36,7 @@ function testDeps(): AppDeps {
     registry,
     prompts: new PromptStore(),
     decks: new MemoryDeckStore(),
+    jobs: new MemoryJobStore(),
     exports: new MemoryStore<ExportArtifact>(),
   }
 }

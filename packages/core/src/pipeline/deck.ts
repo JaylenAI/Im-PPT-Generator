@@ -21,9 +21,10 @@ function assembleDeck(
   ids: { templateId: string; themeId: string },
   outline: Outline,
   slides: Deck['slides'],
+  deckId?: string,
 ): Deck {
   return {
-    id: nextDeckId(),
+    id: deckId ?? nextDeckId(),
     title: config.prompt.trim().slice(0, 80) || '제목 없는 프레젠테이션',
     language: config.language,
     aspectRatio: config.aspectRatio,
@@ -66,6 +67,7 @@ export async function generateDeckStreaming(
   config: GenerationConfig,
   deps: SlideDeps,
   onEvent: (event: GenerationEvent) => void | Promise<void>,
+  opts: { deckId?: string } = {},
 ): Promise<Deck> {
   const ids = resolveTemplate(config)
   getTheme(ids.themeId)
@@ -83,7 +85,7 @@ export async function generateDeckStreaming(
     }),
   )
 
-  const deck = assembleDeck(config, ids, outline, slides)
+  const deck = assembleDeck(config, ids, outline, slides, opts.deckId)
   await onEvent({ type: 'deck_done', deckId: deck.id })
   return deck
 }
