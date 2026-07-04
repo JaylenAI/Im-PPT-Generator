@@ -8,6 +8,7 @@ import { buildConfig } from '../lib/build-config.js'
 import { runResearchForConfig } from '../lib/research-runner.js'
 import { applyBrandKit } from '../lib/brand.js'
 import { newDeckId } from '../lib/ids.js'
+import { parseCsvToChart, buildChartDeck } from '../lib/csv-chart.js'
 
 const createBody = z
   .object({
@@ -63,6 +64,26 @@ export function deckRoutes(deps: AppDeps) {
       const deck = applyBrandKit(deps, gen.deck)
       await deps.decks.put(deck)
       return c.json({ data: { deckId: deck.id, deck, costUsd: gen.costUsd } }, 201)
+    })
+    // CSV → 차트 슬라이드 덱(P7) — 첫 열 라벨, 나머지 열 계열
+    .post('/from-csv', async (c) => {
+      const body = (await c.req.json().catch(() => null)) as
+        | { csv?: string; title?: string; chartType?: string }
+        | null
+      if (!body?.csv || body.csv.trim().length === 0) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: 'csv 필수' } }, 400)
+      }
+      try {
+        const data = parseCsvToChart(body.csv)
+        const deck = buildChartDeck(data, {
+          ...(body.title ? { title: body.title } : {}),
+          ...(body.chartType ? { chartType: body.chartType } : {}),
+        })
+        await deps.decks.put(deck)
+        return c.json({ data: { deckId: deck.id, deck } }, 201)
+      } catch (e) {
+        return c.json({ error: { code: 'PARSE_FAILED', message: (e as Error).message } }, 400)
+      }
     })
     .get('/', async (c) => c.json({ data: await deps.decks.list() }))
     .get('/:id', async (c) => {
