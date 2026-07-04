@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { aspectRatioSchema, idSchema } from './primitives.js'
+import { presentationTypeIdSchema } from './presentation-type.js'
 
 /**
  * 딥서치 강도 — 사용자가 "리서치를 시킬지/얼마나" 고르는 축.
@@ -42,6 +43,9 @@ export const generationConfigSchema = z.object({
 
   /** 제목 방식(ADR-009) — assertion: 결론 문장 헤드라인 / topic: 짧은 주제 라벨 */
   titleMode: z.enum(['assertion', 'topic']).default('assertion'),
+
+  /** 발표 유형(ADR-010) — 서사 골격/톤/디자인 레시피. general이면 표준 구조 */
+  presentationType: presentationTypeIdSchema.default('general'),
 
   /** 미지정 시 AI가 선택. 사용자가 미리 고르면 그 템플릿/테마로 바로 진행 */
   templateId: idSchema.optional(),

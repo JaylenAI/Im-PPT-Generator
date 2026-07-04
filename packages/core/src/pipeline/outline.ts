@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { Fact, GenerationConfig, Outline } from '@im-ppt/schema'
+import { getPresentationType, renderScaffold } from '@im-ppt/schema'
 import { layoutCatalogForLlm } from '@im-ppt/templates'
 import type { ProviderRegistry } from '../providers/registry.js'
 import type { PromptStore } from '../prompts/loader.js'
@@ -51,6 +52,10 @@ export async function generateOutline(
     .map((l) => `- ${l.key}: ${l.description}`)
     .join('\n')
 
+  // 발표 유형 스캐폴드 — general이면 표준 골격, 특정 유형이면 그 장르의 서사 구조 주입
+  const ptype = getPresentationType(config.presentationType)
+  const scaffold = renderScaffold(ptype)
+
   const prompt = deps.prompts.get('outline_system', {
     topic: config.prompt,
     slideCount: config.slideCount,
@@ -59,6 +64,7 @@ export async function generateOutline(
     language: config.language,
     layoutCatalog: catalogText,
     facts: factsText(facts),
+    scaffold,
   })
 
   const { data, usage } = await deps.registry.generateStructured(

@@ -1,4 +1,4 @@
-import type { Deck, Theme, TemplateMeta, Outline, SlidePlan, Source, Fact } from '@im-ppt/schema'
+import type { Deck, Theme, TemplateMeta, Outline, SlidePlan, Source, Fact, PresentationType, PresentationTypeId } from '@im-ppt/schema'
 
 /** 사용자 제공 자료(리서치 입력) */
 export interface UserSource {
@@ -37,6 +37,7 @@ export interface GenerateInput {
   aspectRatio?: '16:9' | '4:3' | '9:16'
   audience?: string
   sources?: UserSource[]
+  presentationType?: PresentationTypeId
 }
 
 /** SSE 생성 이벤트 — 백엔드 events.ts 계약의 프론트 소비 형태 */
@@ -142,6 +143,9 @@ export const api = {
   listThemes: () => req<Theme[]>('/themes'),
 
   listTemplates: () => req<TemplateMeta[]>('/templates'),
+
+  // 발표 유형 카탈로그(ADR-010) — PT면접/컨설팅/IR/학술/세일즈/일반
+  listPresentationTypes: () => req<PresentationType[]>('/presentation-types'),
 
   createExport: (deckId: string) =>
     req<{ exportId: string; filename: string }>(`/decks/${deckId}/export`, {

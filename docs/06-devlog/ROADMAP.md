@@ -109,7 +109,7 @@
 > 상위 도구/스킬(Gamma·Genspark·open-design·design-diversity·ppt-master) + 프레젠테이션 이론(Minto Pyramid·Alley Assertion-Evidence·McKinsey) 딥서칭 → 콘텐츠 품질 레버 보완.
 
 - ✅ **Action Title 엔진**(ADR-009): 슬라이드 제목 = 주제 라벨 → **완결된 결론 문장(assertion)**. outline이 assertion 생성(title=짧은 라벨 분리), slide 헤드라인=assertion(폴백 title), `checkGhostDeck`(Titles Test 순수 검증) + 에디터 "제목 점검" 뷰 + OutlineGate assertion 편집. 실 claude E2E(상황→복잡성→통찰→해결→결론 스토리, Ghost Deck coherent) + Playwright
-- 🔄 **발표 유형 시스템**(ADR-010 예정): PT면접·컨설팅·IR·학술·세일즈·일반 6종 레시피(구조+톤+디자인+서사)
+- ✅ **발표 유형 시스템**(ADR-010): PT면접·컨설팅·IR·학술·세일즈·일반 6종 레시피(서사 골격+톤+디자인). 데이터 카탈로그(SSOT)→outline `renderScaffold` 주입, `/presentation-types` API, 생성 폼 `PresentationTypePicker`(선택 시 권장 슬라이드 수 제안). 실 claude E2E로 유형별 구조 차별화 확인(interview=STAR, ir_pitch=Kawasaki) + 스키마 4·Playwright 1
 - 🔄 **데이터 스토리텔링 + 레이아웃 다양성**: 차트 핵심 수치 강조·주석, 연속 레이아웃 중복 방지
 
 ## 이후 후보 (v2)
