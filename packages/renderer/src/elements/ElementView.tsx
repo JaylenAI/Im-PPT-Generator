@@ -3,12 +3,20 @@ import type { SlideElement } from '@im-ppt/schema'
 import { resolveCssColor, fontSizePx, fontFamily, useThemeTokens } from '../theme-context.js'
 import { ChartView } from './ChartView.js'
 
-/** 편집 모드 핸들러 — 제공되면 텍스트 인라인 편집 + 요소 선택 활성화 */
+/** 편집 모드 핸들러 — 제공되면 텍스트 인라인 편집 + 요소 선택/드래그/리사이즈 활성화 */
 export interface EditHandlers {
   selectedId?: string
+  /** 표시 스케일(displayWidth/1280) — 화면 델타를 캔버스 좌표로 변환 */
+  scale: number
   onSelect: (id: string) => void
   onEditText: (id: string, content: string) => void
   onEditListItem: (id: string, index: number, text: string) => void
+  /** 드래그 중 라이브 이동(히스토리 미기록) */
+  onMoveLive: (id: string, pos: { x: number; y: number }) => void
+  /** 드래그 중 라이브 리사이즈(히스토리 미기록) */
+  onResizeLive: (id: string, size: { w: number; h: number }) => void
+  /** 드래그 종료 — 현재 상태를 히스토리에 커밋 */
+  onDragEnd: () => void
 }
 
 /** 요소 frame → 절대 배치 CSS(가상 캔버스 px 그대로) */

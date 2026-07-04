@@ -10,6 +10,7 @@ function NumberField({ label, value, onChange }: { label: string; value: number;
       <span className="w-4 text-muted-foreground">{label}</span>
       <input
         type="number"
+        data-testid={`prop-${label.toLowerCase()}`}
         value={Math.round(value)}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full rounded-md border border-border bg-background px-2 py-1 text-xs outline-none focus:border-primary"

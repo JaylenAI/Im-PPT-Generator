@@ -5,6 +5,7 @@ import {
   Pencil, Check as CheckIcon, Undo2, Redo2,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
+import { CANVAS_SIZES } from '@im-ppt/schema'
 import { SlideView, ScaledSlide, type EditHandlers } from '@im-ppt/renderer'
 import { AppSidebar } from '@/components/AppSidebar'
 import { PropertyPanel } from '@/components/PropertyPanel'
@@ -46,6 +47,7 @@ function EditorPage() {
   const addDeck = useAppStore((s) => s.addDeck)
 
   const [deck, setDeck] = useState<Deck | undefined>(storeDeck)
+  const deckRef = useRef<Deck | undefined>(storeDeck)
   const [theme, setTheme] = useState<Theme | undefined>(storeDeck ? themeFor(storeDeck) : undefined)
   const [active, setActive] = useState(0)
   const [downloading, setDownloading] = useState(false)
@@ -79,6 +81,7 @@ function EditorPage() {
       }
       if (alive && d) {
         setDeck(d)
+        deckRef.current = d
         setTheme(themes.find((t) => t.id === d!.themeId))
         setHist({ stack: [d], idx: 0 }) // 히스토리 시작점
       }
@@ -109,11 +112,31 @@ function EditorPage() {
   // 편집 커밋 — 덱 갱신 + 히스토리 push + dirty
   const commit = (newDeck: Deck) => {
     setDeck(newDeck)
+    deckRef.current = newDeck
     setHist((h) => {
       const stack = [...h.stack.slice(0, h.idx + 1), newDeck]
       return { stack, idx: stack.length - 1 }
     })
     setDirty(true)
+  }
+  // 드래그 중 라이브 갱신(히스토리 미기록) — deckRef로 최신 유지
+  const liveUpdate = (fn: (d: Deck) => Deck) => {
+    setDeck((d) => {
+      if (!d) return d
+      const next = fn(d)
+      deckRef.current = next
+      return next
+    })
+    setDirty(true)
+  }
+  // 드래그 종료 — 현재 덱을 히스토리에 커밋
+  const commitCurrent = () => {
+    const d = deckRef.current
+    if (!d) return
+    setHist((h) => {
+      const stack = [...h.stack.slice(0, h.idx + 1), d]
+      return { stack, idx: stack.length - 1 }
+    })
   }
   const undo = () =>
     setHist((h) => {
@@ -134,15 +157,24 @@ function EditorPage() {
   const canUndo = hist.idx > 0
   const canRedo = hist.idx < hist.stack.length - 1
 
-  // WYSIWYG — 인라인 편집 핸들러(불변 갱신 → 히스토리 커밋)
+  const canvasW = deck ? CANVAS_SIZES[deck.aspectRatio].width : 1280
+  const scale = width > 0 ? width / canvasW : 1
+
+  // WYSIWYG — 인라인 편집 + 드래그/리사이즈 핸들러
   const editHandlers: EditHandlers | undefined =
     editMode && slide
       ? {
           ...(selectedId ? { selectedId } : {}),
+          scale,
           onSelect: (elId: string) => setSelectedId(elId),
           onEditText: (elId: string, content: string) => deck && commit(editText(deck, slide.id, elId, content)),
           onEditListItem: (elId: string, index: number, text: string) =>
             deck && commit(editListItem(deck, slide.id, elId, index, text)),
+          onMoveLive: (elId: string, pos: { x: number; y: number }) =>
+            liveUpdate((d) => updateFrame(d, slide.id, elId, pos)),
+          onResizeLive: (elId: string, size: { w: number; h: number }) =>
+            liveUpdate((d) => updateFrame(d, slide.id, elId, size)),
+          onDragEnd: commitCurrent,
         }
       : undefined
 
@@ -251,7 +283,7 @@ function EditorPage() {
                 <div
                   ref={ref}
                   data-testid="editor-canvas"
-                  onClick={() => editMode && setSelectedId(undefined)}
+                  onClick={(e) => editMode && e.target === e.currentTarget && setSelectedId(undefined)}
                   className={cn(
                     'w-full max-w-4xl overflow-hidden rounded-2xl border bg-card shadow-card',
                     editMode ? 'border-primary/50' : 'border-border',
