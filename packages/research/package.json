@@ -1,5 +1,5 @@
 {
-  "name": "@im-ppt/core",
+  "name": "@im-ppt/research",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -14,8 +14,6 @@
   },
   "dependencies": {
     "@im-ppt/schema": "workspace:*",
-    "@im-ppt/templates": "workspace:*",
-    "@im-ppt/research": "workspace:*",
     "zod": "^4.0.0"
   },
   "devDependencies": {

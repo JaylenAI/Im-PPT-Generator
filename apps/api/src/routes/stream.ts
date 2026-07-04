@@ -1,20 +1,33 @@
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { z } from 'zod'
-import type { AppSettings, GenerationConfig } from '@im-ppt/schema'
+import {
+  userSourceInputSchema,
+  type AppSettings,
+  type GenerationConfig,
+  type UserSourceInput,
+} from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import type { Worker } from '../lib/worker.js'
 import { tailJob } from '../lib/worker.js'
 import { buildConfig } from '../lib/build-config.js'
 import { newDeckId, newJobId } from '../lib/ids.js'
 
-const createBody = z.object({ prompt: z.string().min(1) }).passthrough()
+const createBody = z.object({ prompt: z.string().min(1), sources: z.array(userSourceInputSchema).optional() }).passthrough()
 
-function parseConfig(app: AppSettings, raw: unknown): GenerationConfig | { error: string } {
+interface ParsedRequest {
+  config: GenerationConfig
+  userSources: UserSourceInput[]
+}
+
+function parseRequest(app: AppSettings, raw: unknown): ParsedRequest | { error: string } {
   const parsed = createBody.safeParse(raw)
   if (!parsed.success) return { error: 'prompt는 필수입니다' }
   try {
-    return buildConfig(app, parsed.data as Record<string, unknown>)
+    return {
+      config: buildConfig(app, parsed.data as Record<string, unknown>),
+      userSources: parsed.data.sources ?? [],
+    }
   } catch (e) {
     return { error: (e as Error).message }
   }
@@ -29,13 +42,13 @@ function parseConfig(app: AppSettings, raw: unknown): GenerationConfig | { error
 export function streamRoutes(deps: AppDeps, worker: Worker) {
   return new Hono()
     .post('/decks/stream', async (c) => {
-      const config = parseConfig(deps.settings.getApp(), await c.req.json().catch(() => null))
-      if ('error' in config) {
-        return c.json({ error: { code: 'VALIDATION_FAILED', message: config.error } }, 400)
+      const req = parseRequest(deps.settings.getApp(), await c.req.json().catch(() => null))
+      if ('error' in req) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: req.error } }, 400)
       }
       const jobId = newJobId()
       const deckId = newDeckId()
-      await deps.jobs.enqueue({ id: jobId, deckId, config })
+      await deps.jobs.enqueue({ id: jobId, deckId, config: req.config, userSources: req.userSources })
       // kick — 백그라운드 루프가 없어도(또는 있어도, 원자적 claim) 즉시 처리 시작
       void worker.processOne().catch(() => {})
       return streamSSE(c, async (stream) => {
@@ -45,13 +58,13 @@ export function streamRoutes(deps: AppDeps, worker: Worker) {
       })
     })
     .post('/decks/generate', async (c) => {
-      const config = parseConfig(deps.settings.getApp(), await c.req.json().catch(() => null))
-      if ('error' in config) {
-        return c.json({ error: { code: 'VALIDATION_FAILED', message: config.error } }, 400)
+      const req = parseRequest(deps.settings.getApp(), await c.req.json().catch(() => null))
+      if ('error' in req) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: req.error } }, 400)
       }
       const jobId = newJobId()
       const deckId = newDeckId()
-      await deps.jobs.enqueue({ id: jobId, deckId, config })
+      await deps.jobs.enqueue({ id: jobId, deckId, config: req.config, userSources: req.userSources })
       void worker.processOne().catch(() => {})
       return c.json({ data: { jobId, deckId } }, 202)
     })

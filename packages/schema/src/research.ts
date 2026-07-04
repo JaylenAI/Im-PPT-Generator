@@ -30,6 +30,15 @@ export const citationSchema = z.object({
   url: z.string().url().optional(),
 })
 
+/** 사용자 제공 자료 입력 — 생성 요청에 실려오는 URL/텍스트(웹 검색 결과와 동일 스키마로 수렴) */
+export const userSourceInputSchema = z.object({
+  kind: z.enum(['user_url', 'user_text']),
+  url: z.string().url().optional(),
+  text: z.string().optional(),
+  title: z.string().optional(),
+})
+
 export type Source = z.infer<typeof sourceSchema>
 export type Fact = z.infer<typeof factSchema>
 export type Citation = z.infer<typeof citationSchema>
+export type UserSourceInput = z.infer<typeof userSourceInputSchema>

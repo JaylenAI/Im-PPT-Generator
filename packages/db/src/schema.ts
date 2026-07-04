@@ -1,5 +1,5 @@
 import { pgTable, text, jsonb, timestamp, integer, primaryKey } from 'drizzle-orm/pg-core'
-import type { Deck, GenerationConfig, GenerationEvent } from '@im-ppt/schema'
+import type { Deck, GenerationConfig, GenerationEvent, UserSourceInput } from '@im-ppt/schema'
 
 /**
  * 덱 테이블 — 덱 JSON을 JSONB로 저장(스키마 진화 유연, 전체 로드가 기본 액세스).
@@ -28,6 +28,8 @@ export const jobs = pgTable('jobs', {
   deckId: text('deck_id').notNull(),
   status: text('status').$type<JobStatus>().notNull().default('queued'),
   config: jsonb('config').$type<GenerationConfig>().notNull(),
+  /** 사용자 제공 자료(URL/텍스트) — 리서치 단계 입력. 재시작 생존 위해 잡에 영속 */
+  userSources: jsonb('user_sources').$type<UserSourceInput[]>().notNull().default([]),
   /** 의미 단위 이벤트 append 로그 — 재접속 재생의 원천(SSOT) */
   events: jsonb('events').$type<GenerationEvent[]>().notNull().default([]),
   error: text('error'),

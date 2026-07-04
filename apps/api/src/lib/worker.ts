@@ -1,7 +1,8 @@
 import type { GenerationEvent } from '@im-ppt/schema'
-import { generateDeckStreaming } from '@im-ppt/core'
+import { generateDeckStreaming, type ResearchInput } from '@im-ppt/core'
 import type { JobStore } from '@im-ppt/db'
 import type { AppDeps } from '../deps.js'
+import { runResearchForConfig } from './research-runner.js'
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -32,17 +33,25 @@ export function createWorker(deps: AppDeps, opts: WorkerOptions = {}): Worker {
   async function processOne(): Promise<boolean> {
     const job = await deps.jobs.claim()
     if (!job) return false
-    const { id, deckId, config } = job
+    const { id, deckId, config, userSources } = job
     // 재시도라면 이전 시도의 부분 이벤트를 지워 재생이 최신 시도만 반영
     await deps.jobs.resetEvents(id)
     const append = (event: GenerationEvent) => deps.jobs.appendEvent(id, event)
     await append({ type: 'job_started', jobId: id, deckId })
     try {
+      // 리서치 단계 — researchMode != off면 소스 수집 + 팩트 추출(할루시네이션 제로)
+      let research: ResearchInput | undefined
+      if (config.researchMode !== 'off') {
+        await append({ type: 'research_started', query: config.prompt })
+        research = await runResearchForConfig(deps, config, userSources, (s) =>
+          append({ type: 'source_found', source: s }),
+        )
+      }
       const deck = await generateDeckStreaming(
         config,
         { registry: deps.registry, prompts: deps.prompts },
         append,
-        { deckId },
+        { deckId, ...(research ? { research } : {}) },
       )
       await deps.decks.put(deck)
       await append({ type: 'deck_saved', deckId: deck.id, deck })

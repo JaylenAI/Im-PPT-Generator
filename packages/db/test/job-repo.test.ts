@@ -118,24 +118,25 @@ describe('MemoryJobStore', () => {
 const URL = process.env.DATABASE_URL
 describe.skipIf(!URL)('PgJobStore (실 Postgres)', () => {
   const handle = createDb(URL!)
-  const store = new PgJobStore(handle.db)
-  const id = `jobtest_${Date.now()}`
+  // claim은 워크스페이스 전역이므로 테스트마다 고유 워크스페이스로 격리(교차 간섭·잔여 잡 방지)
+  const ws = () => `jobtest_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
 
   afterAll(async () => {
-    await handle.pool.query('DELETE FROM jobs WHERE id = $1', [id])
+    await handle.pool.query(`DELETE FROM jobs WHERE workspace_id LIKE 'jobtest_%'`)
     await handle.close()
   })
 
   it('enqueue → 원자적 claim → append → complete', async () => {
     await ensureSchema(handle)
+    const store = new PgJobStore(handle.db, ws())
+    const id = 'j1'
     await store.enqueue({ id, deckId: `${id}_deck`, config })
     const claimed = await store.claim()
-    // 다른 잡이 있을 수 있으니 우리 잡을 명시 조회로 검증
-    expect(claimed).toBeDefined()
-
-    const mine = await store.get(id)
-    expect(mine?.status).toBe('running')
-    expect(mine?.attempts).toBe(1)
+    expect(claimed?.id).toBe(id)
+    expect(claimed?.status).toBe('running')
+    expect(claimed?.attempts).toBe(1)
+    // 같은 잡 두 번 claim 불가(원자적)
+    expect(await store.claim()).toBeUndefined()
 
     await store.appendEvent(id, { type: 'job_started', jobId: id, deckId: `${id}_deck` })
     await store.appendEvent(id, { type: 'deck_done', deckId: `${id}_deck` })
@@ -148,44 +149,48 @@ describe.skipIf(!URL)('PgJobStore (실 Postgres)', () => {
     expect((await store.get(id))?.status).toBe('done')
   })
 
+  it('userSources 영속(리서치 입력)', async () => {
+    const store = new PgJobStore(handle.db, ws())
+    await store.enqueue({
+      id: 'j2',
+      deckId: 'd2',
+      config,
+      userSources: [{ kind: 'user_text', text: '내 자료', title: '메모' }],
+    })
+    const claimed = await store.claim()
+    expect(claimed?.userSources).toEqual([{ kind: 'user_text', text: '내 자료', title: '메모' }])
+  })
+
   it('fail 백오프 재큐 후 소진 시 error', async () => {
-    const fid = `${id}_fail`
-    const fstore = new PgJobStore(handle.db, 'default', { baseMs: 1, capMs: 1, staleSeconds: 300 })
-    try {
-      await fstore.enqueue({ id: fid, deckId: `${fid}_deck`, config })
-      await fstore.claim()
-      expect((await fstore.fail(fid, 'e1'))?.status).toBe('queued')
-      await sleep(5)
-      await fstore.claim()
-      expect((await fstore.fail(fid, 'e2'))?.status).toBe('queued')
-      await sleep(5)
-      await fstore.claim()
-      const final = await fstore.fail(fid, 'e3')
-      expect(final?.status).toBe('error')
-      expect(final?.attempts).toBe(3)
-    } finally {
-      await handle.pool.query('DELETE FROM jobs WHERE id = $1', [fid])
-    }
+    const store = new PgJobStore(handle.db, ws(), { baseMs: 1, capMs: 1, staleSeconds: 300 })
+    const fid = 'jf'
+    await store.enqueue({ id: fid, deckId: `${fid}_deck`, config })
+    await store.claim()
+    expect((await store.fail(fid, 'e1'))?.status).toBe('queued')
+    await sleep(5)
+    expect((await store.claim())?.id).toBe(fid) // 격리돼 반드시 우리 잡
+    expect((await store.fail(fid, 'e2'))?.status).toBe('queued')
+    await sleep(5)
+    expect((await store.claim())?.id).toBe(fid)
+    const final = await store.fail(fid, 'e3')
+    expect(final?.status).toBe('error')
+    expect(final?.attempts).toBe(3)
   })
 
   it('크래시 복구 — 오래 잠긴 running을 재클레임(서버 재시작 시나리오)', async () => {
-    const rid = `${id}_stale`
-    try {
-      await store.enqueue({ id: rid, deckId: `${rid}_deck`, config })
-      await store.claim() // running, locked_at=now
-      // 서버 크래시 모사 — locked_at을 6분 전으로(기본 stale 임계 5분 초과)
-      await handle.pool.query(
-        `UPDATE jobs SET locked_at = now() - interval '6 minutes' WHERE id = $1`,
-        [rid],
-      )
-      const reclaimed = await store.claim()
-      // 우리 잡이 재클레임됐는지(다른 잡이 껴도 명시 조회로 확인)
-      expect(reclaimed).toBeDefined()
-      const mine = await store.get(rid)
-      expect(mine?.status).toBe('running')
-      expect(mine?.attempts).toBe(2) // 최초 claim + 재클레임
-    } finally {
-      await handle.pool.query('DELETE FROM jobs WHERE id = $1', [rid])
-    }
+    const wsId = ws()
+    const store = new PgJobStore(handle.db, wsId)
+    const rid = 'jr'
+    await store.enqueue({ id: rid, deckId: `${rid}_deck`, config })
+    await store.claim() // running, locked_at=now
+    // 서버 크래시 모사 — locked_at을 6분 전으로(기본 stale 임계 5분 초과)
+    await handle.pool.query(
+      `UPDATE jobs SET locked_at = now() - interval '6 minutes' WHERE id = $1 AND workspace_id = $2`,
+      [rid, wsId],
+    )
+    const reclaimed = await store.claim()
+    expect(reclaimed?.id).toBe(rid)
+    expect(reclaimed?.status).toBe('running')
+    expect(reclaimed?.attempts).toBe(2) // 최초 claim + 재클레임
   })
 })

@@ -1,6 +1,7 @@
 import type { Fact, GenerationConfig, OutlineSection, Slide } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
 import { getLayout } from '@im-ppt/templates'
+import { citationIdsForFacts } from '@im-ppt/research'
 import type { ProviderRegistry } from '../providers/registry.js'
 import type { PromptStore } from '../prompts/loader.js'
 
@@ -29,6 +30,8 @@ export async function generateSlide(params: {
   section: OutlineSection
   deps: SlideDeps
   facts?: Fact[]
+  /** sourceId→citationId 맵(리서치 있을 때) — 슬라이드 citationIds를 인용 ID로 채운다 */
+  sourceToCitation?: Record<string, string>
 }): Promise<{ slide: Slide; usage?: { costUsd?: number } }> {
   const { config, section, deps } = params
   const facts = params.facts ?? []
@@ -53,12 +56,16 @@ export async function generateSlide(params: {
 
   const { background, elements } = layout.build(data, { canvas })
 
+  // 인용 ID는 소스 단위(중복 제거). 리서치 없으면 빈 배열.
+  const citationIds = params.sourceToCitation
+    ? citationIdsForFacts(facts, params.sourceToCitation)
+    : []
   const slide: Slide = {
     id: nextSlideId(),
     layoutType: layout.key,
     elements,
     notes: '',
-    citationIds: facts.map((f) => f.id),
+    citationIds,
     status: 'draft',
     ...(background ? { background } : {}),
   }

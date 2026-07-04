@@ -28,13 +28,16 @@
 - ✅ Docker 패키징: app/web Dockerfile + docker-compose 전체 스택(`docker compose up`) — nginx가 /api 프록시(SSE) + SPA 폴백. 오픈소스 셀프호스트. 두 이미지 빌드→스택 기동→서빙/프록시 실검증
 - ✅ 동적 설정 카탈로그(타입드 카탈로그→zod 파생→설정 UI→DB KV→핫리로드) — APP_SETTINGS_CATALOG + SettingsService(부팅 hydrate). 실 E2E: PATCH→재시작 영속→앱 기본값이 미지정 생성에 반영
 
-## P3 — 딥리서치 + 할루시네이션 제로 ❌
+## P3 — 딥리서치 + 할루시네이션 제로 🔄 (데이터 파이프라인 완료)
 
-- `packages/research`: 검색 어댑터(Tavily 기본/Serper 폴백) + 스크레이핑(Firecrawl/Jina) + 유저 입력(URL/텍스트/문서) 동일 스키마 수용
-- 팩트 추출(소스 ID 부착) → **팩트 승인 게이트 UI**(Stitch `ai_2` 디자인: 승인/거절, Approve All, 출처 링크)
-- 인용 전파: 팩트→아웃라인→슬라이드 요소 `citationId` → 출처 각주/출처 슬라이드 렌더 + **소스 매니저 화면**(시장 공백 선점)
-- 원클릭 팩트체크(근거 강/약 플래깅) — Genspark 단독 기능 카피
-- 검증: 실 검색 API 통합 테스트 + 인용 역추적 E2E
+- ✅ `packages/research`: 검색 어댑터(Tavily/Serper, 키 주입) + URL 본문 fetch(태그 스트립) + 유저 입력(URL/텍스트) 동일 스키마 수용. leaf 패키지(LLM 콜백 주입, 순환 의존 없음)
+- ✅ 팩트 추출(소스ID 부착, 지어낸 출처 폐기, pending 상태) — 실 claude로 유저 텍스트→5팩트 추출 검증
+- ✅ 인용 전파: 팩트→아웃라인 `factIds`→슬라이드 `citationIds`→덱 `citations`. buildCitations(참조 소스만 번호부여). 실 E2E: 통계 팩트가 stat/chart 슬라이드에 배정+인용 역추적 무결성 검증
+- ✅ 워커 리서치 오케스트레이션(researchMode off/user_only/web/deep) + api 배선(user sources 요청, 잡 영속)
+- ❌ **팩트 승인 게이트 UI**(Stitch `ai_2`: 승인/거절, Approve All, 출처 링크) — P3b
+- ❌ **소스 매니저 화면** + 출처 각주/출처 슬라이드 렌더 — P3b
+- ❌ 원클릭 팩트체크(근거 강/약 플래깅) — P3b
+- 검증: 웹 검색은 실 키 필요(Tavily/Serper). 유저 자료 경로는 실 claude E2E 완료
 
 ## P4 — HITL 완성 + 페이지 단위 AI 수정 🔄 (일부 완료)
 
