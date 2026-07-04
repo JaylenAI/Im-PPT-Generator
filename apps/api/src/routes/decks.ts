@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, checkAccessibility, translateDeck, rewriteDeck, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, translateDeck, rewriteDeck, generateVariants, type ResearchInput } from '@im-ppt/core'
 import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
@@ -132,6 +132,20 @@ export function deckRoutes(deps: AppDeps) {
         })
         await deps.decks.put(rewritten)
         return c.json({ data: { deckId: rewritten.id, deck: rewritten } }, 201)
+      } catch (e) {
+        return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
+      }
+    })
+    // 디자인 변형(P8) — 같은 내용을 다른 레이아웃 N개로 재생성해 선택지 제공
+    .post('/:id/slides/:slideId/variants', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      try {
+        const { variants, costUsd } = await generateVariants(deck, c.req.param('slideId'), {
+          registry: deps.registry,
+          prompts: deps.prompts,
+        })
+        return c.json({ data: { variants, costUsd } })
       } catch (e) {
         return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
       }
