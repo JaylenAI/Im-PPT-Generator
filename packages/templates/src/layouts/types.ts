@@ -40,13 +40,36 @@ export interface LayoutRuntime {
   hidden: boolean
 }
 
+/** 레이아웃이 설계된 기준 캔버스(16:9). 다른 비율은 이 결과를 비례 리매핑 */
+const REFERENCE_CANVAS = { width: 1280, height: 720 }
+
+/** 요소 프레임/폰트를 기준 캔버스 → 타깃 캔버스로 비례 변환(화면비 스윕, P9) */
+function remapToCanvas(result: LayoutResult, canvas: LayoutContext['canvas']): LayoutResult {
+  const sx = canvas.width / REFERENCE_CANVAS.width
+  const sy = canvas.height / REFERENCE_CANVAS.height
+  if (sx === 1 && sy === 1) return result // 16:9는 무변경(하위호환)
+  const fontScale = Math.min(sx, sy)
+  return {
+    ...result,
+    elements: result.elements.map((el) => {
+      const frame = { x: el.frame.x * sx, y: el.frame.y * sy, w: el.frame.w * sx, h: el.frame.h * sy }
+      if ((el.type === 'text' || el.type === 'list') && el.style.fontSize !== undefined) {
+        return { ...el, frame, style: { ...el.style, fontSize: Math.round(el.style.fontSize * fontScale) } }
+      }
+      return { ...el, frame }
+    }),
+  }
+}
+
 export function defineLayout<S extends z.ZodType>(def: LayoutDefinition<S>): LayoutRuntime {
   return {
     key: def.key,
     name: def.name,
     description: def.description,
     contentSchema: def.contentSchema,
-    build: (content, ctx) => def.build(def.contentSchema.parse(content), ctx),
+    // 기준 캔버스로 빌드 후 타깃 비율로 리매핑 — 레이아웃 코드는 1280×720만 신경
+    build: (content, ctx) =>
+      remapToCanvas(def.build(def.contentSchema.parse(content), { canvas: REFERENCE_CANVAS }), ctx.canvas),
     hidden: def.hidden ?? false,
   }
 }

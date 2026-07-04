@@ -34,6 +34,7 @@ export interface GenerateInput {
   tone?: string
   language?: string
   templateId?: string
+  aspectRatio?: '16:9' | '4:3' | '9:16'
   sources?: UserSource[]
 }
 

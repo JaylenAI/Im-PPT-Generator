@@ -75,13 +75,15 @@ describe('레이아웃 build — 전 레이아웃 공통 계약', () => {
         }
       })
 
-      it('모든 요소가 캔버스 안에 있다 (오버플로 금지)', () => {
-        const { elements } = layout.build(FIXTURES[layout.key], ctx)
-        for (const el of elements) {
-          expect(el.frame.x, `${el.id} x`).toBeGreaterThanOrEqual(0)
-          expect(el.frame.y, `${el.id} y`).toBeGreaterThanOrEqual(0)
-          expect(el.frame.x + el.frame.w, `${el.id} 우측`).toBeLessThanOrEqual(ctx.canvas.width)
-          expect(el.frame.y + el.frame.h, `${el.id} 하단`).toBeLessThanOrEqual(ctx.canvas.height)
+      it('모든 화면비(16:9/4:3/9:16)에서 요소가 캔버스 안(오버플로 금지)', () => {
+        for (const size of Object.values(CANVAS_SIZES)) {
+          const { elements } = layout.build(FIXTURES[layout.key], { canvas: size })
+          for (const el of elements) {
+            expect(el.frame.x, `${layout.key}/${el.id} x @${size.width}×${size.height}`).toBeGreaterThanOrEqual(-0.5)
+            expect(el.frame.y, `${layout.key}/${el.id} y`).toBeGreaterThanOrEqual(-0.5)
+            expect(el.frame.x + el.frame.w, `${layout.key}/${el.id} 우측 @${size.width}`).toBeLessThanOrEqual(size.width + 0.5)
+            expect(el.frame.y + el.frame.h, `${layout.key}/${el.id} 하단 @${size.height}`).toBeLessThanOrEqual(size.height + 0.5)
+          }
         }
       })
 
