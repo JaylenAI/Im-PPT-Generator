@@ -104,6 +104,14 @@
 - ❌ 생성 REST API 문서화/웹훅, MCP 서버(신흥표준)
 - 참고: 생성 REST API 자체는 P1~P5로 대부분 구현됨(헤드리스 계약)
 
+## 품질 개선 트랙 (딥리서치 기반, 2026-07-04) 🔄
+
+> 상위 도구/스킬(Gamma·Genspark·open-design·design-diversity·ppt-master) + 프레젠테이션 이론(Minto Pyramid·Alley Assertion-Evidence·McKinsey) 딥서칭 → 콘텐츠 품질 레버 보완.
+
+- ✅ **Action Title 엔진**(ADR-009): 슬라이드 제목 = 주제 라벨 → **완결된 결론 문장(assertion)**. outline이 assertion 생성(title=짧은 라벨 분리), slide 헤드라인=assertion(폴백 title), `checkGhostDeck`(Titles Test 순수 검증) + 에디터 "제목 점검" 뷰 + OutlineGate assertion 편집. 실 claude E2E(상황→복잡성→통찰→해결→결론 스토리, Ghost Deck coherent) + Playwright
+- 🔄 **발표 유형 시스템**(ADR-010 예정): PT면접·컨설팅·IR·학술·세일즈·일반 6종 레시피(구조+톤+디자인+서사)
+- 🔄 **데이터 스토리텔링 + 레이아웃 다양성**: 차트 핵심 수치 강조·주석, 연속 레이아웃 중복 방지
+
 ## 이후 후보 (v2)
 
 - 나레이션 MP4 export(보이스 클론), AI 리허설 코치, 라이브 데이터 커넥터/Snapshots, 배치 개인화, Skills 패키지 마켓, 실시간 공동편집(CRDT), 딜룸

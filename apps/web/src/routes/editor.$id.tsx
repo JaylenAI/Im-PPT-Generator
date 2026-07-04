@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -10,6 +10,7 @@ import { SlideView, ScaledSlide, type EditHandlers } from '@im-ppt/renderer'
 import { AppSidebar } from '@/components/AppSidebar'
 import { PropertyPanel } from '@/components/PropertyPanel'
 import { PresentMode } from '@/components/PresentMode'
+import { GhostDeckView } from '@/components/GhostDeckView'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement } from '@/lib/deck-edit'
@@ -62,6 +63,7 @@ function EditorPage() {
   const [saving, setSaving] = useState(false)
   const [presenting, setPresenting] = useState(false)
   const [imgGen, setImgGen] = useState(false)
+  const [ghostOpen, setGhostOpen] = useState(false)
   // undo/redo 히스토리
   const [hist, setHist] = useState<{ stack: Deck[]; idx: number }>({ stack: [], idx: -1 })
   const { ref, width } = useWidth<HTMLDivElement>()
@@ -218,6 +220,7 @@ function EditorPage() {
       {presenting && (
         <PresentMode deck={deck} theme={theme} active={active} setActive={setActive} onExit={() => setPresenting(false)} />
       )}
+      {ghostOpen && <GhostDeckView deckId={deck.id} onClose={() => setGhostOpen(false)} />}
       <AppSidebar />
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Toolbar */}
@@ -275,6 +278,10 @@ function EditorPage() {
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
             >
               {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
+            </button>
+            <button onClick={() => setGhostOpen(true)} data-testid="ghost-btn"
+              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary">
+              <ListChecks className="h-4 w-4" /> 제목 점검
             </button>
             <a href={`/share/${deck.id}`} target="_blank" rel="noreferrer" data-testid="share-btn"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary">

@@ -38,9 +38,13 @@ export async function generateSlide(params: {
   const layout = getLayout(section.layoutHint ?? 'bullets')
   const canvas = CANVAS_SIZES[config.aspectRatio]
 
+  // Action Title(ADR-009) — assertion을 헤드라인으로, 없으면 title 폴백
+  const headline =
+    config.titleMode === 'assertion' && section.assertion ? section.assertion : section.title
+
   const prompt = deps.prompts.get('slide_system', {
     topic: config.prompt,
-    sectionTitle: section.title,
+    sectionTitle: headline,
     sectionSummary: section.summary,
     layoutType: layout.key,
     tone: config.tone,

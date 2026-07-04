@@ -40,6 +40,9 @@ export const generationConfigSchema = z.object({
   /** 목차 출처 — user면 생성 단계가 "검증"으로 바뀜(사용자 제공 목차 사용) */
   outlineSource: z.enum(['ai', 'user']).default('ai'),
 
+  /** 제목 방식(ADR-009) — assertion: 결론 문장 헤드라인 / topic: 짧은 주제 라벨 */
+  titleMode: z.enum(['assertion', 'topic']).default('assertion'),
+
   /** 미지정 시 AI가 선택. 사용자가 미리 고르면 그 템플릿/테마로 바로 진행 */
   templateId: idSchema.optional(),
   themeId: idSchema.optional(),

@@ -23,8 +23,9 @@ export function OutlineGate({
 }) {
   const [sections, setSections] = useState(outline.sections)
 
-  const setTitle = (id: string, title: string) =>
-    setSections((s) => s.map((sec) => (sec.id === id ? { ...sec, title } : sec)))
+  // Action Title(ADR-009) — 헤드라인(assertion)을 편집. 없으면 title 표시
+  const setHeadline = (id: string, value: string) =>
+    setSections((s) => s.map((sec) => (sec.id === id ? { ...sec, assertion: value } : sec)))
   const remove = (id: string) => setSections((s) => s.filter((sec) => sec.id !== id))
 
   return (
@@ -33,7 +34,8 @@ export function OutlineGate({
         <div className="text-xs font-mono text-teal">게이트 1/2 · 목차 승인</div>
         <h1 className="mt-1 text-3xl font-bold tracking-tight">이 목차로 진행할까요?</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          슬라이드 제목을 다듬거나 불필요한 섹션을 지운 뒤 승인하세요.
+          각 슬라이드의 <b>핵심 주장(제목)</b>을 다듬거나 불필요한 섹션을 지운 뒤 승인하세요.
+          제목만 순서대로 읽어 논리가 통하는지 확인하세요.
         </p>
       </div>
 
@@ -53,8 +55,9 @@ export function OutlineGate({
               {i + 1}
             </span>
             <input
-              value={sec.title}
-              onChange={(e) => setTitle(sec.id, e.target.value)}
+              value={sec.assertion ?? sec.title}
+              onChange={(e) => setHeadline(sec.id, e.target.value)}
+              placeholder="이 슬라이드의 핵심 주장(완결된 문장)"
               className="flex-1 bg-transparent text-sm outline-none"
             />
             {sec.layoutHint && (
