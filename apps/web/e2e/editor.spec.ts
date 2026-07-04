@@ -44,3 +44,41 @@ test('편집 모드: 텍스트 인라인 수정 → 저장 → 새로고침 후 
     page.getByTestId('editor-canvas').getByText('수정된 제목 QA1234'),
   ).toBeVisible()
 })
+
+/**
+ * P5b — 속성 패널로 요소 선택/삭제 + undo/redo. 삭제 후 저장·새로고침 시 영속.
+ */
+test('속성 패널: 요소 선택 → 삭제 → undo/redo → 저장 영속', async ({ page, request }) => {
+  const res = await request.post('/api/v1/decks', {
+    data: { prompt: '속성 패널 테스트', preset: 'quick', slideCount: 3, language: '한국어' },
+  })
+  const { data } = (await res.json()) as { data: { deck: { id: string } } }
+  const deckId = data.deck.id
+
+  await page.goto(`/editor/${deckId}`)
+  const canvas = page.getByTestId('editor-canvas')
+  await expect(canvas.locator('[data-slide-id]')).toBeVisible()
+  await page.getByRole('button', { name: '편집', exact: true }).click()
+
+  // 첫 텍스트 요소 선택 → 속성 패널 등장
+  const el = canvas.locator('[contenteditable="true"]').first()
+  const before = (await el.textContent())!.trim()
+  await el.click()
+  await expect(page.getByText('요소 속성')).toBeVisible()
+
+  // 삭제 → 캔버스에서 사라짐
+  await page.getByTestId('prop-delete').click()
+  await expect(canvas.getByText(before, { exact: true })).toHaveCount(0)
+
+  // undo → 복원, redo → 다시 삭제
+  await page.getByTestId('undo-btn').click()
+  await expect(canvas.getByText(before, { exact: true }).first()).toBeVisible()
+  await page.getByTestId('redo-btn').click()
+  await expect(canvas.getByText(before, { exact: true })).toHaveCount(0)
+
+  // 저장 → 새로고침 후에도 삭제 유지
+  await page.getByTestId('save-btn').click()
+  await expect(page.getByTestId('save-btn')).toBeHidden()
+  await page.reload()
+  await expect(page.getByTestId('editor-canvas').getByText(before, { exact: true })).toHaveCount(0)
+})
