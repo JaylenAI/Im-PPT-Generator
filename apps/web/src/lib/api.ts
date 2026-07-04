@@ -35,6 +35,7 @@ export interface GenerateInput {
   language?: string
   templateId?: string
   aspectRatio?: '16:9' | '4:3' | '9:16'
+  audience?: string
   sources?: UserSource[]
 }
 
