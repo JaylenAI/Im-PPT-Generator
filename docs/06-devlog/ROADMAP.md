@@ -55,8 +55,9 @@
 - ✅ **속성 패널 + undo/redo**(P5b): 요소 선택 시 위치(x/y/w/h)·텍스트 색상/폰트크기 폼 편집 + 요소 삭제. 히스토리 스택 undo/redo. Playwright E2E(선택→삭제→undo/redo→저장 영속)
 - ✅ **요소 드래그/리사이즈**(P5c): 선택 박스(이동 핸들+리사이즈 핸들), 화면 델타→캔버스 좌표 변환(scale), 드래그 중 라이브 갱신+종료 시 히스토리 커밋. window 리스너 패턴. Playwright E2E(드래그→위치 변경→저장 영속)
 - ✅ **요소 추가 툴바**(P5): 편집 모드에서 텍스트/이미지(URL)/도형 요소 추가. addElement/newElement 헬퍼. Playwright E2E(추가→저장→새로고침 영속)
-- ✅ 검증: Playwright 편집 E2E 5건(인라인·속성·발표·드래그·요소추가)
-- ❌ z-order, 정렬 스냅, 오버플로 자동 수정 — 후속
+- ✅ **z-order**(P5): 속성 패널에서 요소 앞으로/뒤로(배열 순서=z-order). reorderElement 헬퍼
+- ✅ 검증: Playwright 편집 E2E 5건 + 공유 뷰어
+- ❌ 정렬 스냅, 오버플로 자동 수정 — 후속
 
 ## P6 — 템플릿 시스템 + 브랜드킷 🔄 (브랜드킷 완료)
 
@@ -86,7 +87,8 @@
 - ✅ **화면비 4:3/9:16 전 파이프라인 스윕**: `defineLayout`이 기준 1280×720로 빌드 후 타깃 캔버스로 프레임/폰트 비례 리매핑(레이아웃 코드 무변경, 16:9 하위호환). 렌더러·exporter는 이미 CANVAS_SIZES 기반. 생성 위저드 화면비 선택. 실 E2E(9:16 생성 시 전 요소 720×1280 안+PPTX 세로 크기 export)
 - ✅ **AI 스피커 노트**: `generateSpeakerNotes` — 슬라이드별 발표 대본 생성(slide.notes). claude CLI 메타 누출은 프롬프트 예시 + 후처리 가드(looksLikeMeta)로 이중 봉합. POST /decks/:id/speaker-notes. 실 E2E(4/4 클린)
 - ✅ **발표자 뷰**: 발표 모드에 다음 슬라이드 미리보기(우하단) 추가
-- ❌ PNG export(헤드리스 렌더), 웹 링크 퍼블리싱
+- ✅ **웹 링크 퍼블리싱**: 읽기 전용 공유 뷰어 `/share/:id`(에디터 크롬 없이 전 슬라이드 렌더 + 링크 복사) + 에디터 공유 버튼. Playwright E2E
+- ❌ PNG export(헤드리스 렌더 필요)
 
 ## P10 — AI 부가 + 플랫폼 🔄 (접근성 검사 완료)
 

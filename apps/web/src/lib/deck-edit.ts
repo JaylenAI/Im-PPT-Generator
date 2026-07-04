@@ -64,6 +64,22 @@ export function addElement(deck: Deck, slideId: string, el: Element): Deck {
   }
 }
 
+/** z-order 변경 — 요소를 앞(뒤 렌더=위)/뒤로 이동. 배열 순서가 z-order(뒤일수록 앞) */
+export function reorderElement(deck: Deck, slideId: string, elId: string, dir: 'forward' | 'backward'): Deck {
+  return {
+    ...deck,
+    slides: deck.slides.map((s) => {
+      if (s.id !== slideId) return s
+      const i = s.elements.findIndex((e) => e.id === elId)
+      const j = dir === 'forward' ? i + 1 : i - 1
+      if (i < 0 || j < 0 || j >= s.elements.length) return s
+      const els = [...s.elements]
+      ;[els[i], els[j]] = [els[j]!, els[i]!]
+      return { ...s, elements: els }
+    }),
+  }
+}
+
 /** 텍스트 요소의 내용 변경 */
 export function editText(deck: Deck, slideId: string, elId: string, content: string): Deck {
   return mapSlideElements(deck, slideId, (el) =>
