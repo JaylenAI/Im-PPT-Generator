@@ -54,3 +54,16 @@ Ghost Deck(ADR-009)은 아웃라인 레벨 "제목만 읽어 논리가 통하나
 
 - **LLM 기반 품질 평가**: 비결정적·비용·왜 지적됐는지 불투명 → 규칙 기반 결정론.
 - **생성 시 자동 차단(하드 게이트)**: 창작 자유 침해 → 진단·제안만(사용자가 판단).
+
+## 확장 — AI 자동 수정 (autoFixDeck)
+
+진단(규칙)과 수정(생성)을 잇는 마지막 고리. `autoFixDeck(deck, deps)`:
+- 진단 이슈를 슬라이드별로 그룹핑 → 이슈 종류를 **editSlide 지시 문구로 번역**
+  (bullet-overload→"6개 이하로", text-wall→"요점만", chart-no-story→"highlight+insight 추가").
+- 슬라이드별로 기존 `editSlide`(레이아웃 계약 유지 재생성) 호출 → `replaceSlide`로 교체.
+  **새 LLM 경로를 만들지 않고 P4 편집 인프라를 재사용**.
+- overcrowded(요소 재배치 필요)는 콘텐츠 재작성으로 안전히 못 고치므로 자동 수정 제외.
+- 반환: 개선된 덱 + before/after 진단(점수 델타) + fixedSlides + 비용. 부분 실패 허용.
+- API: `POST /decks/:id/doctor/fix`(저장까지). 웹: 진단 뷰 "AI 자동 수정" 버튼 → 점수 개선 표시.
+- 검증: 단위 2(fake provider로 8글머리→개선·건강덱 무수정), 실 claude E2E — 나쁜 슬라이드
+  주입 후 86→97점(bullet/wordy 해소, overcrowded 유지), Playwright 원클릭 수정 플로우.

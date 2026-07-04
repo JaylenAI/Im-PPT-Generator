@@ -136,6 +136,16 @@ export const api = {
       issues: Array<{ slideId: string; slideIndex: number; kind: string; severity: 'high' | 'medium' | 'low'; message: string; suggestion: string }>
     }>(`/decks/${id}/doctor`),
 
+  // Deck Doctor 자동 수정 — 진단 이슈를 AI로 개선하고 저장(before/after 점수 + 개선된 덱)
+  doctorFix: (id: string) =>
+    req<{
+      deck: Deck
+      before: { score: number; issues: unknown[] }
+      after: { score: number; issues: unknown[] }
+      fixedSlides: number
+      costUsd: number
+    }>(`/decks/${id}/doctor/fix`, { method: 'POST' }),
+
   // AI 이미지 생성(P8) — claude -p로 SVG 그래픽 → data URI
   generateImage: (concept: string, themeId?: string) =>
     req<{ dataUri: string; chars: number }>('/images/generate', {

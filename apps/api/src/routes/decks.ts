@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { generateDeck, editSlide, replaceSlide, checkAccessibility, checkGhostDeck, diagnoseDeck, translateDeck, rewriteDeck, generateVariants, generateSpeakerNotes, generateAudienceQuestions, type ResearchInput } from '@im-ppt/core'
+import { generateDeck, editSlide, replaceSlide, checkAccessibility, checkGhostDeck, diagnoseDeck, autoFixDeck, translateDeck, rewriteDeck, generateVariants, generateSpeakerNotes, generateAudienceQuestions, type ResearchInput } from '@im-ppt/core'
 import { getTheme } from '@im-ppt/templates'
 import { userSourceInputSchema, outlineSchema, sourceSchema, factSchema, deckSchema } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
@@ -134,6 +134,18 @@ export function deckRoutes(deps: AppDeps) {
       const deck = await deps.decks.get(c.req.param('id'))
       if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
       return c.json({ data: diagnoseDeck(deck) })
+    })
+    // Deck Doctor 자동 수정 — 진단 이슈를 editSlide로 개선하고 저장(before/after 점수 반환)
+    .post('/:id/doctor/fix', async (c) => {
+      const deck = await deps.decks.get(c.req.param('id'))
+      if (!deck) return c.json({ error: { code: 'NOT_FOUND', message: '덱을 찾을 수 없습니다' } }, 404)
+      try {
+        const result = await autoFixDeck(deck, { registry: deps.registry, prompts: deps.prompts })
+        if (result.fixedSlides > 0) await deps.decks.put(result.deck)
+        return c.json({ data: result })
+      } catch (e) {
+        return c.json({ error: { code: 'INTERNAL', message: (e as Error).message } }, 400)
+      }
     })
     // 예상 청중 질문(P10)
     .get('/:id/questions', async (c) => {
