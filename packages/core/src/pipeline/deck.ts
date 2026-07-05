@@ -10,6 +10,7 @@ function buildSourcesSlide(
   citations: Citation[],
   sources: Source[],
   config: GenerationConfig,
+  themeId: string,
 ): Slide {
   const sourceById = new Map(sources.map((s) => [s.id, s]))
   // references 레이아웃 계약: 아이템 ≤160자, ≤12개. 시스템 생성 슬라이드라 LLM 재검증을
@@ -24,9 +25,10 @@ function buildSourcesSlide(
     .slice(0, 12)
   const layout = getLayout('references')
   const title = config.language.toLowerCase().startsWith('ko') ? '출처' : 'Sources'
+  const style = hasTheme(themeId) ? getTheme(themeId).tokens.style : undefined
   const { background, elements } = layout.build(
     { title, items },
-    { canvas: CANVAS_SIZES[config.aspectRatio] },
+    { canvas: CANVAS_SIZES[config.aspectRatio], style },
   )
   return {
     id: `sources_${Math.random().toString(36).slice(2, 9)}`,
@@ -76,7 +78,7 @@ function assembleDeck(
   const sources = opts.sources ?? []
   const citations = opts.citations ?? []
   // 인용이 있으면 마지막에 출처 슬라이드 자동 추가(할루시네이션 제로 — 근거 가시화)
-  const allSlides = citations.length > 0 ? [...slides, buildSourcesSlide(citations, sources, config)] : slides
+  const allSlides = citations.length > 0 ? [...slides, buildSourcesSlide(citations, sources, config, ids.themeId)] : slides
   return {
     id: opts.deckId ?? nextDeckId(),
     title: config.prompt.trim().slice(0, 80) || '제목 없는 프레젠테이션',
@@ -111,7 +113,7 @@ export async function generateDeck(
   const results = await Promise.all(
     outline.sections.map((section) => {
       const facts = research.facts.filter((f) => section.factIds.includes(f.id))
-      return generateSlide({ config, section, deps, facts, sourceToCitation })
+      return generateSlide({ config, section, deps, facts, sourceToCitation, themeId: ids.themeId })
     }),
   )
   const slides = results.map((r) => r.slide)

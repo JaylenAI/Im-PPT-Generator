@@ -1,6 +1,6 @@
 import type { Deck, Slide, TemplateMeta, ThemeTokens } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
-import { TEMPLATES, getLayout } from './registry.js'
+import { TEMPLATES, getLayout, getTheme, hasTheme } from './registry.js'
 
 /**
  * 템플릿 미리보기용 샘플 덱 — LLM 없이 결정론적 플레이스홀더로 그 템플릿의 디자인을 보여준다.
@@ -12,9 +12,11 @@ import { TEMPLATES, getLayout } from './registry.js'
 export function buildSampleDeck(template: TemplateMeta | string, themeOverride?: ThemeTokens): Deck {
   const tpl = typeof template === 'string' ? TEMPLATES.find((t) => t.id === template) ?? TEMPLATES[0]! : template
   const canvas = CANVAS_SIZES['16:9']
+  // 디자인 시스템 스타일 — 커스텀은 인라인 토큰, builtin은 레지스트리 테마에서 해석
+  const style = themeOverride?.style ?? (hasTheme(tpl.themeId) ? getTheme(tpl.themeId).tokens.style : undefined)
 
   const mk = (layoutKey: string, content: unknown): Slide => {
-    const { background, elements } = getLayout(layoutKey).build(content, { canvas })
+    const { background, elements } = getLayout(layoutKey).build(content, { canvas, style })
     return {
       id: `sample_${tpl.id}_${layoutKey}`,
       layoutType: layoutKey,

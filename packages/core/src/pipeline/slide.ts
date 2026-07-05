@@ -1,6 +1,6 @@
 import type { Fact, GenerationConfig, OutlineSection, Slide } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
-import { getLayout } from '@im-ppt/templates'
+import { getLayout, getTheme, hasTheme } from '@im-ppt/templates'
 import { citationIdsForFacts } from '@im-ppt/research'
 import type { ProviderRegistry } from '../providers/registry.js'
 import type { PromptStore } from '../prompts/loader.js'
@@ -32,11 +32,14 @@ export async function generateSlide(params: {
   facts?: Fact[]
   /** sourceId→citationId 맵(리서치 있을 때) — 슬라이드 citationIds를 인용 ID로 채운다 */
   sourceToCitation?: Record<string, string>
+  /** 덱 테마 id — 디자인 시스템 스타일 해석용(P11) */
+  themeId?: string
 }): Promise<{ slide: Slide; usage?: { costUsd?: number } }> {
   const { config, section, deps } = params
   const facts = params.facts ?? []
   const layout = getLayout(section.layoutHint ?? 'bullets')
   const canvas = CANVAS_SIZES[config.aspectRatio]
+  const style = params.themeId && hasTheme(params.themeId) ? getTheme(params.themeId).tokens.style : undefined
 
   // Action Title(ADR-009) — assertion을 헤드라인으로, 없으면 title 폴백
   const headline =
@@ -58,7 +61,7 @@ export async function generateSlide(params: {
     layout.contentSchema,
   )
 
-  const { background, elements } = layout.build(data, { canvas })
+  const { background, elements } = layout.build(data, { canvas, style })
 
   // 인용 ID는 소스 단위(중복 제거). 리서치 없으면 빈 배열.
   const citationIds = params.sourceToCitation

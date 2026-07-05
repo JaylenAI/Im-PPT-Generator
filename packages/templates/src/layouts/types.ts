@@ -1,9 +1,12 @@
 import { z } from 'zod'
-import type { SlideBackground, SlideElement } from '@im-ppt/schema'
+import type { SlideBackground, SlideElement, ThemeStyle } from '@im-ppt/schema'
+import { applyDesignSystem } from './decorate.js'
 
 export interface LayoutContext {
   /** 가상 캔버스 크기 — P1은 16:9(1280×720)만, 비율 확장은 P9 */
   canvas: { width: number; height: number }
+  /** 디자인 시스템 스타일(P11) — 있으면 build 결과에 골격 장식을 입힘. 없으면 플랫(하위호환) */
+  style?: ThemeStyle | undefined
 }
 
 export interface LayoutResult {
@@ -67,9 +70,17 @@ export function defineLayout<S extends z.ZodType>(def: LayoutDefinition<S>): Lay
     name: def.name,
     description: def.description,
     contentSchema: def.contentSchema,
-    // 기준 캔버스로 빌드 후 타깃 비율로 리매핑 — 레이아웃 코드는 1280×720만 신경
+    // 기준 캔버스로 빌드 → 디자인 시스템 장식 적용 → 타깃 비율로 리매핑
+    // (레이아웃 코드는 1280×720만 신경, 스타일 장식은 여기서 일괄 주입)
     build: (content, ctx) =>
-      remapToCanvas(def.build(def.contentSchema.parse(content), { canvas: REFERENCE_CANVAS }), ctx.canvas),
+      remapToCanvas(
+        applyDesignSystem(
+          def.build(def.contentSchema.parse(content), { canvas: REFERENCE_CANVAS, style: ctx.style }),
+          ctx.style,
+          REFERENCE_CANVAS,
+        ),
+        ctx.canvas,
+      ),
     hidden: def.hidden ?? false,
   }
 }
