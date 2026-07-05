@@ -21,6 +21,8 @@
 | **발표 유형 10종** | PT면접(STAR)·컨설팅(SCQA)·IR(Kawasaki)·학술(IMRaD)·세일즈(PAS)·교육·워크숍·실적보고·제품데모·일반. 장르별 서사 골격+톤+**자동 테마 매칭** | [ADR-010](docs/02-architecture/ADR-010-presentation-types.md) |
 | **데이터 스토리텔링** | 차트 핵심 수치 강조(highlightIndex)·인사이트 주석·레이아웃 리듬 | [ADR-011](docs/02-architecture/ADR-011-data-storytelling.md) |
 | **Deck Doctor** | 슬라이드 품질 진단(6x6·텍스트 과밀·데이터 스토리 누락) + **AI 자동 수정**(생성→진단→개선 루프) | [ADR-012](docs/02-architecture/ADR-012-deck-doctor.md) |
+| **템플릿 라이브러리 113종** | 스타일팩 16 + design-diversity 60 + reveal.js/Marp/Catppuccin 21(전부 MIT 반입). 색·폰트 정체성 + 팩 폰트 웹 로딩 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **디자인 시스템 엔진 10종** | 색을 넘어 골격까지 차별화 — 대문자 헤딩·타이틀 액센트·배경(grid/ruled/gradient/watermark)·카드 보더를 `decorate` 후처리로 전 레이아웃에 일괄 적용 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
 
 **확장 예시**: 발표 유형 추가는 `packages/schema/src/presentation-type.ts`의 `PRESENTATION_TYPES` 배열에 항목 하나를 더하면 outline 스캐폴드·테마 매칭·선택기 UI에 자동 반영된다.
 
@@ -35,7 +37,7 @@ packages/
   schema/       Zod 슬라이드/덱/이벤트/발표유형 스키마 — SSOT
   core/         파이프라인 오케스트레이터 + 프롬프트 카탈로그 + LLM 프로바이더 레지스트리
                 + 품질 도구(ghost-deck/doctor/doctor-fix)
-  templates/    테마(디자인 토큰) + 레이아웃 변형 카탈로그
+  templates/    테마 113종(디자인 토큰) + 디자인 시스템 10종(decorate) + 레이아웃 변형 카탈로그
   renderer/     React 슬라이드 렌더러 (웹 표시/편집 공용)
   exporter/     PptxGenJS/PDF 익스포터
   research/     딥서치 + 스크레이핑 + citation 추적

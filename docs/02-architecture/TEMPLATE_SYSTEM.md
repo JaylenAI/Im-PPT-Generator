@@ -52,9 +52,45 @@ POST /templates/import-pptx  (파일 업로드)
 ```
 v1 스코프: placeholder 기반 표준 PPTX. 자유 배치 텍스트박스 완전 대응은 연구급(PPTAgent 참고) → 후속. 추출 실패 요소는 "미지원"으로 명시(무성 폴백 금지).
 
+## 빌트인 테마 라이브러리 (113종, P11.4)
+
+빌트인 테마는 4개 소스 파일에서 모여 `registry.ts`의 `THEME_LIST`로 합류한다. 전부 색+폰트 정체성을 그대로 반입(개인 전용 플랫폼 — 레퍼런스 그대로, 오리지널 "안전 자산" 노선 폐기).
+
+| 소스 파일 | 종수 | 내용 / 출처 |
+|---|---|---|
+| 오리지널(stitch-indigo, deep-navy, extra, gallery) | 16 | 초기 빌트인 + 갤러리 확장 |
+| `themes/packs.ts` | 16 | 스타일팩 — 색+타이포 페어링 오리지널 |
+| `themes/design-diversity.ts` | 60 | `epoko77-ai/design-diversity`(MIT) ppt-* 팩 `tokens.json` → Theme 매핑 |
+| `themes/design-community.ts` | 21 | reveal.js 14 + Catppuccin 4 + Marp 3 (전부 MIT, 공식 테마 SCSS/팔레트 파싱) |
+
+- 반입 스크립트는 세션 스크래치패드에 있었고(레포 미포함), 산출물 `.ts`만 커밋됨. 재생성이 필요하면 해당 레포를 clone해 `tokens.json`/SCSS를 파싱(색은 hex 검증 — 그라디언트/rgba/none 정제).
+- 각 테마가 쓰는 폰트는 `apps/web/index.html`의 Google Fonts + Pretendard CDN으로 로딩(정체성 재현). "Source Sans Pro"→"Source Sans 3" 리네임 매핑.
+- 카테고리 매핑: 각 소스의 `*_CATEGORY` 레코드 → 템플릿 메타 생성 시 사용.
+
+## 디자인 시스템 엔진 (10종, P11.5)
+
+"색만 다르고 골격은 동일" 문제를 해결하는 레이어. 색/폰트를 넘어 **레이아웃 골격**을 시스템 단위로 차별화한다.
+
+```
+schema/theme.ts     themeStyleSchema (optional) — system·headingCase·titleAccent·
+                    kicker·background·surface·radius·border. 없으면 플랫(하위호환)
+themes/design-systems.ts   10 시스템 정의 + classifySystem(키워드 분류) + withDesignSystem
+layouts/decorate.ts        applyDesignSystem — build 결과 후처리:
+                             대문자 헤딩 / 타이틀 액센트(bar·sidebar·underline·block) /
+                             배경(grid·ruled·gradient·watermark) / 표면 radius·헤어라인
+layouts/types.ts           defineLayout이 모든 레이아웃 build를 감싸 decorate 일괄 적용
+                             (LayoutContext.style로 주입)
+```
+
+- **적용 흐름**: `registry.ts`의 `THEME_LIST.map(withDesignSystem)`이 모든 테마에 `tokens.style`을 붙임(키워드 분류) → build 호출부(sample-deck·core pipeline slide/edit/deck·csv-chart)가 `getTheme(id).tokens.style`을 `layout.build(content, { canvas, style })`로 전달 → `defineLayout`이 `applyDesignSystem`으로 장식.
+- **10 시스템**: dark-tech-glow · consulting-grid · editorial-serif · brutalist-block · pastel-card · luxury-keynote · swiss-minimal · glass-gradient · data-infographic · warm-organic.
+- **새 시스템 추가**: `DESIGN_SYSTEMS` 배열에 1개 + `RULES`에 키워드 매핑 추가. decorate가 이미 모든 스타일 필드를 해석하므로 코드 수정 불필요.
+- **한계**: 패밀리 단위(10종) 차별화지 팩별 픽셀 재현은 아님. text 요소에 mono 폰트/letterSpacing이 없어 모노 키커·자간은 미표현(렌더러 확장 시 가능). 배경 grid/ruled는 은은한 opacity(강도 튜닝 여지).
+
 ## 확장 규칙 (하드코딩 없음 보장)
 
-- 새 빌트인 테마/레이아웃: `packages/templates` 배열에 1줄 추가 → 갤러리 자동 반영
+- 새 빌트인 테마/레이아웃: `packages/templates` 배열에 1줄 추가 → 갤러리 자동 반영. 새 테마는 `withDesignSystem`이 자동으로 디자인 시스템을 매핑(원하면 `tokens.style` 직접 지정)
+- 새 디자인 시스템: `themes/design-systems.ts`의 `DESIGN_SYSTEMS` + `RULES`에 추가 → 전 레이아웃에 자동 적용
 - 새 카테고리: `templateCategorySchema` enum에 추가 → 필터 UI 자동 반영(데이터 주도)
 - 테마는 항상 토큰(`token:colors.*` 참조)으로만 슬라이드에 연결 → 템플릿 교체가 슬라이드 데이터 수정 없이 전파([ADR-005](ADR-005-virtual-canvas.md))
 - 템플릿 로직은 `packages/templates`(빌트인) + `packages/db`(사용자)에만. API/웹은 조회·표시만([ADR-007](ADR-007-api-first-headless.md))
