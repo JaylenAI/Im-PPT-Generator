@@ -40,6 +40,8 @@
 | **P11.1 템플릿 갤러리(실 미리보기·16종·미리보기 모달)** | ✅ 완료 | buildSampleDeck, Canva식 갤러리, Playwright |
 | **P11.3 디자인 엔진(리치 레이아웃 6종, 10→16)** | ✅ 완료 | timeline/comparison/kpi-grid/cards/bignum/roadmap, 실 claude 자동선택 |
 | **P11.2 템플릿 흡수(유저 PPTX→내 템플릿)** | ✅ 완료 | 색+폰트 추출, applyBranding, 실 도담도담 템플릿 E2E |
+| **P11.4 템플릿 대량 반입(16→113종)** | ✅ 완료 | 스타일팩 16 + design-diversity 60 + reveal/Marp/Catppuccin 21, 색·폰트·팩 폰트 웹로딩 |
+| **P11.5 디자인 시스템 엔진(10종)** | ✅ 완료 | themeStyle + decorate 후처리(대문자·키커·액센트·grid/ruled/gradient/watermark·카드 보더), 113종 매핑, Playwright 육안 |
 | **오버플로 자동수정(넘칠 때 폰트 축소)** | ✅ 완료 | fitFontSize + PPTX normAutofit, 단위+실 export |
 | 덱 번역 · 리라이트(톤/길이) | ✅ 완료 | P10, 실 claude E2E |
 | 접근성 검사(WCAG 대비/alt) | ✅ 완료 | P10a |

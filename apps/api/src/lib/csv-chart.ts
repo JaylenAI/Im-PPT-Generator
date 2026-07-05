@@ -1,4 +1,4 @@
-import { getLayout } from '@im-ppt/templates'
+import { getLayout, getTheme, hasTheme } from '@im-ppt/templates'
 import { CANVAS_SIZES, type Deck } from '@im-ppt/schema'
 import { newDeckId } from './ids.js'
 
@@ -40,9 +40,10 @@ export function buildChartDeck(
   const title = opts.title?.trim() || '데이터 차트'
   const chartType = opts.chartType ?? 'bar'
   const layout = getLayout('chart')
+  const style = hasTheme('stitch-indigo') ? getTheme('stitch-indigo').tokens.style : undefined
   const { background, elements } = layout.build(
     { title, chartType, data },
-    { canvas: CANVAS_SIZES['16:9'] },
+    { canvas: CANVAS_SIZES['16:9'], style },
   )
   return {
     id: newDeckId(),

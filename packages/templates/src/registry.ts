@@ -20,6 +20,10 @@ import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
 import { GALLERY_THEMES } from './themes/gallery.js'
+import { STYLE_PACK_THEMES, STYLE_PACK_CATEGORY } from './themes/packs.js'
+import { DESIGN_DIVERSITY_THEMES, DESIGN_DIVERSITY_CATEGORY } from './themes/design-diversity.js'
+import { COMMUNITY_THEMES, COMMUNITY_CATEGORY } from './themes/design-community.js'
+import { withDesignSystem } from './themes/design-systems.js'
 
 /** 레이아웃 레지스트리 — 추가는 이 배열에 1줄 (분기문 증식 금지) */
 const LAYOUT_LIST: LayoutRuntime[] = [
@@ -65,6 +69,7 @@ export function layoutCatalogForLlm(): Array<{ key: string; description: string 
     .map((l) => ({ key: l.key, description: l.description }))
 }
 
+// 모든 테마에 디자인 시스템(style)을 매핑 — 색/폰트를 넘어 골격까지 시스템 단위로 차별화(P11)
 const THEME_LIST: Theme[] = [
   stitchIndigoTheme,
   deepNavyTheme,
@@ -73,7 +78,10 @@ const THEME_LIST: Theme[] = [
   slateTheme,
   royalTheme,
   ...GALLERY_THEMES,
-]
+  ...STYLE_PACK_THEMES,
+  ...DESIGN_DIVERSITY_THEMES,
+  ...COMMUNITY_THEMES,
+].map(withDesignSystem)
 const THEMES: ReadonlyMap<string, Theme> = new Map(THEME_LIST.map((t) => [t.id, t]))
 
 export function getTheme(id: string): Theme {
@@ -116,6 +124,39 @@ const GALLERY_TEMPLATES: TemplateMeta[] = [
   { id: 'template-crimson-bold', name: 'Crimson Bold', category: 'creative', themeId: 'crimson-bold', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
 ]
 
+// 스타일 팩 템플릿(P11) — 테마 1:1, 타이포 페어링까지 차별화한 오리지널 팩
+const STYLE_PACK_TEMPLATES: TemplateMeta[] = STYLE_PACK_THEMES.map((t) => ({
+  id: `template-${t.id}`,
+  name: t.name,
+  category: (STYLE_PACK_CATEGORY[t.id] ?? 'business') as TemplateMeta['category'],
+  themeId: t.id,
+  aspectRatios: [...AR],
+  layoutTypes: ALL,
+  source: 'builtin',
+}))
+
+// design-diversity 반입 팩(60종) — 테마 1:1
+const DESIGN_DIVERSITY_TEMPLATES: TemplateMeta[] = DESIGN_DIVERSITY_THEMES.map((t) => ({
+  id: `template-${t.id}`,
+  name: t.name,
+  category: (DESIGN_DIVERSITY_CATEGORY[t.id] ?? 'creative') as TemplateMeta['category'],
+  themeId: t.id,
+  aspectRatios: [...AR],
+  layoutTypes: ALL,
+  source: 'builtin',
+}))
+
+// 유명 오픈소스 프레젠테이션 테마(reveal.js/Marp/Catppuccin) — 테마 1:1
+const COMMUNITY_TEMPLATES: TemplateMeta[] = COMMUNITY_THEMES.map((t) => ({
+  id: `template-${t.id}`,
+  name: t.name,
+  category: (COMMUNITY_CATEGORY[t.id] ?? 'minimal') as TemplateMeta['category'],
+  themeId: t.id,
+  aspectRatios: [...AR],
+  layoutTypes: ALL,
+  source: 'builtin',
+}))
+
 export const TEMPLATES: TemplateMeta[] = [
   {
     id: 'corporate-indigo',
@@ -137,4 +178,7 @@ export const TEMPLATES: TemplateMeta[] = [
   },
   ...EXTRA_TEMPLATES,
   ...GALLERY_TEMPLATES,
+  ...STYLE_PACK_TEMPLATES,
+  ...DESIGN_DIVERSITY_TEMPLATES,
+  ...COMMUNITY_TEMPLATES,
 ]

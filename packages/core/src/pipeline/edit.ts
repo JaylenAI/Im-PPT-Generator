@@ -1,6 +1,6 @@
 import type { Deck, Slide } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
-import { getLayout } from '@im-ppt/templates'
+import { getLayout, getTheme, hasTheme } from '@im-ppt/templates'
 import type { SlideDeps } from './slide.js'
 
 /** 슬라이드의 현재 텍스트 콘텐츠를 요약해 편집 컨텍스트로 제공 */
@@ -29,6 +29,7 @@ export async function editSlide(params: {
 
   const layout = getLayout(slide.layoutType)
   const canvas = CANVAS_SIZES[deck.aspectRatio]
+  const style = hasTheme(deck.themeId) ? getTheme(deck.themeId).tokens.style : undefined
 
   const prompt = deps.prompts.get('edit_system', {
     instruction,
@@ -38,7 +39,7 @@ export async function editSlide(params: {
   })
 
   const { data, usage } = await deps.registry.generateStructured('edit', prompt, layout.contentSchema)
-  const { background, elements } = layout.build(data, { canvas })
+  const { background, elements } = layout.build(data, { canvas, style })
 
   return {
     slide: {

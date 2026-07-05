@@ -42,3 +42,35 @@
 - 실사 스톡 사진(API 키), PNG export(헤드리스 렌더)
 - **완전 자유배치 디자인 엔진**(ADR-002 완전 완화 — 현재는 리치 레이아웃 확장으로 절충)
 - **placeholder 정확 채움**(python-pptx식 — 유저 PPTX의 실제 레이아웃 슬롯에 주입; 현재는 색+폰트 identity 흡수까지)
+
+---
+
+## P11.4 — 템플릿 대량 반입 (16 → 113종)
+
+레퍼런스 디자인을 개인 전용 플랫폼에 그대로 반입(오리지널 "안전 자산" 노선 폐기).
+
+- **스타일팩 16종**(`themes/packs.ts`): 색+타이포 페어링 오리지널 팩.
+- **design-diversity 60종**(`themes/design-diversity.ts`, MIT): `epoko77-ai/design-diversity`의 ppt-* 팩 `tokens.json`을 우리 `Theme`으로 매핑. 컨설팅/IR·한국 공공기업·키노트·에디토리얼 등.
+- **커뮤니티 21종**(`themes/design-community.ts`, MIT): reveal.js 14(공식 테마 SCSS 파싱) + Catppuccin 4(공식 팔레트) + Marp core 3.
+- 웹: 팩 폰트 26종 + Pretendard를 Google Fonts/CDN으로 로딩(정체성 재현). Source Sans Pro→Source Sans 3 리네임 매핑.
+- 전부 색은 hex 검증(그라디언트/rgba/none 정제), 카테고리 자동 분류.
+
+## P11.5 — 디자인 시스템 엔진 (10종)
+
+"색만 다르고 골격은 동일" 문제 해결. 색/폰트를 넘어 레이아웃 골격을 시스템 단위로 차별화.
+
+- `schema/theme.ts`: `themeStyleSchema`(system·headingCase·titleAccent·kicker·background·surface·radius·border) optional 추가(하위호환).
+- `themes/design-systems.ts`: 10종(dark-tech-glow/consulting-grid/editorial-serif/brutalist-block/pastel-card/luxury-keynote/swiss-minimal/glass-gradient/data-infographic/warm-organic) + 키워드 분류기 + `withDesignSystem`.
+- `layouts/decorate.ts`: `applyDesignSystem` — 대문자 헤딩·타이틀 액센트(bar/sidebar/underline/block)·배경(grid/ruled/gradient/watermark)·표면 radius/헤어라인을 build 결과에 후처리. `defineLayout`이 16개 레이아웃 전부에 일괄 적용.
+- build 호출부(sample-deck·core pipeline slide/edit/deck·csv-chart)에 테마 style 전달.
+- 113종을 10 시스템에 매핑(swiss 27·dark-tech 16·consulting 15·editorial 12·warm 9·data 8·pastel/luxury 7·glass/brutalist 6).
+
+## 검증
+
+전체 타입체크 17/17 그린, 테스트 회귀 없음(core 66·api 33·exporter 9), Playwright로 갤러리 113종 + 미리보기 모달(Charcoal Gold·Crimson Bold) 육안 — 시스템별 골격 차이 확인, 렌더 무파손.
+
+## 한계(정직)
+
+- 아직 **패밀리 단위(10종)** 차별화지 팩별 픽셀 재현은 아님. 타이틀 슬라이드는 색+폰트+대문자로 주로 읽히고 구조 장식(grid/카드/보더)은 콘텐츠 슬라이드에서 드러남.
+- 배경 grid/ruled opacity가 은은해 썸네일에선 약함 — 강도 튜닝 여지.
+- 캔바/미리캔버스 등 이미지 기반 템플릿은 PPTX 흡수(P11.2) 경로로만 반입 가능.
