@@ -39,12 +39,18 @@ const FIXTURES: Record<string, unknown> = {
   cards: { title: '특징', cards: [{ heading: '빠름', body: '즉시 생성' }, { heading: '정확', body: '출처 검증' }, { heading: '편함', body: '원클릭' }] },
   bignum: { value: '268곳', caption: '전국 소멸위험 지역', context: 'AI가 청년과 매칭' },
   roadmap: { title: '로드맵', phases: [{ name: '진단', items: ['현황', '목표'] }, { name: '실행', items: ['개발', '배포'] }, { name: '확산', items: ['운영'] }] },
+  section: { index: '01', label: '시장 분석', title: '왜 지금인가', subtitle: 'AI 프레젠테이션 시장의 변곡점' },
+  statement: { kicker: '핵심 명제', statement: '생성은 해결됐다. 이제 승부는 콘텐츠 품질과 편집 충실도다.', source: '2026 경쟁 감사' },
+  'feature-quote': { quote: '가장 좋은 미래 예측 방법은 미래를 직접 만드는 것이다', attribution: 'Alan Kay', role: 'Xerox PARC' },
+  'split-feature': { label: '제품 원칙', title: 'AI는 채우고, 레이아웃이 배치한다', lead: '오버플로가 구조적으로 불가능한 설계', points: ['레이아웃은 코드', '테마는 토큰', '검증된 콘텐츠만 좌표로'] },
+  'hero-image': { eyebrow: '2026 리포트', title: 'AI 프레젠테이션의 다음 표준', subtitle: '리서치·서사·데이터 스토리텔링을 하나로' },
+  'feature-grid': { title: '세 가지 차별점', features: [{ heading: '액션 타이틀', body: '제목이 곧 결론 문장' }, { heading: '데이터 스토리텔링', body: '핵심 수치만 강조' }, { heading: 'Deck Doctor', body: '진단과 자동 수정' }] },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 16종이 등록되어 있다(references는 hidden)', () => {
+  it('레이아웃 22종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'kpi-grid', 'process', 'quote', 'references', 'roadmap', 'stat', 'timeline', 'title', 'two-col'],
+      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'feature-grid', 'feature-quote', 'hero-image', 'kpi-grid', 'process', 'quote', 'references', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'timeline', 'title', 'two-col'],
     )
   })
 

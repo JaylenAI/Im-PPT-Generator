@@ -16,6 +16,12 @@ import { kpiLayout } from './layouts/kpi.js'
 import { cardsLayout } from './layouts/cards.js'
 import { bignumLayout } from './layouts/bignum.js'
 import { roadmapLayout } from './layouts/roadmap.js'
+import { sectionLayout } from './layouts/section.js'
+import { statementLayout } from './layouts/statement.js'
+import { featureQuoteLayout } from './layouts/feature-quote.js'
+import { splitFeatureLayout } from './layouts/split-feature.js'
+import { heroImageLayout } from './layouts/hero-image.js'
+import { featureGridLayout } from './layouts/feature-grid.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -42,6 +48,13 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(cardsLayout),
   defineLayout(bignumLayout),
   defineLayout(roadmapLayout),
+  // P12 프리미엄 레이아웃 — 에디토리얼/키노트 구성(이미지·타입 포워드)
+  defineLayout(sectionLayout),
+  defineLayout(statementLayout),
+  defineLayout(featureQuoteLayout),
+  defineLayout(splitFeatureLayout),
+  defineLayout(heroImageLayout),
+  defineLayout(featureGridLayout),
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
