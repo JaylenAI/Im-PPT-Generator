@@ -7,6 +7,7 @@ import {
   type JobStore,
 } from '@im-ppt/db'
 import type { SearchAdapter } from '@im-ppt/research'
+import type { StockImageAdapter } from './lib/stock.js'
 import { SettingsService } from './lib/settings-service.js'
 
 /** 이펨럴 인메모리 저장소(export 산출물 등) — 재시작 시 재생성 가능해 영속 불필요 */
@@ -50,6 +51,8 @@ export interface AppDeps {
   exports: MemoryStore<ExportArtifact>
   /** 웹 검색 어댑터 — 키 있을 때만(없으면 유저 제공 자료만 사용) */
   search?: SearchAdapter
+  /** 스톡 이미지 어댑터 — 키 있을 때만(없으면 컬러 존 폴백) */
+  stockImages?: StockImageAdapter
 }
 
 /** 기본 deps — DB 없이 인메모리(테스트/개발 폴백). 서버 기동은 index.ts에서 DB 배선 */

@@ -12,6 +12,9 @@ const envSchema = z.object({
   /** 웹 검색(리서치) — 있으면 web/deep 모드에서 사용. Tavily 우선, Serper 폴백 */
   TAVILY_API_KEY: z.string().optional(),
   SERPER_API_KEY: z.string().optional(),
+  /** 스톡 이미지(P12) — 있으면 에디터 "스톡" 피커에서 실사진 검색·삽입. Pexels 우선, Unsplash 폴백 */
+  PEXELS_API_KEY: z.string().optional(),
+  UNSPLASH_ACCESS_KEY: z.string().optional(),
 })
 
 export type Env = z.infer<typeof envSchema>

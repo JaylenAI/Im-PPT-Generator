@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server'
 import { createDb, ensureSchema, PgDeckStore, PgJobStore, PgSettingsStore } from '@im-ppt/db'
 import { createTavilyAdapter, createSerperAdapter } from '@im-ppt/research'
+import { createPexelsAdapter, createUnsplashAdapter } from './lib/stock.js'
 import { createApp } from './app.js'
 import { createDefaultDeps } from './deps.js'
 import { createWorker } from './lib/worker.js'
@@ -19,6 +20,14 @@ if (env.TAVILY_API_KEY) {
 } else if (env.SERPER_API_KEY) {
   deps.search = createSerperAdapter({ apiKey: env.SERPER_API_KEY })
   logger.info('리서치 검색 어댑터: Serper')
+}
+// 스톡 이미지 어댑터 — 키 있으면 배선(Pexels 우선, Unsplash 폴백). 없으면 컬러 존 폴백.
+if (env.PEXELS_API_KEY) {
+  deps.stockImages = createPexelsAdapter({ apiKey: env.PEXELS_API_KEY })
+  logger.info('스톡 이미지 어댑터: Pexels')
+} else if (env.UNSPLASH_ACCESS_KEY) {
+  deps.stockImages = createUnsplashAdapter({ apiKey: env.UNSPLASH_ACCESS_KEY })
+  logger.info('스톡 이미지 어댑터: Unsplash')
 }
 // DATABASE_URL 있으면 Postgres 영속으로 교체(덱·잡·설정이 재시작에도 살아남음)
 if (env.DATABASE_URL) {

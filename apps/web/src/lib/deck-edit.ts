@@ -47,13 +47,13 @@ const rand = () => Math.random().toString(36).slice(2, 8)
 const baseEl = { rotation: 0, opacity: 1, locked: false } as const
 
 /** 새 요소 생성(P5 요소 추가 툴바) — 텍스트/이미지/도형 */
-export function newElement(kind: 'text' | 'image' | 'shape', opts: { src?: string } = {}): Element {
+export function newElement(kind: 'text' | 'image' | 'shape', opts: { src?: string; alt?: string } = {}): Element {
   const frame = { x: 480, y: 300, w: 320, h: 120 }
   if (kind === 'text') {
     return { ...baseEl, id: `text_${rand()}`, type: 'text', role: 'body', content: '새 텍스트', frame, style: {} }
   }
   if (kind === 'image') {
-    return { ...baseEl, id: `img_${rand()}`, type: 'image', src: opts.src ?? '', fit: 'cover', alt: '', frame: { x: 440, y: 240, w: 400, h: 240 } }
+    return { ...baseEl, id: `img_${rand()}`, type: 'image', src: opts.src ?? '', fit: 'cover', alt: opts.alt ?? '', frame: { x: 440, y: 240, w: 400, h: 240 } }
   }
   return { ...baseEl, id: `shape_${rand()}`, type: 'shape', shape: 'rect', fill: 'token:colors.primary', cornerRadius: 8, frame: { x: 500, y: 320, w: 280, h: 100 } }
 }

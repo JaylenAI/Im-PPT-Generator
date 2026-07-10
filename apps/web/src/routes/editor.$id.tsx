@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
   Sparkles, Send, Download, Play, ChevronLeft, ChevronRight, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks, Stethoscope, Shapes, Plus, Trash2,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Images, Square, Share2, ListChecks, Stethoscope, Shapes, Plus, Trash2,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -14,6 +14,7 @@ import { GhostDeckView } from '@/components/GhostDeckView'
 import { DeckDoctorView } from '@/components/DeckDoctorView'
 import { AiToolsMenu } from '@/components/AiToolsMenu'
 import { VariantsView } from '@/components/VariantsView'
+import { StockPicker } from '@/components/StockPicker'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
 import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement, addSlide, deleteSlide, duplicateSlide, moveSlide } from '@/lib/deck-edit'
@@ -67,6 +68,7 @@ function EditorPage() {
   const [saving, setSaving] = useState(false)
   const [presenting, setPresenting] = useState(false)
   const [imgGen, setImgGen] = useState(false)
+  const [stockOpen, setStockOpen] = useState(false)
   const [ghostOpen, setGhostOpen] = useState(false)
   const [doctorOpen, setDoctorOpen] = useState(false)
   const [variantsOpen, setVariantsOpen] = useState(false)
@@ -245,6 +247,20 @@ function EditorPage() {
       {presenting && (
         <PresentMode deck={deck} theme={theme} active={active} setActive={setActive} onExit={() => setPresenting(false)} />
       )}
+      {stockOpen && slide && (
+        <StockPicker
+          initialQuery={
+            (slide.elements.find((e) => e.type === 'text' && (e.role === 'title' || e.role === 'display')) as { content?: string } | undefined)?.content?.trim() || deck.title
+          }
+          onInsert={(dataUri, alt) => {
+            const el = newElement('image', { src: dataUri, alt })
+            commit(addElement(deck, slide.id, el))
+            setSelectedId(el.id)
+            setStockOpen(false)
+          }}
+          onClose={() => setStockOpen(false)}
+        />
+      )}
       {ghostOpen && <GhostDeckView deckId={deck.id} onClose={() => setGhostOpen(false)} />}
       {doctorOpen && <DeckDoctorView deckId={deck.id} onClose={() => setDoctorOpen(false)} onFixed={commit} />}
       {variantsOpen && slide && theme && (
@@ -392,6 +408,8 @@ function EditorPage() {
                       } finally { setImgGen(false) }
                     }} className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary disabled:opacity-50">
                       {imgGen ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />} 이미지</button>
+                    <button data-testid="add-stock" onClick={() => setStockOpen(true)}
+                      className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><Images className="h-3.5 w-3.5" /> 스톡</button>
                     <button data-testid="add-shape" onClick={() => { const el = newElement('shape'); commit(addElement(deck, slide.id, el)); setSelectedId(el.id) }}
                       className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><Square className="h-3.5 w-3.5" /> 도형</button>
                   </div>
