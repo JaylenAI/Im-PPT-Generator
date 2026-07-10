@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
-  Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks, Stethoscope, Shapes,
+  Sparkles, Send, Download, Play, ChevronLeft, ChevronRight, MessageSquare, Search as SearchIcon, Loader2,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks, Stethoscope, Shapes, Plus, Trash2,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -16,7 +16,7 @@ import { AiToolsMenu } from '@/components/AiToolsMenu'
 import { VariantsView } from '@/components/VariantsView'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
-import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement } from '@/lib/deck-edit'
+import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement, addSlide, deleteSlide, duplicateSlide, moveSlide } from '@/lib/deck-edit'
 import { makeId, type ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -147,6 +147,23 @@ function EditorPage() {
       const stack = [...h.stack.slice(0, h.idx + 1), d]
       return { stack, idx: stack.length - 1 }
     })
+  }
+  // 슬라이드 단위 관리(P12 Phase 2) — commit()으로 undo 추적, active 인덱스 보정
+  const addSlideAt = (i: number) => { if (!deck) return; commit(addSlide(deck, i)); setActive(i + 1); setSelectedId(undefined) }
+  const dupSlideAt = (i: number) => { if (!deck) return; commit(duplicateSlide(deck, i)); setActive(i + 1); setSelectedId(undefined) }
+  const delSlideAt = (i: number) => {
+    if (!deck || deck.slides.length <= 1) return
+    commit(deleteSlide(deck, i))
+    setActive(Math.max(0, Math.min(i, deck.slides.length - 2)))
+    setSelectedId(undefined)
+  }
+  const moveSlideAt = (i: number, dir: 'left' | 'right') => {
+    if (!deck) return
+    const j = dir === 'left' ? i - 1 : i + 1
+    if (j < 0 || j >= deck.slides.length) return
+    commit(moveSlide(deck, i, dir))
+    setActive(j)
+    setSelectedId(undefined)
   }
   const undo = () =>
     setHist((h) => {
@@ -381,23 +398,46 @@ function EditorPage() {
               </div>
             </div>
 
-            {/* Thumbnail strip */}
-            <div className="flex shrink-0 gap-3 overflow-x-auto border-t border-border bg-card/60 p-4">
+            {/* Thumbnail strip — 슬라이드 관리(선택/복제/삭제/이동/추가) */}
+            <div className="flex shrink-0 items-stretch gap-3 overflow-x-auto border-t border-border bg-card/60 p-4">
               {deck.slides.map((s, i) => (
-                <button
-                  key={s.id}
-                  onClick={() => setActive(i)}
-                  className={cn(
-                    'relative block w-40 shrink-0 overflow-hidden rounded-lg border-2 transition-all',
-                    i === active ? 'border-primary shadow-brand' : 'border-border hover:border-primary/40',
+                <div key={s.id} data-testid="slide-thumb" className="group relative shrink-0">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setActive(i)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(i) } }}
+                    aria-label={`슬라이드 ${i + 1} 선택`}
+                    className={cn(
+                      'relative block w-40 cursor-pointer overflow-hidden rounded-lg border-2 transition-all',
+                      i === active ? 'border-primary shadow-brand' : 'border-border hover:border-primary/40',
+                    )}
+                  >
+                    <ScaledSlide width={160} aspectRatio={deck.aspectRatio}>
+                      <SlideView slide={s} theme={theme} aspectRatio={deck.aspectRatio} />
+                    </ScaledSlide>
+                    <span className="absolute left-1.5 top-1.5 rounded bg-black/50 px-1.5 font-mono text-[10px] text-white">{i + 1}</span>
+                  </div>
+                  {editMode && (
+                    <div className="absolute right-1 top-1 flex gap-0.5 rounded-md bg-black/70 p-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+                      <button data-testid={`slide-left-${i}`} disabled={i === 0} onClick={() => moveSlideAt(i, 'left')} aria-label={`슬라이드 ${i + 1} 왼쪽으로 이동`}
+                        className="rounded p-1 text-white hover:bg-white/25 disabled:opacity-30"><ChevronLeft className="h-3 w-3" /></button>
+                      <button data-testid={`slide-dup-${i}`} onClick={() => dupSlideAt(i)} aria-label={`슬라이드 ${i + 1} 복제`}
+                        className="rounded p-1 text-white hover:bg-white/25"><Copy className="h-3 w-3" /></button>
+                      <button data-testid={`slide-del-${i}`} disabled={deck.slides.length <= 1} onClick={() => delSlideAt(i)} aria-label={`슬라이드 ${i + 1} 삭제`}
+                        className="rounded p-1 text-white hover:bg-white/25 disabled:opacity-30"><Trash2 className="h-3 w-3" /></button>
+                      <button data-testid={`slide-right-${i}`} disabled={i === deck.slides.length - 1} onClick={() => moveSlideAt(i, 'right')} aria-label={`슬라이드 ${i + 1} 오른쪽으로 이동`}
+                        className="rounded p-1 text-white hover:bg-white/25 disabled:opacity-30"><ChevronRight className="h-3 w-3" /></button>
+                    </div>
                   )}
-                >
-                  <ScaledSlide width={160} aspectRatio={deck.aspectRatio}>
-                    <SlideView slide={s} theme={theme} aspectRatio={deck.aspectRatio} />
-                  </ScaledSlide>
-                  <span className="absolute left-1.5 top-1.5 rounded bg-black/50 px-1.5 font-mono text-[10px] text-white">{i + 1}</span>
-                </button>
+                </div>
               ))}
+              {editMode && (
+                <button data-testid="add-slide" onClick={() => addSlideAt(active)} aria-label="슬라이드 추가"
+                  className="flex w-40 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary">
+                  <Plus className="h-6 w-6" /><span className="text-xs font-medium">슬라이드 추가</span>
+                </button>
+              )}
             </div>
           </div>
 
