@@ -22,7 +22,12 @@
 | **데이터 스토리텔링** | 차트 핵심 수치 강조(highlightIndex)·인사이트 주석·레이아웃 리듬 | [ADR-011](docs/02-architecture/ADR-011-data-storytelling.md) |
 | **Deck Doctor** | 슬라이드 품질 진단(6x6·텍스트 과밀·데이터 스토리 누락) + **AI 자동 수정**(생성→진단→개선 루프) | [ADR-012](docs/02-architecture/ADR-012-deck-doctor.md) |
 | **템플릿 라이브러리 113종** | 스타일팩 16 + design-diversity 60 + reveal.js/Marp/Catppuccin 21(전부 MIT 반입). 색·폰트 정체성 + 팩 폰트 웹 로딩 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
-| **디자인 시스템 엔진 10종** | 색을 넘어 골격까지 차별화 — 대문자 헤딩·타이틀 액센트·배경(grid/ruled/gradient/watermark)·카드 보더를 `decorate` 후처리로 전 레이아웃에 일괄 적용 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **디자인 시스템 엔진 20종** | 색을 넘어 골격까지 차별화 — 대문자 헤딩·타이틀 액센트·배경(grid/ruled/gradient/watermark)·카드 보더를 `decorate` 후처리로 전 레이아웃에 일괄 적용. 미매칭 테마는 해시 분산 폴백으로 단조로움 해소(P12) | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **프리미엄 레이아웃 (P12)** | 에디토리얼/키노트 구성 7종(section·statement·feature-quote·split-feature·hero-image·feature-grid·closing) 추가 → 총 22종. 이미지·타입 포워드 구도 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **템플릿 시퀀스 (P12)** | 템플릿이 슬라이드 흐름(layoutOrder)을 소유 — 데이터 레이아웃(chart/stat 등)은 보존하며 텍스트 슬라이드만 서사 순서로 정렬 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **브랜드 URL 임포트 (P12)** | 브랜드 사이트 URL → 대표 색·폰트 추출해 브랜드 테마 생성(SSRF 방어) | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **스톡 이미지 피커 (P12)** | 편집기에서 Pexels/Unsplash 실사진 검색·삽입(키 배선 시). 허용 CDN만 임베드(SSRF 방어) | — |
+| **PDF/PNG export (P12)** | PPTX에 더해 헤드리스 렌더로 PDF·슬라이드별 PNG(zip) 내보내기 | [REST_API](docs/03-api/REST_API.md) |
 
 **확장 예시**: 발표 유형 추가는 `packages/schema/src/presentation-type.ts`의 `PRESENTATION_TYPES` 배열에 항목 하나를 더하면 outline 스캐폴드·테마 매칭·선택기 UI에 자동 반영된다.
 
@@ -37,7 +42,7 @@ packages/
   schema/       Zod 슬라이드/덱/이벤트/발표유형 스키마 — SSOT
   core/         파이프라인 오케스트레이터 + 프롬프트 카탈로그 + LLM 프로바이더 레지스트리
                 + 품질 도구(ghost-deck/doctor/doctor-fix)
-  templates/    테마 113종(디자인 토큰) + 디자인 시스템 10종(decorate) + 레이아웃 변형 카탈로그
+  templates/    테마 113종(디자인 토큰) + 디자인 시스템 20종(decorate) + 레이아웃 22종 카탈로그
   renderer/     React 슬라이드 렌더러 (웹 표시/편집 공용)
   exporter/     PptxGenJS/PDF 익스포터
   research/     딥서치 + 스크레이핑 + citation 추적

@@ -1,8 +1,8 @@
 # CURRENT STATUS
 
-> 마지막 업데이트: 2026-07-04 · **P2~P10 완성 + 콘텐츠 품질 개선 트랙 완료** — 딥리서치 기반 6레버(Action Title·발표 유형 10종·유형별 디자인 매칭·데이터 스토리텔링·Deck Doctor 진단·AI 자동 수정). 패키지 회귀 211·Playwright 4 신규·실 claude E2E 다수·origin/dev 푸시
+> 마지막 업데이트: 2026-07-11 · **P2~P10 + 콘텐츠 품질 트랙 + P12 템플릿·에디터 트랙 완료** — 딥리서치 기반 6레버(Action Title·발표 유형 10종·유형별 디자인 매칭·데이터 스토리텔링·Deck Doctor 진단·AI 자동 수정) + P12 6단계(프리미엄 레이아웃 22종·에디터 슬라이드 관리·PDF/PNG export·브랜드 URL 임포트·템플릿 시퀀스+디자인 시스템 20종·스톡 이미지 피커).
 >
-> **모든 백엔드 기능이 UI로 연결됨** + **워터폴 차트·오버플로 자동수정 완료**. Playwright 18 스펙 전체 그린(8.5분), 패키지 회귀 220. 남은 것: Pexels 스톡 사진(키)·PNG export(헤드리스 렌더)·Mekko 차트·Excel 파싱 — 외부 의존 또는 별도 인프라 필요 항목만.
+> **모든 백엔드 기능이 UI로 연결됨** + 워터폴 차트·오버플로 자동수정 완료. 타입체크 17/17, 패키지 회귀 그린 + Playwright(sequence·stock-picker·slide-management 신규). 남은 것: 스톡 실사진·브랜드 URL 임포트는 **키 배선 시** 실사진/실추출(키 없으면 안전 폴백)·Mekko 차트·Excel 파싱 — 외부 키 또는 별도 인프라 필요 항목만.
 
 ## 모듈별 진행률
 
@@ -46,6 +46,12 @@
 | 덱 번역 · 리라이트(톤/길이) | ✅ 완료 | P10, 실 claude E2E |
 | 접근성 검사(WCAG 대비/alt) | ✅ 완료 | P10a |
 | Playwright 브라우저 E2E 하네스 | ✅ 완료 | 게이트·편집·발표 E2E 5건 |
+| **P12.1 프리미엄 레이아웃 7종(→22종)** | ✅ 완료 | section·statement·feature-quote·split-feature·hero-image·feature-grid·closing, 실 claude 자동선택 |
+| **P12.2 에디터 슬라이드 단위 관리** | ✅ 완료 | 추가/복제/이동/삭제, Playwright slide-management |
+| **P12.3 PDF/PNG export(헤드리스 렌더)** | ✅ 완료 | renderDeckToPdf/Pngs, png=zip, 실 export 검증 |
+| **P12.4 브랜드 URL 임포트(색·폰트 추출)** | ✅ 완료 | /templates/from-url, SSRF 방어, 단위 18(url-extract+catalog) |
+| **P12.5 템플릿 시퀀스 + 디자인 시스템 20종** | ✅ 완료 | layoutOrder(데이터 레이아웃 보존) + 시스템 10→20·해시 분산 폴백, 단위 17 + Playwright sequence |
+| **P12.6 스톡 이미지 피커(Pexels/Unsplash)** | ✅ 완료 | 편집기 검색·삽입, 키리스 안전, SSRF 방어, 단위 9 + Playwright stock-picker |
 
 ## 관통 완료 흐름 (실데이터 검증)
 
