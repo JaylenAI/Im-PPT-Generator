@@ -10,13 +10,18 @@ import { documentRoutes } from './routes/documents.js'
 import { imageRoutes } from './routes/images.js'
 import { createDefaultDeps, type AppDeps } from './deps.js'
 import { createWorker, type Worker } from './lib/worker.js'
+import { loadEnv, type Env } from './config/env.js'
 
 /**
  * 앱 팩토리 — 서버 기동과 분리해 테스트에서 app.request()로 직접 검증.
  * deps 주입으로 라우트를 오프라인 테스트 가능(가짜 프로바이더). 도메인 라우터만 마운트.
  * worker는 라우트의 kick(processOne)용 — 백그라운드 루프 start()는 기동 시(index.ts)에만.
  */
-export function createApp(deps: AppDeps = createDefaultDeps(), worker: Worker = createWorker(deps)) {
+export function createApp(
+  deps: AppDeps = createDefaultDeps(),
+  worker: Worker = createWorker(deps),
+  env: Env = loadEnv(),
+) {
   const app = new Hono().basePath('/api/v1')
 
   app.route('/health', healthRoutes)
@@ -25,7 +30,7 @@ export function createApp(deps: AppDeps = createDefaultDeps(), worker: Worker = 
   app.route('/', documentRoutes()) // /documents/extract (P7 문서 인제스트)
   app.route('/', imageRoutes(deps)) // /images/generate (P8 AI SVG 이미지)
   app.route('/', streamRoutes(deps, worker)) // /decks/stream, /decks/generate, /jobs/:id (SSE 잡큐)
-  app.route('/', exportRoutes(deps)) // /decks/:id/export, /exports/:id/download
+  app.route('/', exportRoutes(deps, env)) // /decks/:id/export, /exports/:id/download
   app.route('/', catalogRoutes(deps)) // /templates(+커스텀), /themes, /layouts, /presentation-types
   app.route('/settings', settingsRoutes(deps))
 

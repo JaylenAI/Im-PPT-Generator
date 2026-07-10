@@ -4,6 +4,8 @@ import { z } from 'zod'
 const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(8788),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  /** PDF/PNG export용 헤드리스 렌더 대상 — 실행 중인 웹 오리진(/print 라우트 사용) */
+  WEB_ORIGIN: z.string().url().default('http://localhost:5273'),
   /** 있으면 Postgres 영속, 없으면 인메모리 폴백 */
   DATABASE_URL: z.string().optional(),
   WORKSPACE_ID: z.string().default('default'),

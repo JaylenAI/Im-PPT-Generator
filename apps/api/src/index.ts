@@ -36,7 +36,7 @@ await deps.settings.hydrate()
 
 // 워커 — 라우트 kick + 백그라운드 루프(재시도/백오프/크래시 복구). 기동 시에만 loop 시작
 const worker = createWorker(deps, { onError: (e) => logger.error('워커 처리 오류', { message: e.message }) })
-const app = createApp(deps, worker)
+const app = createApp(deps, worker, env)
 worker.start()
 
 serve({ fetch: app.fetch, port: env.PORT }, (info) => {

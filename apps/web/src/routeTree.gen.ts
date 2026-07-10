@@ -16,6 +16,7 @@ import { Route as CreateRouteImport } from './routes/create'
 import { Route as BrandKitRouteImport } from './routes/brand-kit'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ShareIdRouteImport } from './routes/share.$id'
+import { Route as PrintIdRouteImport } from './routes/print.$id'
 import { Route as EditorIdRouteImport } from './routes/editor.$id'
 
 const TemplatesRoute = TemplatesRouteImport.update({
@@ -53,6 +54,11 @@ const ShareIdRoute = ShareIdRouteImport.update({
   path: '/share/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrintIdRoute = PrintIdRouteImport.update({
+  id: '/print/$id',
+  path: '/print/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditorIdRoute = EditorIdRouteImport.update({
   id: '/editor/$id',
   path: '/editor/$id',
@@ -67,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
+  '/print/$id': typeof PrintIdRoute
   '/share/$id': typeof ShareIdRoute
 }
 export interface FileRoutesByTo {
@@ -77,6 +84,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
+  '/print/$id': typeof PrintIdRoute
   '/share/$id': typeof ShareIdRoute
 }
 export interface FileRoutesById {
@@ -88,6 +96,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/templates': typeof TemplatesRoute
   '/editor/$id': typeof EditorIdRoute
+  '/print/$id': typeof PrintIdRoute
   '/share/$id': typeof ShareIdRoute
 }
 export interface FileRouteTypes {
@@ -100,6 +109,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/templates'
     | '/editor/$id'
+    | '/print/$id'
     | '/share/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -110,6 +120,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/templates'
     | '/editor/$id'
+    | '/print/$id'
     | '/share/$id'
   id:
     | '__root__'
@@ -120,6 +131,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/templates'
     | '/editor/$id'
+    | '/print/$id'
     | '/share/$id'
   fileRoutesById: FileRoutesById
 }
@@ -131,6 +143,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   TemplatesRoute: typeof TemplatesRoute
   EditorIdRoute: typeof EditorIdRoute
+  PrintIdRoute: typeof PrintIdRoute
   ShareIdRoute: typeof ShareIdRoute
 }
 
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ShareIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/print/$id': {
+      id: '/print/$id'
+      path: '/print/$id'
+      fullPath: '/print/$id'
+      preLoaderRoute: typeof PrintIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/editor/$id': {
       id: '/editor/$id'
       path: '/editor/$id'
@@ -203,6 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   TemplatesRoute: TemplatesRoute,
   EditorIdRoute: EditorIdRoute,
+  PrintIdRoute: PrintIdRoute,
   ShareIdRoute: ShareIdRoute,
 }
 export const routeTree = rootRouteImport

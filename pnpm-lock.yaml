@@ -241,6 +241,9 @@ importers:
       '@im-ppt/schema':
         specifier: workspace:*
         version: link:../schema
+      playwright-core:
+        specifier: ^1.61.1
+        version: 1.61.1
       pptxgenjs:
         specifier: ^4.0.0
         version: 4.0.1

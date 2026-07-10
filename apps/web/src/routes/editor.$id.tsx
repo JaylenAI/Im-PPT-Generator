@@ -55,6 +55,7 @@ function EditorPage() {
   const [theme, setTheme] = useState<Theme | undefined>(storeDeck ? themeFor(storeDeck) : undefined)
   const [active, setActive] = useState(0)
   const [downloading, setDownloading] = useState(false)
+  const [dlOpen, setDlOpen] = useState(false)
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [tab, setTab] = useState<'chat' | 'search'>('chat')
@@ -109,10 +110,10 @@ function EditorPage() {
 
   const slide = deck.slides[active] ?? deck.slides[0]
 
-  const download = async () => {
+  const download = async (format: 'pptx' | 'pdf' | 'png' = 'pptx') => {
     setDownloading(true)
     try {
-      const { exportId } = await api.createExport(deck.id)
+      const { exportId } = await api.createExport(deck.id, format)
       window.location.href = api.downloadUrl(exportId)
     } finally {
       setDownloading(false)
@@ -309,13 +310,41 @@ function EditorPage() {
             >
               <Copy className="h-4 w-4" /> 복제
             </button>
-            <button
-              onClick={download}
-              disabled={downloading}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
-            >
-              {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setDlOpen((o) => !o)}
+                disabled={downloading}
+                data-testid="download-btn"
+                aria-haspopup="menu"
+                aria-expanded={dlOpen}
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
+              >
+                {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} 다운로드
+              </button>
+              {dlOpen && (
+                <>
+                  <button className="fixed inset-0 z-10 cursor-default" aria-hidden tabIndex={-1} onClick={() => setDlOpen(false)} />
+                  <div role="menu" className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-card">
+                    {([
+                      ['pptx', 'PPTX', '편집 가능한 파워포인트'],
+                      ['pdf', 'PDF', '인쇄·배포용'],
+                      ['png', 'PNG (zip)', '슬라이드별 이미지'],
+                    ] as const).map(([fmt, label, desc]) => (
+                      <button
+                        key={fmt}
+                        role="menuitem"
+                        data-testid={`download-${fmt}`}
+                        onClick={() => { setDlOpen(false); void download(fmt) }}
+                        className="flex w-full flex-col items-start px-3 py-1.5 text-left hover:bg-secondary"
+                      >
+                        <span className="text-sm font-medium">{label}</span>
+                        <span className="text-[11px] text-muted-foreground">{desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <AiToolsMenu deck={deck} onDeckUpdate={commit} />
             <button onClick={() => setGhostOpen(true)} data-testid="ghost-btn"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary">

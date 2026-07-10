@@ -30,9 +30,11 @@ export class MemoryStore<T extends { id: string }> {
 export interface ExportArtifact {
   id: string
   deckId: string
-  format: 'pptx' | 'pdf'
+  format: 'pptx' | 'pdf' | 'png'
   buffer: Buffer
   filename: string
+  /** 다운로드 응답 Content-Type(포맷별) */
+  contentType: string
 }
 
 /**
