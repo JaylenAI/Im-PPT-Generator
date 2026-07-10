@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { Upload, Loader2 } from 'lucide-react'
+import { Upload, Loader2, Link2 } from 'lucide-react'
 import { AppShell } from '@/components/AppShell'
 import { TemplateCard } from '@/components/TemplateCard'
 import { TemplatePreviewModal } from '@/components/TemplatePreviewModal'
@@ -25,6 +25,8 @@ function TemplatesPage() {
   const [uploading, setUploading] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
+  const [brandUrl, setBrandUrl] = useState('')
+  const [importingUrl, setImportingUrl] = useState(false)
 
   const reload = () => api.listTemplates().then(setTemplates).catch(() => {})
   useEffect(() => {
@@ -32,7 +34,8 @@ function TemplatesPage() {
     void reload()
   }, [loadThemes])
 
-  const isCustom = (t: TemplateMeta) => t.source === 'user' || t.source === 'imported_pptx'
+  const isCustom = (t: TemplateMeta) =>
+    t.source === 'user' || t.source === 'imported_pptx' || t.source === 'imported_url'
   const categories = useMemo(() => ['all', ...Array.from(new Set(templates.map((t) => t.category)))], [templates])
   const shown = cat === 'all' ? templates : templates.filter((t) => t.category === cat)
 
@@ -45,6 +48,17 @@ function TemplatesPage() {
       await api.createTemplateFromPptx(file)
       await reload()
     } catch (e) { setErr((e as Error).message) } finally { setUploading(false) }
+  }
+
+  const importUrl = async () => {
+    const url = brandUrl.trim()
+    if (!url || importingUrl) return
+    setImportingUrl(true); setErr(null)
+    try {
+      await api.createTemplateFromUrl(url)
+      setBrandUrl('')
+      await reload()
+    } catch (e) { setErr((e as Error).message) } finally { setImportingUrl(false) }
   }
 
   const remove = async (t: TemplateMeta) => {
@@ -65,6 +79,31 @@ function TemplatesPage() {
             <input ref={fileRef} type="file" accept=".pptx" className="hidden" data-testid="tpl-upload"
               onChange={(e) => { void upload(e.target.files?.[0]); e.target.value = '' }} />
           </label>
+        </div>
+
+        {/* 브랜드 URL로 템플릿 만들기(P12) — 사이트 색/폰트 추출 */}
+        <div className="mb-4 flex flex-col gap-2 rounded-xl border border-border bg-card/50 p-3 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+            <Link2 className="h-4 w-4" /> 브랜드 사이트로 만들기
+          </div>
+          <input
+            type="url"
+            value={brandUrl}
+            onChange={(e) => setBrandUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') void importUrl() }}
+            placeholder="https://your-brand.com"
+            data-testid="tpl-brand-url"
+            className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
+          <button
+            onClick={() => void importUrl()}
+            disabled={importingUrl || !brandUrl.trim()}
+            data-testid="tpl-brand-url-submit"
+            className="flex items-center justify-center gap-2 rounded-lg bg-gradient-brand px-4 py-2 text-sm font-semibold text-white shadow-brand disabled:opacity-50"
+          >
+            {importingUrl ? <Loader2 className="h-4 w-4 animate-spin" /> : <Link2 className="h-4 w-4" />}
+            색·폰트 추출
+          </button>
         </div>
         {err && <p className="mb-3 text-sm text-destructive">{err}</p>}
 

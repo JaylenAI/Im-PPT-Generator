@@ -3,6 +3,7 @@ import { TEMPLATES, listThemes, layoutCatalogForLlm, buildSampleDeck } from '@im
 import { PRESENTATION_TYPES } from '@im-ppt/schema'
 import type { AppDeps } from '../deps.js'
 import { extractPptxBrandKit } from '../lib/pptx-extract.js'
+import { extractUrlBrandKit } from '../lib/url-extract.js'
 import { buildCustomTemplate } from '../lib/custom-template.js'
 
 const WORKSPACE_ID = process.env.WORKSPACE_ID ?? 'default'
@@ -38,6 +39,35 @@ export function catalogRoutes(deps: AppDeps) {
         return c.json({ data: saved }, 201)
       } catch (e) {
         return c.json({ error: { code: 'PARSE_FAILED', message: (e as Error).message } }, 400)
+      }
+    })
+    // 브랜드 사이트 URL → 색+폰트 추출 → 커스텀 템플릿 생성(P12 브랜드 매칭)
+    .post('/templates/from-url', async (c) => {
+      const body = (await c.req.json().catch(() => null)) as { url?: unknown; name?: unknown } | null
+      const rawUrl = typeof body?.url === 'string' ? body.url.trim() : ''
+      if (!rawUrl) {
+        return c.json({ error: { code: 'VALIDATION_FAILED', message: 'url 필수' } }, 400)
+      }
+      const name =
+        typeof body?.name === 'string' && body.name.trim() ? body.name.trim() : undefined
+      try {
+        const kit = await extractUrlBrandKit(rawUrl)
+        const host = (() => {
+          try {
+            return new URL(rawUrl).hostname.replace(/^www\./, '')
+          } catch {
+            return '브랜드'
+          }
+        })()
+        const tplName = (name ?? host).slice(0, 40) || '브랜드 템플릿'
+        const tpl = buildCustomTemplate(tplName, kit, WORKSPACE_ID, {
+          source: 'imported_url',
+          sourceRef: rawUrl,
+        })
+        const saved = await deps.settings.addCustomTemplate(tpl)
+        return c.json({ data: saved }, 201)
+      } catch (e) {
+        return c.json({ error: { code: 'EXTRACT_FAILED', message: (e as Error).message } }, 400)
       }
     })
     // 커스텀 템플릿 삭제(빌트인은 삭제 불가)

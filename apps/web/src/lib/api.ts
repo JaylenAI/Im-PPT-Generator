@@ -222,6 +222,13 @@ export const api = {
     return body.data
   },
 
+  // 브랜드 사이트 URL → 내 템플릿 생성(P12 브랜드 매칭) — 색+폰트 추출
+  createTemplateFromUrl: (url: string, name?: string) =>
+    req<TemplateMeta>('/templates/from-url', {
+      method: 'POST',
+      body: JSON.stringify({ url, ...(name ? { name } : {}) }),
+    }),
+
   // 커스텀 템플릿 삭제
   deleteTemplate: (id: string) => req<{ removed: boolean }>(`/templates/${id}`, { method: 'DELETE' }),
 

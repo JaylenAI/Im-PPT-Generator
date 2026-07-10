@@ -15,8 +15,9 @@ export const templateCategorySchema = z.enum([
  * - builtin: 코드 레지스트리(`packages/templates`) 제공
  * - user: 사용자가 덱 스타일을 저장하거나 갤러리에서 만든 것(DB 저장)
  * - imported_pptx: 사용자 PPTX 업로드에서 추출(P6, DB 저장)
+ * - imported_url: 브랜드 사이트 URL에서 색/폰트 추출(P12 브랜드 매칭, DB 저장)
  */
-export const templateSourceSchema = z.enum(['builtin', 'user', 'imported_pptx'])
+export const templateSourceSchema = z.enum(['builtin', 'user', 'imported_pptx', 'imported_url'])
 
 /** 템플릿 = 테마(토큰) + 지원 레이아웃 변형 세트 — 갤러리 노출 메타 */
 export const templateMetaSchema = z.object({
@@ -38,10 +39,10 @@ export const templateMetaSchema = z.object({
  * builtin은 코드가 테마를 소유하지만, user/imported는 DB가 테마를 소유해야 하므로 토큰을 함께 저장.
  */
 export const customTemplateSchema = templateMetaSchema.extend({
-  source: z.enum(['user', 'imported_pptx']),
+  source: z.enum(['user', 'imported_pptx', 'imported_url']),
   workspaceId: z.string().min(1),
   themeTokens: themeTokensSchema,
-  /** imported_pptx일 때 원본 파일 참조(추출 재현/디버깅용) */
+  /** imported_pptx는 원본 파일, imported_url은 원본 URL 참조(추출 재현/디버깅용) */
   sourceFileRef: z.string().optional(),
 })
 
