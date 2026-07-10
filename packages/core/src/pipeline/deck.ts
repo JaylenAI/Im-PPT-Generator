@@ -57,7 +57,11 @@ function nextDeckId(): string {
  * 테마 우선순위: 명시 themeId > (사용자가 템플릿 선택시 그 테마) > 발표 유형 기본 테마 > 템플릿 기본.
  * 발표 유형(ADR-010/P0.6)이 장르에 맞는 시각 정체성을 자동 부여 — 단, 사용자의 명시 선택은 언제나 우선.
  */
-function resolveTemplate(config: GenerationConfig): { templateId: string; themeId: string } {
+function resolveTemplate(config: GenerationConfig): {
+  templateId: string
+  themeId: string
+  layoutOrder?: string[]
+} {
   const explicit = config.templateId ? TEMPLATES.find((t) => t.id === config.templateId) : undefined
   const template = explicit ?? TEMPLATES[0]
   if (!template) throw new Error('사용 가능한 템플릿이 없습니다')
@@ -65,7 +69,12 @@ function resolveTemplate(config: GenerationConfig): { templateId: string; themeI
   const themeId =
     config.themeId ??
     (explicit ? template.themeId : hasTheme(typeTheme) ? typeTheme : template.themeId)
-  return { templateId: template.id, themeId }
+  // 사용자가 명시적으로 고른 템플릿의 시퀀스만 적용(기본 폴백 템플릿엔 강제 안 함)
+  return {
+    templateId: template.id,
+    themeId,
+    ...(explicit?.layoutOrder ? { layoutOrder: explicit.layoutOrder } : {}),
+  }
 }
 
 function assembleDeck(
@@ -109,7 +118,12 @@ export async function generateDeck(
   const research = opts.research ?? { sources: [], facts: [] }
   const { citations, sourceToCitation } = buildCitations(research.sources, research.facts)
 
-  const outline = opts.outline ?? (await generateOutline(config, deps, { facts: research.facts })).outline
+  const outline =
+    opts.outline ??
+    (await generateOutline(config, deps, {
+      facts: research.facts,
+      ...(ids.layoutOrder ? { layoutOrder: ids.layoutOrder } : {}),
+    })).outline
   const results = await Promise.all(
     outline.sections.map((section) => {
       const facts = research.facts.filter((f) => section.factIds.includes(f.id))
@@ -146,7 +160,12 @@ export async function generateDeckStreaming(
     await onEvent({ type: 'facts_extracted', facts: research.facts })
   }
 
-  const outline = (await generateOutline(config, deps, { facts: research.facts })).outline
+  const outline = (
+    await generateOutline(config, deps, {
+      facts: research.facts,
+      ...(ids.layoutOrder ? { layoutOrder: ids.layoutOrder } : {}),
+    })
+  ).outline
   await onEvent({ type: 'outline_ready', outline })
 
   const slides: Deck['slides'] = new Array(outline.sections.length)

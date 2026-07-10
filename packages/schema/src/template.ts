@@ -26,7 +26,14 @@ export const templateMetaSchema = z.object({
   category: templateCategorySchema,
   themeId: idSchema,
   aspectRatios: z.array(aspectRatioSchema).min(1),
+  /** 지원하는 레이아웃 집합(순서 무관) */
   layoutTypes: z.array(z.string().min(1)).min(1),
+  /**
+   * 템플릿의 설계된 서사 레이아웃 순서(P12) — 있으면 생성이 이 흐름을 따르도록 가이드한다.
+   * 소프트: 아웃라인 프롬프트에 흐름을 주입하고, 콘텐츠 확정 레이아웃(chart/stat 등)은 존중하며
+   * 유연한 슬롯만 이 순서로 정렬(positional, 부족하면 순환). 없으면 LLM이 자유 선택.
+   */
+  layoutOrder: z.array(z.string().min(1)).optional(),
   previewUrl: z.string().optional(),
   source: templateSourceSchema.default('builtin'),
   /** user/imported_pptx만 소유. builtin은 전역 */
