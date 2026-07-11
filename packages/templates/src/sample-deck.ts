@@ -2,6 +2,13 @@ import type { Deck, Slide, TemplateMeta, ThemeTokens } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
 import { TEMPLATES, getLayout, getTheme, hasTheme } from './registry.js'
 import { PPT20_DARK_MASTHEAD } from './themes/ppt20.js'
+import { FIELD_DARK_MASTHEAD } from './themes/ppt20-fields.js'
+
+/** 다크 마스트헤드 표지 여부 — 베이스(ppt-05/18) + 그 팔레트 변형 + 필드(fashion) 인식 */
+function usesDarkMasthead(themeId: string): boolean {
+  const base = themeId.match(/^(ppt-\d+)/)?.[1] ?? themeId
+  return PPT20_DARK_MASTHEAD.has(base) || PPT20_DARK_MASTHEAD.has(themeId) || FIELD_DARK_MASTHEAD.has(themeId)
+}
 
 /**
  * 템플릿 미리보기용 샘플 덱 — LLM 없이 결정론적 플레이스홀더로 그 템플릿의 디자인을 보여준다.
@@ -61,7 +68,7 @@ export function buildSampleDeck(template: TemplateMeta | string, themeOverride?:
     if (layoutKey === 'title') return { title: tpl.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인' }
     if (layoutKey === 'hero-cover') return { kicker: 'COMPANY PROFILE', title: tpl.name, subtitle: '브랜드 컬러로 채운 강렬한 첫인상' }
     if (layoutKey === 'editorial-cover') return { kicker: 'PROFILE', title: tpl.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인', meta: ['Seoul, Korea', 'hello@example.com', '2025'] }
-    if (layoutKey === 'masthead-cover') return { title: tpl.name, tag: 'PRESENTATION', photo: true, meta: ['NAME HERE', '2024 — 2025', 'PORTFOLIO'], ...(PPT20_DARK_MASTHEAD.has(tpl.themeId) ? { dark: true } : {}) }
+    if (layoutKey === 'masthead-cover') return { title: tpl.name, tag: 'PRESENTATION', photo: true, meta: ['NAME HERE', '2024 — 2025', 'PORTFOLIO'], ...(usesDarkMasthead(tpl.themeId) ? { dark: true } : {}) }
     if (layoutKey === 'ring-cover') return { kicker: 'PRESENTATION', title: tpl.name, subtitle: 'Creative presentation template' }
     if (layoutKey === 'report-cover') {
       // 이름을 첫 단어(잉크)+나머지(액센트)로 나눠 투톤 마스트헤드 재현
