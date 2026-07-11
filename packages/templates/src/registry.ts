@@ -37,6 +37,7 @@ import { GALLERY_THEMES } from './themes/gallery.js'
 import { STYLE_PACK_THEMES, STYLE_PACK_CATEGORY } from './themes/packs.js'
 import { DESIGN_DIVERSITY_THEMES, DESIGN_DIVERSITY_CATEGORY } from './themes/design-diversity.js'
 import { COMMUNITY_THEMES, COMMUNITY_CATEGORY } from './themes/design-community.js'
+import { PPT20_THEMES, PPT20_CATEGORY, PPT20_SEQ } from './themes/ppt20.js'
 import { withDesignSystem } from './themes/design-systems.js'
 
 /** 레이아웃 레지스트리 — 추가는 이 배열에 1줄 (분기문 증식 금지) */
@@ -111,6 +112,7 @@ const THEME_LIST: Theme[] = [
   ...STYLE_PACK_THEMES,
   ...DESIGN_DIVERSITY_THEMES,
   ...COMMUNITY_THEMES,
+  ...PPT20_THEMES, // style 사전 설정 → withDesignSystem이 측정 시스템 보존
 ].map(withDesignSystem)
 const THEMES: ReadonlyMap<string, Theme> = new Map(THEME_LIST.map((t) => [t.id, t]))
 
@@ -198,6 +200,18 @@ const COMMUNITY_TEMPLATES: TemplateMeta[] = COMMUNITY_THEMES.map((t) => ({
   source: 'builtin',
 }))
 
+// PPT 샘플 20선 재현(R3/R4) — 팔레트 실측 테마 + 발표유형별 시그니처 시퀀스(layoutOrder)
+const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) => ({
+  id: `template-${t.id}`,
+  name: t.name,
+  category: (PPT20_CATEGORY[t.id] ?? 'business') as TemplateMeta['category'],
+  themeId: t.id,
+  aspectRatios: [...AR],
+  layoutTypes: ALL,
+  ...(PPT20_SEQ[t.id] ? { layoutOrder: PPT20_SEQ[t.id] } : {}),
+  source: 'builtin',
+}))
+
 export const TEMPLATES: TemplateMeta[] = [
   {
     id: 'corporate-indigo',
@@ -222,4 +236,5 @@ export const TEMPLATES: TemplateMeta[] = [
   ...STYLE_PACK_TEMPLATES,
   ...DESIGN_DIVERSITY_TEMPLATES,
   ...COMMUNITY_TEMPLATES,
+  ...PPT20_TEMPLATES,
 ]
