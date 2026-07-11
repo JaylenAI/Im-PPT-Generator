@@ -1,6 +1,7 @@
 import type { Deck, Slide, TemplateMeta, ThemeTokens } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
 import { TEMPLATES, getLayout, getTheme, hasTheme } from './registry.js'
+import { PPT20_DARK_MASTHEAD } from './themes/ppt20.js'
 
 /**
  * 템플릿 미리보기용 샘플 덱 — LLM 없이 결정론적 플레이스홀더로 그 템플릿의 디자인을 보여준다.
@@ -42,6 +43,8 @@ const SAMPLE_CONTENT: Record<string, unknown> = {
   'photo-strip': { title: '주요 작업물', items: [{ caption: 'ERP 대시보드 리디자인', tag: 'UX' }, { caption: '모바일 온보딩 개선', tag: 'Mobile' }, { caption: '디자인 시스템 구축', tag: 'System' }] },
   'team-grid': { title: '팀 소개', members: [{ name: '김대표', role: 'CEO', note: '전략과 비전' }, { name: '이기술', role: 'CTO', note: '아키텍처 총괄' }, { name: '박디자', role: 'Design Lead', note: '제품 경험 설계' }] },
   'dashboard-cards': { title: '분기 실적 요약', cards: [{ value: '₩4.2억', label: '분기 매출', delta: '+18% QoQ', trend: 'up' }, { value: '1,240', label: '신규 가입자', delta: '+320', trend: 'up' }, { value: '3.4%', label: '이탈률', delta: '-0.8%p', trend: 'down' }] },
+  // 시그니처 재현 — 매거진 헤드라인(거대 하단 헤딩+원형 배지+사진+대형 숫자)
+  'editorial-headline': { heading: 'ABOUT', badge: 'A', number: '01', label: 'OVERVIEW · 2024', photo: true, body: '10년간 제품 경험을 설계해 온 디자이너입니다. 데이터 기반 의사결정과 빠른 프로토타이핑으로 명확한 이야기를 만듭니다.' },
 }
 
 /** 미리보기 폴백(layoutOrder 없는 템플릿) — 범용 5슬라이드 */
@@ -57,6 +60,14 @@ export function buildSampleDeck(template: TemplateMeta | string, themeOverride?:
     // 표지 슬롯은 템플릿 정체성(이름)을 반영, 그 외는 대표 샘플
     if (layoutKey === 'title') return { title: tpl.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인' }
     if (layoutKey === 'hero-cover') return { kicker: 'COMPANY PROFILE', title: tpl.name, subtitle: '브랜드 컬러로 채운 강렬한 첫인상' }
+    if (layoutKey === 'editorial-cover') return { kicker: 'PROFILE', title: tpl.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인', meta: ['Seoul, Korea', 'hello@example.com', '2025'] }
+    if (layoutKey === 'masthead-cover') return { title: tpl.name, tag: 'PRESENTATION', photo: true, meta: ['NAME HERE', '2024 — 2025', 'PORTFOLIO'], ...(PPT20_DARK_MASTHEAD.has(tpl.themeId) ? { dark: true } : {}) }
+    if (layoutKey === 'ring-cover') return { kicker: 'PRESENTATION', title: tpl.name, subtitle: 'Creative presentation template' }
+    if (layoutKey === 'report-cover') {
+      // 이름을 첫 단어(잉크)+나머지(액센트)로 나눠 투톤 마스트헤드 재현
+      const [head, ...rest] = tpl.name.split(' ')
+      return { kicker: 'PROPOSAL', title: head ?? tpl.name, ...(rest.length > 0 ? { accent: rest.join(' ') } : {}), tagline: '샘플 미리보기 — 이 템플릿의 디자인', year: '2025', meta: ['Company Name', 'Seoul, Korea', 'hello@example.com'] }
+    }
     if (layoutKey === 'closing') return { headline: '함께 시작하세요', message: tpl.name }
     return SAMPLE_CONTENT[layoutKey]
   }

@@ -55,12 +55,17 @@ const FIXTURES: Record<string, unknown> = {
   'team-grid': { title: '팀 소개', members: [{ name: '김대표', role: 'CEO', note: '전략과 비전' }, { name: '이기술', role: 'CTO', note: '아키텍처 총괄' }, { name: '박디자', role: 'Design Lead', note: '제품 경험 설계' }, { name: '최성장', role: 'Growth', note: '데이터 기반 성장' }] },
   'dashboard-cards': { title: '분기 실적 요약', cards: [{ value: '₩4.2억', label: '분기 매출', delta: '+18% QoQ', trend: 'up' }, { value: '1,240', label: '신규 가입자', delta: '+320', trend: 'up' }, { value: '3.4%', label: '이탈률', delta: '-0.8%p', trend: 'down' }, { value: '92점', label: 'NPS', delta: '유지', trend: 'flat' }] },
   'hero-cover': { kicker: 'COMPANY PROFILE', title: 'Orange Company', subtitle: '브랜드 컬러로 채운 강렬한 첫인상' },
+  // 시그니처 재현 레이아웃 — 원본 PPT 20선의 고유 구성
+  'masthead-cover': { title: 'RE-SUME', tag: 'PRESENTATION', photo: true, meta: ['NAME HERE', '2024 — 2025', 'PORTFOLIO'] },
+  'editorial-headline': { heading: 'ABOUT ME', badge: 'A', number: '01', label: 'OVERVIEW · 2024', photo: true, body: '10년간 제품 경험을 설계해 온 디자이너입니다. 데이터 기반 의사결정과 빠른 프로토타이핑으로 명확한 이야기를 만듭니다.' },
+  'ring-cover': { kicker: 'PRESENTATION', title: 'COMPANY', subtitle: 'Creative Presentation template' },
+  'report-cover': { kicker: 'CREATIVE IDEA', title: 'BUSINESS', accent: 'PLAN', tagline: 'A modern plan to grow your business in 2025', year: '2025', meta: ['Company Name', 'Seoul, Korea', 'hello@example.com'] },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 31종이 등록되어 있다(references는 hidden)', () => {
+  it('레이아웃 35종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'dashboard-cards', 'editorial-cover', 'feature-grid', 'feature-quote', 'hero-cover', 'hero-image', 'kpi-grid', 'metric-bars', 'photo-strip', 'process', 'profile-split', 'quote', 'references', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'steps-circles', 'team-grid', 'timeline', 'title', 'toc-index', 'two-col'],
+      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'dashboard-cards', 'editorial-cover', 'editorial-headline', 'feature-grid', 'feature-quote', 'hero-cover', 'hero-image', 'kpi-grid', 'masthead-cover', 'metric-bars', 'photo-strip', 'process', 'profile-split', 'quote', 'references', 'report-cover', 'ring-cover', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'steps-circles', 'team-grid', 'timeline', 'title', 'toc-index', 'two-col'],
     )
   })
 

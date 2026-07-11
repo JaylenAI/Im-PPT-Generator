@@ -32,7 +32,7 @@ export const PPT20_THEMES: Theme[] = [
   t('ppt-17', "Annual Teal", { primary: '#5CA1D4', secondary: '#AFB0B3', accent: '#5CA1D4', background: '#D7E1E1', surface: '#FFFFFF', textPrimary: '#353047', textSecondary: '#AFB0B3', success: '#2F9E68', warning: '#D08700', error: '#D64545' }, 'Montserrat', 'Lato', { display: 46, title: 31, subtitle: 21, body: 16, caption: 12 }, 'data-infographic'),
   t('ppt-18', "Mono Proposal", { primary: '#0A0A0A', secondary: '#9A9A9A', accent: '#0A0A0A', background: '#F9F9F9', surface: '#FFFFFF', textPrimary: '#0A0A0A', textSecondary: '#55555A', success: '#2F9E68', warning: '#D08700', error: '#D64545' }, 'Inter', 'Georgia', { display: 80, title: 40, subtitle: 22, body: 15, caption: 11 }, 'mono-label'),
   t('ppt-19', "Corporate Blue", { primary: '#6692E5', secondary: '#ACB0B3', accent: '#6692E5', background: '#D1D3D4', surface: '#FFFFFF', textPrimary: '#212C32', textSecondary: '#ACB0B3', success: '#2F9E68', warning: '#D08700', error: '#D64545' }, 'Montserrat', 'Inter', { display: 46, title: 31, subtitle: 21, body: 16, caption: 12 }, 'corporate-outline'),
-  t('ppt-20', "Infographic Pop", { primary: '#E23B3B', secondary: '#33406B', accent: '#E23B3B', background: '#F8F7F8', surface: '#FFFFFF', textPrimary: '#2B2627', textSecondary: '#565460', success: '#2F9E68', warning: '#D08700', error: '#D64545' }, 'Montserrat', 'Inter', { display: 46, title: 31, subtitle: 21, body: 16, caption: 12 }, 'data-infographic'),
+  t('ppt-20', "Infographic Pop", { primary: '#2E3B63', secondary: '#8E8B96', accent: '#E23B3B', background: '#F8F7F8', surface: '#FFFFFF', textPrimary: '#2B2627', textSecondary: '#565460', success: '#2F9E68', warning: '#D08700', error: '#D64545' }, 'Montserrat', 'Inter', { display: 46, title: 31, subtitle: 21, body: 16, caption: 12 }, 'data-infographic'),
 ]
 
 /** 템플릿 메타 카테고리(id→category) */
@@ -59,29 +59,52 @@ export const PPT20_CATEGORY: Record<string, string> = {
   'ppt-20': 'creative',
 }
 
-/** 발표유형별 시그니처 레이아웃 시퀀스(layoutOrder) */
+/** 발표유형별 시그니처 레이아웃 시퀀스(layoutOrder) — 원본 20선 1:1 정밀 수렴(에이전트 4종 대조 반영) */
 export const PPT20_SEQ: Record<string, string[]> = {
-  'ppt-01': ['editorial-cover', 'toc-index', 'profile-split', 'metric-bars', 'steps-circles', 'photo-strip', 'team-grid', 'closing'],
-  'ppt-02': ['title', 'agenda', 'section', 'two-col', 'stat', 'chart', 'comparison', 'closing'],
-  'ppt-03': ['title', 'agenda', 'section', 'split-feature', 'stat', 'metric-bars', 'cards', 'closing'],
-  'ppt-04': ['editorial-cover', 'toc-index', 'profile-split', 'section', 'two-col', 'timeline', 'photo-strip', 'closing'],
-  'ppt-05': ['editorial-cover', 'toc-index', 'profile-split', 'metric-bars', 'steps-circles', 'photo-strip', 'team-grid', 'closing'],
-  'ppt-06': ['title', 'agenda', 'stat', 'chart', 'kpi-grid', 'comparison', 'cards', 'closing'],
-  'ppt-07': ['title', 'agenda', 'section', 'two-col', 'stat', 'chart', 'comparison', 'closing'],
-  'ppt-08': ['title', 'agenda', 'section', 'two-col', 'stat', 'chart', 'comparison', 'closing'],
-  'ppt-09': ['title', 'agenda', 'stat', 'chart', 'kpi-grid', 'comparison', 'cards', 'closing'],
-  'ppt-10': ['title', 'statement', 'dashboard-cards', 'feature-grid', 'stat', 'chart', 'split-feature', 'closing'],
-  'ppt-11': ['title', 'statement', 'dashboard-cards', 'feature-grid', 'stat', 'chart', 'split-feature', 'closing'],
-  'ppt-12': ['title', 'statement', 'dashboard-cards', 'feature-grid', 'stat', 'chart', 'split-feature', 'closing'],
-  'ppt-13': ['title', 'agenda', 'section', 'two-col', 'stat', 'chart', 'comparison', 'closing'],
-  'ppt-14': ['title', 'agenda', 'section', 'two-col', 'stat', 'chart', 'comparison', 'closing'],
-  'ppt-15': ['title', 'statement', 'dashboard-cards', 'feature-grid', 'stat', 'chart', 'split-feature', 'closing'],
-  'ppt-16': ['title', 'agenda', 'kpi-grid', 'process', 'chart', 'cards', 'comparison', 'closing'],
-  'ppt-17': ['title', 'agenda', 'stat', 'chart', 'kpi-grid', 'comparison', 'cards', 'closing'],
-  'ppt-18': ['editorial-cover', 'toc-index', 'profile-split', 'section', 'two-col', 'timeline', 'photo-strip', 'closing'],
-  'ppt-19': ['title', 'agenda', 'stat', 'chart', 'kpi-grid', 'comparison', 'cards', 'closing'],
-  'ppt-20': ['title', 'agenda', 'kpi-grid', 'process', 'chart', 'cards', 'comparison', 'closing'],
+  // 01 매거진 이력서(RE-SUME) — 라이트 마스트헤드+헤드라인+스킬바+팀
+  'ppt-01': ['masthead-cover', 'toc-index', 'editorial-headline', 'metric-bars', 'steps-circles', 'photo-strip', 'team-grid', 'closing'],
+  // 02 화이트+퍼플 마케팅 — 리포트 표지(우측 패널)+아이콘카드/스탯/팀/인포그래픽
+  'ppt-02': ['report-cover', 'agenda', 'cards', 'dashboard-cards', 'chart', 'team-grid', 'process', 'closing'],
+  // 03 네온 피치 — 차콜+네온 볼드, 피처그리드+스테이트먼트+비교
+  'ppt-03': ['hero-cover', 'feature-grid', 'statement', 'comparison', 'split-feature', 'stat', 'chart', 'closing'],
+  // 04 뮤트 제안서 — 에디토리얼(프로필+팀+타임라인)
+  'ppt-04': ['editorial-cover', 'profile-split', 'team-grid', 'two-col', 'timeline', 'section', 'photo-strip', 'closing'],
+  // 05 HASU 에디토리얼 — 다크 마스트헤드(검정)+프로필+타임라인+스킬바
+  'ppt-05': ['masthead-cover', 'agenda', 'profile-split', 'timeline', 'steps-circles', 'metric-bars', 'photo-strip', 'closing'],
+  // 06 인베스터 피치 — 에디토리얼+데이터 다이어그램(뮤트 블루+핑크)
+  'ppt-06': ['editorial-cover', 'cards', 'stat', 'steps-circles', 'process', 'chart', 'kpi-grid', 'closing'],
+  // 07 비즈니스 플랜 레드 — 투톤 리포트 표지+번호카드+스킬바+팀
+  'ppt-07': ['report-cover', 'toc-index', 'cards', 'stat', 'metric-bars', 'team-grid', 'process', 'closing'],
+  // 08 오렌지 크리에이티브 — 링 표지+스플릿+대시보드+팀
+  'ppt-08': ['ring-cover', 'agenda', 'split-feature', 'dashboard-cards', 'chart', 'team-grid', 'cards', 'closing'],
+  // 09 크림슨 리포트 — 리포트 표지+원형스텝+비교+타임라인+팀
+  'ppt-09': ['report-cover', 'steps-circles', 'comparison', 'stat', 'chart', 'timeline', 'team-grid', 'closing'],
+  // 10 그린 모던(화이트+워드마크+링) — 에디토리얼 표지+스플릿+피처+팀+인용
+  'ppt-10': ['editorial-cover', 'split-feature', 'feature-grid', 'stat', 'team-grid', 'photo-strip', 'quote', 'closing'],
+  // 11 글래스 핀테크(라이트 라벤더+우측 이미지) — 리포트 표지+KPI+대시보드+피처
+  'ppt-11': ['report-cover', 'kpi-grid', 'dashboard-cards', 'feature-grid', 'stat', 'chart', 'split-feature', 'closing'],
+  // 12 민트 SaaS(화이트+투톤 워드마크+우측 카드) — 리포트 표지+섹션+카드+팀
+  'ppt-12': ['report-cover', 'agenda', 'section', 'cards', 'chart', 'stat', 'team-grid', 'closing'],
+  // 13 FastCo 레드 — 투톤 리포트 표지+2열+카드+팀+프로필+인용
+  'ppt-13': ['report-cover', 'two-col', 'cards', 'team-grid', 'profile-split', 'quote', 'timeline', 'closing'],
+  // 14 스트래티직 네이비 — 히어로+2열+피처+타임라인+팀
+  'ppt-14': ['hero-cover', 'agenda', 'two-col', 'feature-grid', 'stat', 'timeline', 'team-grid', 'closing'],
+  // 15 킨 그라데이션 — 히어로+목차+카드+타임라인+팀
+  'ppt-15': ['hero-cover', 'toc-index', 'cards', 'timeline', 'comparison', 'stat', 'team-grid', 'closing'],
+  // 16 레드 프레스 — 히어로+프로필+카드+타임라인+프로세스+팀
+  'ppt-16': ['hero-cover', 'profile-split', 'cards', 'timeline', 'process', 'team-grid', 'comparison', 'closing'],
+  // 17 애뉴얼 틸 — 에디토리얼+데이터(대시보드+스킬바+KPI)
+  'ppt-17': ['editorial-cover', 'agenda', 'stat', 'chart', 'dashboard-cards', 'metric-bars', 'kpi-grid', 'closing'],
+  // 18 모노 프로포절 — 다크 마스트헤드(좌측 블랙)+프로필+팀+타임라인+헤드라인
+  'ppt-18': ['masthead-cover', 'toc-index', 'profile-split', 'section', 'team-grid', 'timeline', 'editorial-headline', 'closing'],
+  // 19 코퍼릿 블루 — 리포트 표지(우측 일러스트)+섹션+피처+프로세스
+  'ppt-19': ['report-cover', 'agenda', 'section', 'chart', 'feature-grid', 'process', 'comparison', 'closing'],
+  // 20 인포그래픽(다크 네이비+월드맵) — 히어로+섹션+원형스텝+프로세스
+  'ppt-20': ['hero-cover', 'section', 'steps-circles', 'process', 'stat', 'cards', 'comparison', 'closing'],
 }
+
+/** 다크 마스트헤드 표지를 쓰는 템플릿(원본이 검정 마스트헤드) — sample-deck에서 dark 플래그 주입 */
+export const PPT20_DARK_MASTHEAD = new Set<string>(['ppt-05', 'ppt-18'])
 
 /** 웹 로딩 참고용 비-시스템 폰트 목록 */
 export const PPT20_FONTS: string[] = ['Oswald', 'Inter', 'Montserrat', 'Poppins', 'Archivo', 'Lora', 'Lato', 'Manrope']

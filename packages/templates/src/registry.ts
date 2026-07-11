@@ -31,6 +31,10 @@ import { photoStripLayout } from './layouts/photo-strip.js'
 import { teamGridLayout } from './layouts/team-grid.js'
 import { dashboardCardsLayout } from './layouts/dashboard-cards.js'
 import { heroCoverLayout } from './layouts/hero-cover.js'
+import { mastheadCoverLayout } from './layouts/masthead-cover.js'
+import { editorialHeadlineLayout } from './layouts/editorial-headline.js'
+import { ringCoverLayout } from './layouts/ring-cover.js'
+import { reportCoverLayout } from './layouts/report-cover.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -76,6 +80,11 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(teamGridLayout),
   defineLayout(dashboardCardsLayout),
   defineLayout(heroCoverLayout),
+  // 시그니처 재현 레이아웃 — 원본 PPT 20선의 고유 구성 복제
+  defineLayout(mastheadCoverLayout), // 01/05 매거진 이력서 표지
+  defineLayout(editorialHeadlineLayout), // 01/05 매거진 내부 장
+  defineLayout(ringCoverLayout), // 08 오렌지 크리에이티브 링 표지
+  defineLayout(reportCoverLayout), // 07 비즈니스 플랜 투톤 표지
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
@@ -204,10 +213,8 @@ const COMMUNITY_TEMPLATES: TemplateMeta[] = COMMUNITY_THEMES.map((t) => ({
   source: 'builtin',
 }))
 
-// PPT 샘플 20선 재현(R3/R4) — 팔레트 실측 테마 + 발표유형별 시그니처 시퀀스(layoutOrder)
-// R5 대조 QA: 원본 표지가 풀블리드 컬러/다크인 팩은 표지를 hero-cover로 교체(브랜드컬러 채움).
-// primary가 어두운/채도 높은 브랜드색이라 라이트 텍스트가 대형 타이틀 기준 대비를 만족하는 4종만.
-const HERO_COVER_IDS = new Set(['ppt-02', 'ppt-07', 'ppt-08', 'ppt-14'])
+// PPT 샘플 20선 재현 — 팔레트 실측 테마 + 원본 충실 시그니처 시퀀스(layoutOrder, 표지 포함)
+// ext 변형은 아직 구 시퀀스라 hero 패밀리 첫 장만 hero-cover로 교체(Phase B에서 재생성 예정)
 function withHeroCover(seq: string[] | undefined, isHero: boolean): string[] | undefined {
   if (!seq || seq.length === 0 || !isHero) return seq
   return ['hero-cover', ...seq.slice(1)] // 첫 장(title)만 교체, 본문 시퀀스 보존
@@ -224,8 +231,9 @@ function ppt20Template(id: string, name: string, category: string | undefined, s
     source: 'builtin',
   }
 }
+// 표지를 시퀀스 seq[0]에 직접 지정(masthead/ring/report/hero/editorial-cover) → withHeroCover 오버라이드 불필요
 const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) =>
-  ppt20Template(t.id, t.name, PPT20_CATEGORY[t.id], withHeroCover(PPT20_SEQ[t.id], HERO_COVER_IDS.has(t.id))),
+  ppt20Template(t.id, t.name, PPT20_CATEGORY[t.id], PPT20_SEQ[t.id]),
 )
 // R6 딥서칭 확장 — 20 스타일의 팔레트 변형 형제(system/시퀀스 상속)
 const PPT20_EXT_TEMPLATES: TemplateMeta[] = PPT20_EXT_THEMES.map((t) =>
