@@ -1,0 +1,45 @@
+{
+  "id": "ppt-13",
+  "name": "FastCo Red",
+  "family": "red-bold",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#D00304",
+    "secondary": "#575555",
+    "accent": "#D00304",
+    "background": "#FCFCFC",
+    "surface": "#FCFCFC",
+    "textPrimary": "#1D1311",
+    "textSecondary": "#575555",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Archivo",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 58,
+    "title": 34,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "poster-bold",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "section",
+    "two-col",
+    "stat",
+    "chart",
+    "comparison",
+    "closing"
+  ],
+  "measuredAccent": "#D00304",
+  "accentCorrected": false,
+  "source": "13.jpg"
+}

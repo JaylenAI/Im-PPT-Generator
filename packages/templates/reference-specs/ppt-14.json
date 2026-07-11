@@ -1,0 +1,45 @@
+{
+  "id": "ppt-14",
+  "name": "Strategic Navy",
+  "family": "dark-corporate",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#1A3151",
+    "secondary": "#B1B0B1",
+    "accent": "#1A3151",
+    "background": "#DFE0DF",
+    "surface": "#FFFFFF",
+    "textPrimary": "#2C2F33",
+    "textSecondary": "#B1B0B1",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Oswald",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 58,
+    "title": 34,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "blueprint-tech",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "section",
+    "two-col",
+    "stat",
+    "chart",
+    "comparison",
+    "closing"
+  ],
+  "measuredAccent": "#1A3151",
+  "accentCorrected": false,
+  "source": "14.jpg"
+}

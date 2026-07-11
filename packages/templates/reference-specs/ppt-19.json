@@ -1,0 +1,45 @@
+{
+  "id": "ppt-19",
+  "name": "Corporate Blue",
+  "family": "blue-report",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#6692E5",
+    "secondary": "#ACB0B3",
+    "accent": "#6692E5",
+    "background": "#D1D3D4",
+    "surface": "#FFFFFF",
+    "textPrimary": "#212C32",
+    "textSecondary": "#ACB0B3",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "corporate-outline",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "stat",
+    "chart",
+    "kpi-grid",
+    "comparison",
+    "cards",
+    "closing"
+  ],
+  "measuredAccent": "#6692E5",
+  "accentCorrected": false,
+  "source": "19.jpg"
+}

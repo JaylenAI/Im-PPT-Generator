@@ -1,0 +1,45 @@
+{
+  "id": "ppt-20",
+  "name": "Infographic Pop",
+  "family": "multicolor-infographic",
+  "category": "creative",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#E23B3B",
+    "secondary": "#33406B",
+    "accent": "#E23B3B",
+    "background": "#F8F7F8",
+    "surface": "#FFFFFF",
+    "textPrimary": "#2B2627",
+    "textSecondary": "#565460",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "data-infographic",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "kpi-grid",
+    "process",
+    "chart",
+    "cards",
+    "comparison",
+    "closing"
+  ],
+  "measuredAccent": "#CF6C70",
+  "accentCorrected": true,
+  "source": "20.jpg"
+}

@@ -1,0 +1,45 @@
+{
+  "id": "ppt-01",
+  "name": "Editorial Resume",
+  "family": "editorial-resume",
+  "category": "creative",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#171716",
+    "secondary": "#A29D98",
+    "accent": "#171716",
+    "background": "#F1F0EC",
+    "surface": "#FFFFFF",
+    "textPrimary": "#171716",
+    "textSecondary": "#5E5D5A",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Oswald",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 80,
+    "title": 40,
+    "subtitle": 22,
+    "body": 15,
+    "caption": 11
+  },
+  "system": "poster-bold",
+  "layoutSequence": [
+    "editorial-cover",
+    "toc-index",
+    "profile-split",
+    "metric-bars",
+    "steps-circles",
+    "photo-strip",
+    "team-grid",
+    "closing"
+  ],
+  "measuredAccent": "#F1F0EC",
+  "accentCorrected": true,
+  "source": "01.jpg"
+}

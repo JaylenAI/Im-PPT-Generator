@@ -1,0 +1,45 @@
+{
+  "id": "ppt-05",
+  "name": "HASU Editorial",
+  "family": "editorial-resume",
+  "category": "creative",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#8F6236",
+    "secondary": "#B3A89A",
+    "accent": "#8F6236",
+    "background": "#D5D1C8",
+    "surface": "#FFFFFF",
+    "textPrimary": "#151310",
+    "textSecondary": "#B3A89A",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Oswald",
+    "body": "Lora",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 80,
+    "title": 40,
+    "subtitle": 22,
+    "body": 15,
+    "caption": 11
+  },
+  "system": "paper-academic",
+  "layoutSequence": [
+    "editorial-cover",
+    "toc-index",
+    "profile-split",
+    "metric-bars",
+    "steps-circles",
+    "photo-strip",
+    "team-grid",
+    "closing"
+  ],
+  "measuredAccent": "#8F6236",
+  "accentCorrected": false,
+  "source": "05.jpg"
+}

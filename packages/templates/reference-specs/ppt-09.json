@@ -1,0 +1,45 @@
+{
+  "id": "ppt-09",
+  "name": "Crimson Report",
+  "family": "red-bold",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#E26E6B",
+    "secondary": "#A2A2A0",
+    "accent": "#E26E6B",
+    "background": "#F2F1F2",
+    "surface": "#F2F1F2",
+    "textPrimary": "#181A18",
+    "textSecondary": "#A2A2A0",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "consulting-grid",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "stat",
+    "chart",
+    "kpi-grid",
+    "comparison",
+    "cards",
+    "closing"
+  ],
+  "measuredAccent": "#E26E6B",
+  "accentCorrected": false,
+  "source": "09.jpg"
+}

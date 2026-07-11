@@ -1,0 +1,45 @@
+{
+  "id": "ppt-17",
+  "name": "Annual Teal",
+  "family": "blue-report",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#5CA1D4",
+    "secondary": "#AFB0B3",
+    "accent": "#5CA1D4",
+    "background": "#D7E1E1",
+    "surface": "#FFFFFF",
+    "textPrimary": "#353047",
+    "textSecondary": "#AFB0B3",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Lato",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "data-infographic",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "stat",
+    "chart",
+    "kpi-grid",
+    "comparison",
+    "cards",
+    "closing"
+  ],
+  "measuredAccent": "#5CA1D4",
+  "accentCorrected": false,
+  "source": "17.jpg"
+}

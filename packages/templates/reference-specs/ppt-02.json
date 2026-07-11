@@ -1,0 +1,45 @@
+{
+  "id": "ppt-02",
+  "name": "Indigo Deep",
+  "family": "dark-corporate",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#3A32AB",
+    "secondary": "#97929D",
+    "accent": "#3A32AB",
+    "background": "#F6F6F7",
+    "surface": "#F6F6F7",
+    "textPrimary": "#1E242D",
+    "textSecondary": "#97929D",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "consulting-grid",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "section",
+    "two-col",
+    "stat",
+    "chart",
+    "comparison",
+    "closing"
+  ],
+  "measuredAccent": "#3A32AB",
+  "accentCorrected": false,
+  "source": "02.jpg"
+}

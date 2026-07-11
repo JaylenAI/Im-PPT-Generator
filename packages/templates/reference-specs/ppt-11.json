@@ -1,0 +1,45 @@
+{
+  "id": "ppt-11",
+  "name": "Glass Fintech",
+  "family": "glass-app",
+  "category": "tech",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#6798D7",
+    "secondary": "#9A9CA7",
+    "accent": "#6798D7",
+    "background": "#CACFD8",
+    "surface": "#FFFFFF",
+    "textPrimary": "#141425",
+    "textSecondary": "#9A9CA7",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Manrope",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "glass-gradient",
+  "layoutSequence": [
+    "title",
+    "statement",
+    "dashboard-cards",
+    "feature-grid",
+    "stat",
+    "chart",
+    "split-feature",
+    "closing"
+  ],
+  "measuredAccent": "#6798D7",
+  "accentCorrected": false,
+  "source": "11.jpg"
+}

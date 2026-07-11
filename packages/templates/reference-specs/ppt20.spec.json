@@ -1,0 +1,902 @@
+[
+  {
+    "id": "ppt-01",
+    "name": "Editorial Resume",
+    "family": "editorial-resume",
+    "category": "creative",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#171716",
+      "secondary": "#A29D98",
+      "accent": "#171716",
+      "background": "#F1F0EC",
+      "surface": "#FFFFFF",
+      "textPrimary": "#171716",
+      "textSecondary": "#5E5D5A",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Oswald",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 80,
+      "title": 40,
+      "subtitle": 22,
+      "body": 15,
+      "caption": 11
+    },
+    "system": "poster-bold",
+    "layoutSequence": [
+      "editorial-cover",
+      "toc-index",
+      "profile-split",
+      "metric-bars",
+      "steps-circles",
+      "photo-strip",
+      "team-grid",
+      "closing"
+    ],
+    "measuredAccent": "#F1F0EC",
+    "accentCorrected": true,
+    "source": "01.jpg"
+  },
+  {
+    "id": "ppt-02",
+    "name": "Indigo Deep",
+    "family": "dark-corporate",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#3A32AB",
+      "secondary": "#97929D",
+      "accent": "#3A32AB",
+      "background": "#F6F6F7",
+      "surface": "#F6F6F7",
+      "textPrimary": "#1E242D",
+      "textSecondary": "#97929D",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Montserrat",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "consulting-grid",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "section",
+      "two-col",
+      "stat",
+      "chart",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#3A32AB",
+    "accentCorrected": false,
+    "source": "02.jpg"
+  },
+  {
+    "id": "ppt-03",
+    "name": "Neon Fitness",
+    "family": "neon-pitch",
+    "category": "creative",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#2E3A40",
+      "secondary": "#6B7A82",
+      "accent": "#C2E812",
+      "background": "#F7F8F8",
+      "surface": "#FFFFFF",
+      "textPrimary": "#17201F",
+      "textSecondary": "#4A575C",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Poppins",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 58,
+      "title": 34,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "vivid-block",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "section",
+      "split-feature",
+      "stat",
+      "metric-bars",
+      "cards",
+      "closing"
+    ],
+    "measuredAccent": "#50361B",
+    "accentCorrected": true,
+    "source": "03.jpg"
+  },
+  {
+    "id": "ppt-04",
+    "name": "Olive Pitchbook",
+    "family": "muted-proposal",
+    "category": "minimal",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#6A5532",
+      "secondary": "#5D5E57",
+      "accent": "#6A5532",
+      "background": "#D6D2C8",
+      "surface": "#FFFFFF",
+      "textPrimary": "#201A14",
+      "textSecondary": "#5D5E57",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Archivo",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "editorial-serif",
+    "layoutSequence": [
+      "editorial-cover",
+      "toc-index",
+      "profile-split",
+      "section",
+      "two-col",
+      "timeline",
+      "photo-strip",
+      "closing"
+    ],
+    "measuredAccent": "#6A5532",
+    "accentCorrected": false,
+    "source": "04.jpg"
+  },
+  {
+    "id": "ppt-05",
+    "name": "HASU Editorial",
+    "family": "editorial-resume",
+    "category": "creative",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#8F6236",
+      "secondary": "#B3A89A",
+      "accent": "#8F6236",
+      "background": "#D5D1C8",
+      "surface": "#FFFFFF",
+      "textPrimary": "#151310",
+      "textSecondary": "#B3A89A",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Oswald",
+      "body": "Lora",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 80,
+      "title": 40,
+      "subtitle": 22,
+      "body": 15,
+      "caption": 11
+    },
+    "system": "paper-academic",
+    "layoutSequence": [
+      "editorial-cover",
+      "toc-index",
+      "profile-split",
+      "metric-bars",
+      "steps-circles",
+      "photo-strip",
+      "team-grid",
+      "closing"
+    ],
+    "measuredAccent": "#8F6236",
+    "accentCorrected": false,
+    "source": "05.jpg"
+  },
+  {
+    "id": "ppt-06",
+    "name": "Soft Data",
+    "family": "blue-report",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#34506B",
+      "secondary": "#8A97A5",
+      "accent": "#7BA7C7",
+      "background": "#F9F9F9",
+      "surface": "#FFFFFF",
+      "textPrimary": "#151516",
+      "textSecondary": "#4C555F",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Lato",
+      "body": "Lato",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "swiss-minimal",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "stat",
+      "chart",
+      "kpi-grid",
+      "comparison",
+      "cards",
+      "closing"
+    ],
+    "measuredAccent": "#F9F9F9",
+    "accentCorrected": true,
+    "source": "06.jpg"
+  },
+  {
+    "id": "ppt-07",
+    "name": "Business Plan Red",
+    "family": "red-bold",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#CB252A",
+      "secondary": "#AAAAAE",
+      "accent": "#CB252A",
+      "background": "#FAF9F9",
+      "surface": "#FAF9F9",
+      "textPrimary": "#16141B",
+      "textSecondary": "#AAAAAE",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Montserrat",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 58,
+      "title": 34,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "consulting-grid",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "section",
+      "two-col",
+      "stat",
+      "chart",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#CB252A",
+    "accentCorrected": false,
+    "source": "07.jpg"
+  },
+  {
+    "id": "ppt-08",
+    "name": "Orange Company",
+    "family": "warm-orange",
+    "category": "creative",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#D86A32",
+      "secondary": "#B0AFB0",
+      "accent": "#D86A32",
+      "background": "#F4F4F3",
+      "surface": "#F4F4F3",
+      "textPrimary": "#241F1C",
+      "textSecondary": "#B0AFB0",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Poppins",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 58,
+      "title": 34,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "warm-organic",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "section",
+      "two-col",
+      "stat",
+      "chart",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#D86A32",
+    "accentCorrected": false,
+    "source": "08.jpg"
+  },
+  {
+    "id": "ppt-09",
+    "name": "Crimson Report",
+    "family": "red-bold",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#E26E6B",
+      "secondary": "#A2A2A0",
+      "accent": "#E26E6B",
+      "background": "#F2F1F2",
+      "surface": "#F2F1F2",
+      "textPrimary": "#181A18",
+      "textSecondary": "#A2A2A0",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Montserrat",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "consulting-grid",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "stat",
+      "chart",
+      "kpi-grid",
+      "comparison",
+      "cards",
+      "closing"
+    ],
+    "measuredAccent": "#E26E6B",
+    "accentCorrected": false,
+    "source": "09.jpg"
+  },
+  {
+    "id": "ppt-10",
+    "name": "Green Modern",
+    "family": "green-startup",
+    "category": "tech",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#52AD47",
+      "secondary": "#969C97",
+      "accent": "#52AD47",
+      "background": "#F8F9F8",
+      "surface": "#F8F9F8",
+      "textPrimary": "#161B1C",
+      "textSecondary": "#969C97",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Poppins",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "neo-startup",
+    "layoutSequence": [
+      "title",
+      "statement",
+      "dashboard-cards",
+      "feature-grid",
+      "stat",
+      "chart",
+      "split-feature",
+      "closing"
+    ],
+    "measuredAccent": "#52AD47",
+    "accentCorrected": false,
+    "source": "10.jpg"
+  },
+  {
+    "id": "ppt-11",
+    "name": "Glass Fintech",
+    "family": "glass-app",
+    "category": "tech",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#6798D7",
+      "secondary": "#9A9CA7",
+      "accent": "#6798D7",
+      "background": "#CACFD8",
+      "surface": "#FFFFFF",
+      "textPrimary": "#141425",
+      "textSecondary": "#9A9CA7",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Manrope",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "glass-gradient",
+    "layoutSequence": [
+      "title",
+      "statement",
+      "dashboard-cards",
+      "feature-grid",
+      "stat",
+      "chart",
+      "split-feature",
+      "closing"
+    ],
+    "measuredAccent": "#6798D7",
+    "accentCorrected": false,
+    "source": "11.jpg"
+  },
+  {
+    "id": "ppt-12",
+    "name": "Mint SaaS",
+    "family": "green-startup",
+    "category": "tech",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#6FB975",
+      "secondary": "#B1B1B0",
+      "accent": "#6FB975",
+      "background": "#FAFAFA",
+      "surface": "#FAFAFA",
+      "textPrimary": "#1A1818",
+      "textSecondary": "#B1B1B0",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Poppins",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "cloud-soft",
+    "layoutSequence": [
+      "title",
+      "statement",
+      "dashboard-cards",
+      "feature-grid",
+      "stat",
+      "chart",
+      "split-feature",
+      "closing"
+    ],
+    "measuredAccent": "#6FB975",
+    "accentCorrected": false,
+    "source": "12.jpg"
+  },
+  {
+    "id": "ppt-13",
+    "name": "FastCo Red",
+    "family": "red-bold",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#D00304",
+      "secondary": "#575555",
+      "accent": "#D00304",
+      "background": "#FCFCFC",
+      "surface": "#FCFCFC",
+      "textPrimary": "#1D1311",
+      "textSecondary": "#575555",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Archivo",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 58,
+      "title": 34,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "poster-bold",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "section",
+      "two-col",
+      "stat",
+      "chart",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#D00304",
+    "accentCorrected": false,
+    "source": "13.jpg"
+  },
+  {
+    "id": "ppt-14",
+    "name": "Strategic Navy",
+    "family": "dark-corporate",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#1A3151",
+      "secondary": "#B1B0B1",
+      "accent": "#1A3151",
+      "background": "#DFE0DF",
+      "surface": "#FFFFFF",
+      "textPrimary": "#2C2F33",
+      "textSecondary": "#B1B0B1",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Oswald",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 58,
+      "title": 34,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "blueprint-tech",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "section",
+      "two-col",
+      "stat",
+      "chart",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#1A3151",
+    "accentCorrected": false,
+    "source": "14.jpg"
+  },
+  {
+    "id": "ppt-15",
+    "name": "Keen Gradient",
+    "family": "green-startup",
+    "category": "tech",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#23CF9E",
+      "secondary": "#767171",
+      "accent": "#23CF9E",
+      "background": "#EDEEEE",
+      "surface": "#EDEEEE",
+      "textPrimary": "#1B2020",
+      "textSecondary": "#767171",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Poppins",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "glass-gradient",
+    "layoutSequence": [
+      "title",
+      "statement",
+      "dashboard-cards",
+      "feature-grid",
+      "stat",
+      "chart",
+      "split-feature",
+      "closing"
+    ],
+    "measuredAccent": "#23CF9E",
+    "accentCorrected": false,
+    "source": "15.jpg"
+  },
+  {
+    "id": "ppt-16",
+    "name": "Red Press",
+    "family": "red-bold",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#EE362D",
+      "secondary": "#9A9493",
+      "accent": "#EE362D",
+      "background": "#F7F6F7",
+      "surface": "#F7F6F7",
+      "textPrimary": "#191919",
+      "textSecondary": "#9A9493",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Archivo",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 58,
+      "title": 34,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "brutalist-block",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "kpi-grid",
+      "process",
+      "chart",
+      "cards",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#EE362D",
+    "accentCorrected": false,
+    "source": "16.jpg"
+  },
+  {
+    "id": "ppt-17",
+    "name": "Annual Teal",
+    "family": "blue-report",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#5CA1D4",
+      "secondary": "#AFB0B3",
+      "accent": "#5CA1D4",
+      "background": "#D7E1E1",
+      "surface": "#FFFFFF",
+      "textPrimary": "#353047",
+      "textSecondary": "#AFB0B3",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Montserrat",
+      "body": "Lato",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "data-infographic",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "stat",
+      "chart",
+      "kpi-grid",
+      "comparison",
+      "cards",
+      "closing"
+    ],
+    "measuredAccent": "#5CA1D4",
+    "accentCorrected": false,
+    "source": "17.jpg"
+  },
+  {
+    "id": "ppt-18",
+    "name": "Mono Proposal",
+    "family": "mono-editorial",
+    "category": "minimal",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#0A0A0A",
+      "secondary": "#9A9A9A",
+      "accent": "#0A0A0A",
+      "background": "#F9F9F9",
+      "surface": "#FFFFFF",
+      "textPrimary": "#0A0A0A",
+      "textSecondary": "#55555A",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Inter",
+      "body": "Georgia",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 80,
+      "title": 40,
+      "subtitle": 22,
+      "body": 15,
+      "caption": 11
+    },
+    "system": "mono-label",
+    "layoutSequence": [
+      "editorial-cover",
+      "toc-index",
+      "profile-split",
+      "section",
+      "two-col",
+      "timeline",
+      "photo-strip",
+      "closing"
+    ],
+    "measuredAccent": "#F9F9F9",
+    "accentCorrected": true,
+    "source": "18.jpg"
+  },
+  {
+    "id": "ppt-19",
+    "name": "Corporate Blue",
+    "family": "blue-report",
+    "category": "business",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#6692E5",
+      "secondary": "#ACB0B3",
+      "accent": "#6692E5",
+      "background": "#D1D3D4",
+      "surface": "#FFFFFF",
+      "textPrimary": "#212C32",
+      "textSecondary": "#ACB0B3",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Montserrat",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "corporate-outline",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "stat",
+      "chart",
+      "kpi-grid",
+      "comparison",
+      "cards",
+      "closing"
+    ],
+    "measuredAccent": "#6692E5",
+    "accentCorrected": false,
+    "source": "19.jpg"
+  },
+  {
+    "id": "ppt-20",
+    "name": "Infographic Pop",
+    "family": "multicolor-infographic",
+    "category": "creative",
+    "darkTheme": false,
+    "colors": {
+      "primary": "#E23B3B",
+      "secondary": "#33406B",
+      "accent": "#E23B3B",
+      "background": "#F8F7F8",
+      "surface": "#FFFFFF",
+      "textPrimary": "#2B2627",
+      "textSecondary": "#565460",
+      "success": "#2F9E68",
+      "warning": "#D08700",
+      "error": "#D64545"
+    },
+    "fonts": {
+      "heading": "Montserrat",
+      "body": "Inter",
+      "mono": "Courier New"
+    },
+    "fontSizes": {
+      "display": 46,
+      "title": 31,
+      "subtitle": 21,
+      "body": 16,
+      "caption": 12
+    },
+    "system": "data-infographic",
+    "layoutSequence": [
+      "title",
+      "agenda",
+      "kpi-grid",
+      "process",
+      "chart",
+      "cards",
+      "comparison",
+      "closing"
+    ],
+    "measuredAccent": "#CF6C70",
+    "accentCorrected": true,
+    "source": "20.jpg"
+  }
+]

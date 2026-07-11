@@ -1,0 +1,45 @@
+{
+  "id": "ppt-07",
+  "name": "Business Plan Red",
+  "family": "red-bold",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#CB252A",
+    "secondary": "#AAAAAE",
+    "accent": "#CB252A",
+    "background": "#FAF9F9",
+    "surface": "#FAF9F9",
+    "textPrimary": "#16141B",
+    "textSecondary": "#AAAAAE",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Montserrat",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 58,
+    "title": 34,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "consulting-grid",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "section",
+    "two-col",
+    "stat",
+    "chart",
+    "comparison",
+    "closing"
+  ],
+  "measuredAccent": "#CB252A",
+  "accentCorrected": false,
+  "source": "07.jpg"
+}
