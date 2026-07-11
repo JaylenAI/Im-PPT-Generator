@@ -34,6 +34,7 @@ const SAMPLE_CONTENT: Record<string, unknown> = {
   'feature-grid': { title: '세 가지 차별점', features: [{ heading: '액션 타이틀', body: '제목이 곧 결론 문장' }, { heading: '데이터 스토리텔링', body: '핵심 수치만 강조' }, { heading: 'Deck Doctor', body: '진단과 자동 수정' }] },
   // R2 신규 레이아웃 — 에디토리얼/이력서/대시보드
   'editorial-cover': { kicker: 'PORTFOLIO 2026', title: '한승헌 · 프로덕트 디자이너', subtitle: '데이터로 설득하는 프레젠테이션을 설계합니다', meta: ['서울', 'hello@example.com', '경력 10년'] },
+  'hero-cover': { kicker: 'COMPANY PROFILE', title: '히어로 표지', subtitle: '브랜드 컬러로 채운 강렬한 첫인상' },
   'toc-index': { title: '목차', items: [{ label: '소개', note: '경력과 지향점' }, { label: '핵심 역량', note: '숙련도' }, { label: '프로세스' }, { label: '주요 작업물', note: '포트폴리오' }, { label: '팀' }, { label: '연락처' }] },
   'profile-split': { name: '한승헌', role: '시니어 프로덕트 디자이너', bio: '10년간 B2B SaaS 제품의 사용자 경험을 설계해 왔습니다. 데이터 기반 의사결정과 빠른 프로토타이핑을 지향합니다.', details: [{ label: 'Email', value: 'hello@example.com' }, { label: 'Phone', value: '010-1234-5678' }, { label: 'Location', value: '서울, 대한민국' }, { label: 'Portfolio', value: 'behance.net/hansh' }] },
   'metric-bars': { title: '핵심 역량', bars: [{ label: 'UX 설계', value: 92, caption: '리서치·정보구조·플로우' }, { label: '데이터 시각화', value: 85 }, { label: '프로토타이핑', value: 78 }, { label: '사용자 리서치', value: 88 }] },
@@ -53,8 +54,9 @@ export function buildSampleDeck(template: TemplateMeta | string, themeOverride?:
   const style = themeOverride?.style ?? (hasTheme(tpl.themeId) ? getTheme(tpl.themeId).tokens.style : undefined)
 
   const contentFor = (layoutKey: string): unknown => {
-    // title 슬롯은 템플릿 정체성(이름)을 반영, 그 외는 대표 샘플
+    // 표지 슬롯은 템플릿 정체성(이름)을 반영, 그 외는 대표 샘플
     if (layoutKey === 'title') return { title: tpl.name, subtitle: '샘플 미리보기 — 이 템플릿의 디자인' }
+    if (layoutKey === 'hero-cover') return { kicker: 'COMPANY PROFILE', title: tpl.name, subtitle: '브랜드 컬러로 채운 강렬한 첫인상' }
     if (layoutKey === 'closing') return { headline: '함께 시작하세요', message: tpl.name }
     return SAMPLE_CONTENT[layoutKey]
   }

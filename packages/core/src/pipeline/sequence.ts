@@ -12,6 +12,13 @@ const RESPECT_LAYOUTS = new Set([
   'chart', 'stat', 'kpi-grid', 'comparison', 'timeline', 'process', 'quote', 'references',
 ])
 
+/**
+ * 표지 계열 — title 섹션 콘텐츠(title 필수, kicker/subtitle/meta 선택)를 그대로 수용한다.
+ * 템플릿이 설계된 표지(hero-cover=브랜드컬러 채움, editorial-cover=대형 타이포)를 order[0]에
+ * 두면, 첫 장을 그 표지로 존중해 미리보기와 실제 생성 결과의 표지를 일치시킨다.
+ */
+const COVER_LAYOUTS = new Set(['title', 'hero-cover', 'editorial-cover'])
+
 export interface SequencableSection {
   layoutHint: string
 }
@@ -28,7 +35,11 @@ export function alignLayoutsToSequence<T extends SequencableSection>(
   const last = sections.length - 1
   return sections.map((s, i) => {
     if (RESPECT_LAYOUTS.has(s.layoutHint)) return s // LLM의 콘텐츠 판단 존중
-    if (i === 0 && s.layoutHint === 'title') return s
+    // 첫 장이 표지(title)면 템플릿이 설계한 표지 계열(order[0])로 존중 — 그 외 표지 요구는 title 유지
+    if (i === 0 && s.layoutHint === 'title') {
+      const want0 = order[0]!
+      return COVER_LAYOUTS.has(want0) && want0 !== s.layoutHint ? { ...s, layoutHint: want0 } : s
+    }
     if (i === last && s.layoutHint === 'closing') return s
     const want = order[i % order.length]!
     if (RESPECT_LAYOUTS.has(want)) return s // 시퀀스가 데이터 레이아웃 요구 → 강제 안 함

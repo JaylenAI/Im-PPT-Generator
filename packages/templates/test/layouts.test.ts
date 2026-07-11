@@ -54,12 +54,13 @@ const FIXTURES: Record<string, unknown> = {
   'photo-strip': { title: '주요 작업물', items: [{ caption: 'ERP 대시보드 리디자인', tag: 'UX' }, { caption: '모바일 온보딩 개선', tag: 'Mobile' }, { caption: '디자인 시스템 구축', tag: 'System' }, { caption: '데이터 시각화 툴', tag: 'Data' }] },
   'team-grid': { title: '팀 소개', members: [{ name: '김대표', role: 'CEO', note: '전략과 비전' }, { name: '이기술', role: 'CTO', note: '아키텍처 총괄' }, { name: '박디자', role: 'Design Lead', note: '제품 경험 설계' }, { name: '최성장', role: 'Growth', note: '데이터 기반 성장' }] },
   'dashboard-cards': { title: '분기 실적 요약', cards: [{ value: '₩4.2억', label: '분기 매출', delta: '+18% QoQ', trend: 'up' }, { value: '1,240', label: '신규 가입자', delta: '+320', trend: 'up' }, { value: '3.4%', label: '이탈률', delta: '-0.8%p', trend: 'down' }, { value: '92점', label: 'NPS', delta: '유지', trend: 'flat' }] },
+  'hero-cover': { kicker: 'COMPANY PROFILE', title: 'Orange Company', subtitle: '브랜드 컬러로 채운 강렬한 첫인상' },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 30종이 등록되어 있다(references는 hidden)', () => {
+  it('레이아웃 31종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'dashboard-cards', 'editorial-cover', 'feature-grid', 'feature-quote', 'hero-image', 'kpi-grid', 'metric-bars', 'photo-strip', 'process', 'profile-split', 'quote', 'references', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'steps-circles', 'team-grid', 'timeline', 'title', 'toc-index', 'two-col'],
+      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'dashboard-cards', 'editorial-cover', 'feature-grid', 'feature-quote', 'hero-cover', 'hero-image', 'kpi-grid', 'metric-bars', 'photo-strip', 'process', 'profile-split', 'quote', 'references', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'steps-circles', 'team-grid', 'timeline', 'title', 'toc-index', 'two-col'],
     )
   })
 

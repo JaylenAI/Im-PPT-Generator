@@ -30,6 +30,7 @@ import { stepsCirclesLayout } from './layouts/steps-circles.js'
 import { photoStripLayout } from './layouts/photo-strip.js'
 import { teamGridLayout } from './layouts/team-grid.js'
 import { dashboardCardsLayout } from './layouts/dashboard-cards.js'
+import { heroCoverLayout } from './layouts/hero-cover.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -73,6 +74,7 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(photoStripLayout),
   defineLayout(teamGridLayout),
   defineLayout(dashboardCardsLayout),
+  defineLayout(heroCoverLayout),
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
@@ -201,16 +203,26 @@ const COMMUNITY_TEMPLATES: TemplateMeta[] = COMMUNITY_THEMES.map((t) => ({
 }))
 
 // PPT 샘플 20선 재현(R3/R4) — 팔레트 실측 테마 + 발표유형별 시그니처 시퀀스(layoutOrder)
-const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) => ({
-  id: `template-${t.id}`,
-  name: t.name,
-  category: (PPT20_CATEGORY[t.id] ?? 'business') as TemplateMeta['category'],
-  themeId: t.id,
-  aspectRatios: [...AR],
-  layoutTypes: ALL,
-  ...(PPT20_SEQ[t.id] ? { layoutOrder: PPT20_SEQ[t.id] } : {}),
-  source: 'builtin',
-}))
+// R5 대조 QA: 원본 표지가 풀블리드 컬러/다크인 팩은 표지를 hero-cover로 교체(브랜드컬러 채움).
+// primary가 어두운/채도 높은 브랜드색이라 라이트 텍스트가 대형 타이틀 기준 대비를 만족하는 4종만.
+const HERO_COVER_IDS = new Set(['ppt-02', 'ppt-07', 'ppt-08', 'ppt-14'])
+function withHeroCover(id: string, seq: string[] | undefined): string[] | undefined {
+  if (!seq || seq.length === 0 || !HERO_COVER_IDS.has(id)) return seq
+  return ['hero-cover', ...seq.slice(1)] // 첫 장(title)만 교체, 본문 시퀀스 보존
+}
+const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) => {
+  const seq = withHeroCover(t.id, PPT20_SEQ[t.id])
+  return {
+    id: `template-${t.id}`,
+    name: t.name,
+    category: (PPT20_CATEGORY[t.id] ?? 'business') as TemplateMeta['category'],
+    themeId: t.id,
+    aspectRatios: [...AR],
+    layoutTypes: ALL,
+    ...(seq ? { layoutOrder: seq } : {}),
+    source: 'builtin',
+  }
+})
 
 export const TEMPLATES: TemplateMeta[] = [
   {
