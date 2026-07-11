@@ -39,6 +39,7 @@ import { STYLE_PACK_THEMES, STYLE_PACK_CATEGORY } from './themes/packs.js'
 import { DESIGN_DIVERSITY_THEMES, DESIGN_DIVERSITY_CATEGORY } from './themes/design-diversity.js'
 import { COMMUNITY_THEMES, COMMUNITY_CATEGORY } from './themes/design-community.js'
 import { PPT20_THEMES, PPT20_CATEGORY, PPT20_SEQ } from './themes/ppt20.js'
+import { PPT20_EXT_THEMES, PPT20_EXT_CATEGORY, PPT20_EXT_SEQ, PPT20_EXT_HERO } from './themes/ppt20-ext.js'
 import { withDesignSystem } from './themes/design-systems.js'
 
 /** 레이아웃 레지스트리 — 추가는 이 배열에 1줄 (분기문 증식 금지) */
@@ -115,6 +116,7 @@ const THEME_LIST: Theme[] = [
   ...DESIGN_DIVERSITY_THEMES,
   ...COMMUNITY_THEMES,
   ...PPT20_THEMES, // style 사전 설정 → withDesignSystem이 측정 시스템 보존
+  ...PPT20_EXT_THEMES, // R6 딥서칭 확장 — 팔레트 변형(system 동일)
 ].map(withDesignSystem)
 const THEMES: ReadonlyMap<string, Theme> = new Map(THEME_LIST.map((t) => [t.id, t]))
 
@@ -206,23 +208,29 @@ const COMMUNITY_TEMPLATES: TemplateMeta[] = COMMUNITY_THEMES.map((t) => ({
 // R5 대조 QA: 원본 표지가 풀블리드 컬러/다크인 팩은 표지를 hero-cover로 교체(브랜드컬러 채움).
 // primary가 어두운/채도 높은 브랜드색이라 라이트 텍스트가 대형 타이틀 기준 대비를 만족하는 4종만.
 const HERO_COVER_IDS = new Set(['ppt-02', 'ppt-07', 'ppt-08', 'ppt-14'])
-function withHeroCover(id: string, seq: string[] | undefined): string[] | undefined {
-  if (!seq || seq.length === 0 || !HERO_COVER_IDS.has(id)) return seq
+function withHeroCover(seq: string[] | undefined, isHero: boolean): string[] | undefined {
+  if (!seq || seq.length === 0 || !isHero) return seq
   return ['hero-cover', ...seq.slice(1)] // 첫 장(title)만 교체, 본문 시퀀스 보존
 }
-const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) => {
-  const seq = withHeroCover(t.id, PPT20_SEQ[t.id])
+function ppt20Template(id: string, name: string, category: string | undefined, seq: string[] | undefined): TemplateMeta {
   return {
-    id: `template-${t.id}`,
-    name: t.name,
-    category: (PPT20_CATEGORY[t.id] ?? 'business') as TemplateMeta['category'],
-    themeId: t.id,
+    id: `template-${id}`,
+    name,
+    category: (category ?? 'business') as TemplateMeta['category'],
+    themeId: id,
     aspectRatios: [...AR],
     layoutTypes: ALL,
     ...(seq ? { layoutOrder: seq } : {}),
     source: 'builtin',
   }
-})
+}
+const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) =>
+  ppt20Template(t.id, t.name, PPT20_CATEGORY[t.id], withHeroCover(PPT20_SEQ[t.id], HERO_COVER_IDS.has(t.id))),
+)
+// R6 딥서칭 확장 — 20 스타일의 팔레트 변형 형제(system/시퀀스 상속)
+const PPT20_EXT_TEMPLATES: TemplateMeta[] = PPT20_EXT_THEMES.map((t) =>
+  ppt20Template(t.id, t.name, PPT20_EXT_CATEGORY[t.id], withHeroCover(PPT20_EXT_SEQ[t.id], PPT20_EXT_HERO.has(t.id))),
+)
 
 export const TEMPLATES: TemplateMeta[] = [
   {
@@ -249,4 +257,5 @@ export const TEMPLATES: TemplateMeta[] = [
   ...DESIGN_DIVERSITY_TEMPLATES,
   ...COMMUNITY_TEMPLATES,
   ...PPT20_TEMPLATES,
+  ...PPT20_EXT_TEMPLATES,
 ]
