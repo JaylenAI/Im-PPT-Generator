@@ -65,9 +65,9 @@ POST /templates/from-url  { url }
 ```
 색 분류는 채도·명도 필터로 near-white/near-black을 브랜드 색 후보에서 제외(예: Vercel primary=#bd5200, Airbnb 폰트=Airbnb Cereal VF). 추출 실패 시 `400 EXTRACT_FAILED`(무성 폴백 금지).
 
-## 빌트인 테마 라이브러리 (113종, P11.4)
+## 빌트인 테마 라이브러리 (194종)
 
-빌트인 테마는 4개 소스 파일에서 모여 `registry.ts`의 `THEME_LIST`로 합류한다. 전부 색+폰트 정체성을 그대로 반입(개인 전용 플랫폼 — 레퍼런스 그대로, 오리지널 "안전 자산" 노선 폐기).
+빌트인 테마는 소스 파일에서 모여 `registry.ts`의 `THEME_LIST`로 합류한다. 전부 색+폰트 정체성을 그대로 반입(개인 전용 플랫폼 — 레퍼런스 그대로, 오리지널 "안전 자산" 노선 폐기).
 
 | 소스 파일 | 종수 | 내용 / 출처 |
 |---|---|---|
@@ -75,6 +75,17 @@ POST /templates/from-url  { url }
 | `themes/packs.ts` | 16 | 스타일팩 — 색+타이포 페어링 오리지널 |
 | `themes/design-diversity.ts` | 60 | `epoko77-ai/design-diversity`(MIT) ppt-* 팩 `tokens.json` → Theme 매핑 |
 | `themes/design-community.ts` | 21 | reveal.js 14 + Catppuccin 4 + Marp 3 (전부 MIT, 공식 테마 SCSS/팔레트 파싱) |
+| `themes/ppt20.ts` | 20 | **PPT 샘플 20선 1:1 재현** — 팔레트 실측(ImageMagick 히스토그램) + 원본 콘텐츠 유형별 시그니처 시퀀스(표지 포함) |
+| `themes/ppt20-ext.ts` | 47 | 20선 팔레트 변형 — 베이스의 충실 시퀀스 상속, primary/accent만 교체(hero 지정 변형만 풀블리드 컬러 표지) |
+| `themes/ppt20-fields.ts` | 14 | **다른 분야·컨셉 필드 템플릿** — 스타트업 피치·논문 심사·제품 출시·헬스케어·교육·비영리·부동산·패션 룩북(다크)·레스토랑·콘퍼런스·투자자 리뷰·마케팅·포트폴리오·기술 백서. 시그니처 레이아웃 재사용 |
+
+### PPT 20선 재현 트랙 (81종)
+
+원본 20선(Pinterest식 세로 쇼케이스 핀)을 "복제하듯이" 재현한 패밀리. `reference-specs/*.json`(R1 자동 실측)을 SSOT로, 각 원본의 **시그니처 표지 + 콘텐츠 유형별 본문 시퀀스**까지 1:1 수렴한다(팔레트만 바꾸는 리컬러 아님).
+
+- **표지 레이아웃 4종**: `masthead-cover`(거대 타이포 마스트헤드, `dark` 옵션=HASU·Mono·Fashion 검정 표지) · `editorial-headline`(거대 하단 헤딩+원형 배지+대형 숫자) · `ring-cover`(동심원 풀블리드) · `report-cover`(투톤 마스트헤드+우측 이미지 블록+연도 배지).
+- **표지 배경 실측 교정**: 원본이 다크/라이트/풀블리드 컬러인지 육안 대조로 확정(예: 20 Infographic은 밝은 레드가 아니라 다크 네이비).
+- **사진**: 실 이미지 없으면 회색 플레이스홀더 블록(스톡 키 불필요, 템플릿 팩 관례).
 
 - 반입 스크립트는 세션 스크래치패드에 있었고(레포 미포함), 산출물 `.ts`만 커밋됨. 재생성이 필요하면 해당 레포를 clone해 `tokens.json`/SCSS를 파싱(색은 hex 검증 — 그라디언트/rgba/none 정제).
 - 각 테마가 쓰는 폰트는 `apps/web/index.html`의 Google Fonts + Pretendard CDN으로 로딩(정체성 재현). "Source Sans Pro"→"Source Sans 3" 리네임 매핑.

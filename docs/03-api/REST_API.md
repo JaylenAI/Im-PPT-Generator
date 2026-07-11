@@ -83,8 +83,8 @@
 | POST | `/templates/from-pptx` | 사용자 PPTX 업로드 → 색·폰트 추출해 브랜드 템플릿(P6) |
 | POST | `/templates/from-url` | 브랜드 사이트 URL → 색·폰트 추출해 브랜드 템플릿(P12, SSRF 방어) |
 | DELETE | `/templates/:id` | 사용자/임포트 템플릿 삭제(빌트인 불가) |
-| GET | `/themes` | 테마 113종 |
-| GET | `/layouts` | 레이아웃 카탈로그(LLM용) — 21종(references는 시스템 자동 생성이라 제외, 레지스트리 총 22) |
+| GET | `/themes` | 테마 194종(PPT 20선 재현 패밀리 81종 포함) |
+| GET | `/layouts` | 레이아웃 카탈로그(LLM용) — 34종(references는 시스템 자동 생성이라 제외, 레지스트리 총 35) |
 | GET | `/presentation-types` | 발표 유형 10종(서사 골격+테마, ADR-010) |
 
 ## Exports

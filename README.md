@@ -21,9 +21,10 @@
 | **발표 유형 10종** | PT면접(STAR)·컨설팅(SCQA)·IR(Kawasaki)·학술(IMRaD)·세일즈(PAS)·교육·워크숍·실적보고·제품데모·일반. 장르별 서사 골격+톤+**자동 테마 매칭** | [ADR-010](docs/02-architecture/ADR-010-presentation-types.md) |
 | **데이터 스토리텔링** | 차트 핵심 수치 강조(highlightIndex)·인사이트 주석·레이아웃 리듬 | [ADR-011](docs/02-architecture/ADR-011-data-storytelling.md) |
 | **Deck Doctor** | 슬라이드 품질 진단(6x6·텍스트 과밀·데이터 스토리 누락) + **AI 자동 수정**(생성→진단→개선 루프) | [ADR-012](docs/02-architecture/ADR-012-deck-doctor.md) |
-| **템플릿 라이브러리 113종** | 스타일팩 16 + design-diversity 60 + reveal.js/Marp/Catppuccin 21(전부 MIT 반입). 색·폰트 정체성 + 팩 폰트 웹 로딩 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **템플릿 라이브러리 194종** | 기타 113종(스타일팩 16 + design-diversity 60 + reveal.js/Marp/Catppuccin 21 등) + **PPT 20선 패밀리 81종**. 색·폰트 정체성 + 팩 폰트 웹 로딩 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **PPT 20선 1:1 재현 + 파생 81종** | 실측 팔레트로 원본 20선을 시그니처 표지·시퀀스까지 1:1 재현(20) + 팔레트 변형(47) + **다른 분야·컨셉 필드 14종**(스타트업 피치·논문 심사·헬스케어·패션 룩북·투자자 리뷰 등). 표지 레이아웃 4종(masthead·editorial-headline·ring·report-cover) | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
 | **디자인 시스템 엔진 20종** | 색을 넘어 골격까지 차별화 — 대문자 헤딩·타이틀 액센트·배경(grid/ruled/gradient/watermark)·카드 보더를 `decorate` 후처리로 전 레이아웃에 일괄 적용. 미매칭 테마는 해시 분산 폴백으로 단조로움 해소(P12) | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
-| **프리미엄 레이아웃 (P12)** | 에디토리얼/키노트 구성 7종(section·statement·feature-quote·split-feature·hero-image·feature-grid·closing) 추가 → 총 22종. 이미지·타입 포워드 구도 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
+| **레이아웃 카탈로그 35종** | P12 프리미엄 7종(section·statement·split-feature 등) + PPT 재현 신규 12종(masthead·editorial-headline·ring·report-cover·profile-split·metric-bars·steps-circles·photo-strip·team-grid·dashboard-cards 등). layout-as-code라 렌더러/익스포터 무변경 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
 | **템플릿 시퀀스 (P12)** | 템플릿이 슬라이드 흐름(layoutOrder)을 소유 — 데이터 레이아웃(chart/stat 등)은 보존하며 텍스트 슬라이드만 서사 순서로 정렬 | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
 | **브랜드 URL 임포트 (P12)** | 브랜드 사이트 URL → 대표 색·폰트 추출해 브랜드 테마 생성(SSRF 방어) | [TEMPLATE_SYSTEM](docs/02-architecture/TEMPLATE_SYSTEM.md) |
 | **스톡 이미지 피커 (P12)** | 편집기에서 Pexels/Unsplash 실사진 검색·삽입(키 배선 시). 허용 CDN만 임베드(SSRF 방어) | — |
@@ -42,7 +43,7 @@ packages/
   schema/       Zod 슬라이드/덱/이벤트/발표유형 스키마 — SSOT
   core/         파이프라인 오케스트레이터 + 프롬프트 카탈로그 + LLM 프로바이더 레지스트리
                 + 품질 도구(ghost-deck/doctor/doctor-fix)
-  templates/    테마 113종(디자인 토큰) + 디자인 시스템 20종(decorate) + 레이아웃 22종 카탈로그
+  templates/    테마 194종(디자인 토큰, PPT 20선 재현 81종 포함) + 디자인 시스템 20종(decorate) + 레이아웃 35종 카탈로그
   renderer/     React 슬라이드 렌더러 (웹 표시/편집 공용)
   exporter/     PptxGenJS/PDF 익스포터
   research/     딥서치 + 스크레이핑 + citation 추적
