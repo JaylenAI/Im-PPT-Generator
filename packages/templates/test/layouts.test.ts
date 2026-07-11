@@ -45,12 +45,21 @@ const FIXTURES: Record<string, unknown> = {
   'split-feature': { label: '제품 원칙', title: 'AI는 채우고, 레이아웃이 배치한다', lead: '오버플로가 구조적으로 불가능한 설계', points: ['레이아웃은 코드', '테마는 토큰', '검증된 콘텐츠만 좌표로'] },
   'hero-image': { eyebrow: '2026 리포트', title: 'AI 프레젠테이션의 다음 표준', subtitle: '리서치·서사·데이터 스토리텔링을 하나로' },
   'feature-grid': { title: '세 가지 차별점', features: [{ heading: '액션 타이틀', body: '제목이 곧 결론 문장' }, { heading: '데이터 스토리텔링', body: '핵심 수치만 강조' }, { heading: 'Deck Doctor', body: '진단과 자동 수정' }] },
+  // R2 PPT 20선 재현 — 신규 레이아웃 8종
+  'editorial-cover': { kicker: 'PORTFOLIO 2026', title: '한승헌 · 프로덕트 디자이너', subtitle: '데이터로 설득하는 프레젠테이션을 설계합니다', meta: ['서울', 'developer3@gcsc.co.kr', '10년 경력'] },
+  'toc-index': { title: '목차', items: [{ label: '시장 현황', note: '규모와 성장률' }, { label: '경쟁 구도', note: '상위 3사 분석' }, { label: '전략 제안' }, { label: '실행 로드맵', note: '분기별 마일스톤' }, { label: '기대 효과' }, { label: '리스크 관리' }] },
+  'profile-split': { name: '한승헌', role: '시니어 프로덕트 디자이너', bio: '10년간 B2B SaaS 제품의 사용자 경험을 설계해 왔습니다. 데이터 기반 의사결정과 빠른 프로토타이핑을 지향합니다.', details: [{ label: 'Email', value: 'dev3@gcsc.co.kr' }, { label: 'Phone', value: '010-1234-5678' }, { label: 'Location', value: '서울, 대한민국' }, { label: 'Portfolio', value: 'behance.net/hansh' }, { label: 'Experience', value: '10년+' }] },
+  'metric-bars': { title: '핵심 역량', bars: [{ label: 'UX 설계', value: 92, caption: '리서치·정보구조·플로우' }, { label: '데이터 시각화', value: 85 }, { label: '프로토타이핑', value: 78, caption: 'Figma·Framer' }, { label: '프론트엔드 협업', value: 70 }, { label: '사용자 리서치', value: 88 }] },
+  'steps-circles': { title: '도입 프로세스', steps: [{ title: '진단', body: '현황과 목표를 파악합니다' }, { title: '설계', body: '로드맵과 지표를 수립합니다' }, { title: '실행', body: '단계적으로 배포합니다' }, { title: '정착', body: '성과를 측정하고 개선합니다' }] },
+  'photo-strip': { title: '주요 작업물', items: [{ caption: 'ERP 대시보드 리디자인', tag: 'UX' }, { caption: '모바일 온보딩 개선', tag: 'Mobile' }, { caption: '디자인 시스템 구축', tag: 'System' }, { caption: '데이터 시각화 툴', tag: 'Data' }] },
+  'team-grid': { title: '팀 소개', members: [{ name: '김대표', role: 'CEO', note: '전략과 비전' }, { name: '이기술', role: 'CTO', note: '아키텍처 총괄' }, { name: '박디자', role: 'Design Lead', note: '제품 경험 설계' }, { name: '최성장', role: 'Growth', note: '데이터 기반 성장' }] },
+  'dashboard-cards': { title: '분기 실적 요약', cards: [{ value: '₩4.2억', label: '분기 매출', delta: '+18% QoQ', trend: 'up' }, { value: '1,240', label: '신규 가입자', delta: '+320', trend: 'up' }, { value: '3.4%', label: '이탈률', delta: '-0.8%p', trend: 'down' }, { value: '92점', label: 'NPS', delta: '유지', trend: 'flat' }] },
 }
 
 describe('레이아웃 레지스트리', () => {
-  it('레이아웃 22종이 등록되어 있다(references는 hidden)', () => {
+  it('레이아웃 30종이 등록되어 있다(references는 hidden)', () => {
     expect(listLayouts().map((l) => l.key).sort()).toEqual(
-      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'feature-grid', 'feature-quote', 'hero-image', 'kpi-grid', 'process', 'quote', 'references', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'timeline', 'title', 'two-col'],
+      ['agenda', 'bignum', 'bullets', 'cards', 'chart', 'closing', 'comparison', 'dashboard-cards', 'editorial-cover', 'feature-grid', 'feature-quote', 'hero-image', 'kpi-grid', 'metric-bars', 'photo-strip', 'process', 'profile-split', 'quote', 'references', 'roadmap', 'section', 'split-feature', 'stat', 'statement', 'steps-circles', 'team-grid', 'timeline', 'title', 'toc-index', 'two-col'],
     )
   })
 

@@ -22,6 +22,14 @@ import { featureQuoteLayout } from './layouts/feature-quote.js'
 import { splitFeatureLayout } from './layouts/split-feature.js'
 import { heroImageLayout } from './layouts/hero-image.js'
 import { featureGridLayout } from './layouts/feature-grid.js'
+import { editorialCoverLayout } from './layouts/editorial-cover.js'
+import { tocIndexLayout } from './layouts/toc-index.js'
+import { profileSplitLayout } from './layouts/profile-split.js'
+import { metricBarsLayout } from './layouts/metric-bars.js'
+import { stepsCirclesLayout } from './layouts/steps-circles.js'
+import { photoStripLayout } from './layouts/photo-strip.js'
+import { teamGridLayout } from './layouts/team-grid.js'
+import { dashboardCardsLayout } from './layouts/dashboard-cards.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -55,6 +63,15 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(splitFeatureLayout),
   defineLayout(heroImageLayout),
   defineLayout(featureGridLayout),
+  // R2 PPT 20선 재현 — 에디토리얼/이력서/대시보드 구성(신규 레이아웃 8종)
+  defineLayout(editorialCoverLayout),
+  defineLayout(tocIndexLayout),
+  defineLayout(profileSplitLayout),
+  defineLayout(metricBarsLayout),
+  defineLayout(stepsCirclesLayout),
+  defineLayout(photoStripLayout),
+  defineLayout(teamGridLayout),
+  defineLayout(dashboardCardsLayout),
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
