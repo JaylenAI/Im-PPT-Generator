@@ -16,6 +16,12 @@ import { kpiLayout } from './layouts/kpi.js'
 import { cardsLayout } from './layouts/cards.js'
 import { bignumLayout } from './layouts/bignum.js'
 import { roadmapLayout } from './layouts/roadmap.js'
+import { sectionLayout } from './layouts/section.js'
+import { statementLayout } from './layouts/statement.js'
+import { featureQuoteLayout } from './layouts/feature-quote.js'
+import { splitFeatureLayout } from './layouts/split-feature.js'
+import { heroImageLayout } from './layouts/hero-image.js'
+import { featureGridLayout } from './layouts/feature-grid.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -42,6 +48,13 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(cardsLayout),
   defineLayout(bignumLayout),
   defineLayout(roadmapLayout),
+  // P12 프리미엄 레이아웃 — 에디토리얼/키노트 구성(이미지·타입 포워드)
+  defineLayout(sectionLayout),
+  defineLayout(statementLayout),
+  defineLayout(featureQuoteLayout),
+  defineLayout(splitFeatureLayout),
+  defineLayout(heroImageLayout),
+  defineLayout(featureGridLayout),
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
@@ -101,18 +114,29 @@ export function hasTheme(id: string): boolean {
   return THEMES.has(id)
 }
 
+/**
+ * 시그니처 레이아웃 시퀀스(P12) — 템플릿의 설계된 서사 흐름. 생성이 이 순서를 따르도록 가이드.
+ * 데이터 레이아웃(stat/chart 등)은 콘텐츠가 있을 때만 쓰이도록 존중되고, 텍스트/구조 슬롯만 정렬된다.
+ */
+const SEQ = {
+  business: ['title', 'agenda', 'section', 'two-col', 'stat', 'cards', 'statement', 'closing'],
+  creative: ['title', 'statement', 'hero-image', 'feature-grid', 'split-feature', 'bignum', 'closing'],
+  minimal: ['title', 'statement', 'section', 'two-col', 'quote', 'closing'],
+  tech: ['title', 'agenda', 'feature-grid', 'process', 'chart', 'comparison', 'closing'],
+} as const
+
 const EXTRA_TEMPLATES: TemplateMeta[] = [
-  { id: 'template-forest-green', name: 'Forest Green', category: 'business', themeId: 'forest-green', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
-  { id: 'template-coral-energy', name: 'Coral Energy', category: 'creative', themeId: 'coral-energy', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
-  { id: 'template-mono-slate', name: 'Mono Slate', category: 'minimal', themeId: 'mono-slate', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
-  { id: 'template-royal-purple', name: 'Royal Purple', category: 'creative', themeId: 'royal-purple', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), source: 'builtin' },
+  { id: 'template-forest-green', name: 'Forest Green', category: 'business', themeId: 'forest-green', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), layoutOrder: [...SEQ.business], source: 'builtin' },
+  { id: 'template-coral-energy', name: 'Coral Energy', category: 'creative', themeId: 'coral-energy', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), layoutOrder: [...SEQ.creative], source: 'builtin' },
+  { id: 'template-mono-slate', name: 'Mono Slate', category: 'minimal', themeId: 'mono-slate', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), layoutOrder: [...SEQ.minimal], source: 'builtin' },
+  { id: 'template-royal-purple', name: 'Royal Purple', category: 'creative', themeId: 'royal-purple', aspectRatios: ['16:9', '4:3', '9:16'], layoutTypes: LAYOUT_LIST.map((l) => l.key), layoutOrder: [...SEQ.creative], source: 'builtin' },
 ]
 
 // 갤러리 확장 템플릿(테마 1:1) — Canva/Genspark식 다양성
 const ALL = LAYOUT_LIST.map((l) => l.key)
 const AR = ['16:9', '4:3', '9:16'] as const
 const GALLERY_TEMPLATES: TemplateMeta[] = [
-  { id: 'template-midnight-tech', name: 'Midnight Tech', category: 'tech', themeId: 'midnight-tech', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
+  { id: 'template-midnight-tech', name: 'Midnight Tech', category: 'tech', themeId: 'midnight-tech', aspectRatios: [...AR], layoutTypes: ALL, layoutOrder: [...SEQ.tech], source: 'builtin' },
   { id: 'template-sunset-warm', name: 'Sunset', category: 'creative', themeId: 'sunset-warm', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
   { id: 'template-ocean-teal', name: 'Ocean Teal', category: 'business', themeId: 'ocean-teal', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },
   { id: 'template-charcoal-gold', name: 'Charcoal Gold', category: 'business', themeId: 'charcoal-gold', aspectRatios: [...AR], layoutTypes: ALL, source: 'builtin' },

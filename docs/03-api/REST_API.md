@@ -78,17 +78,29 @@
 
 | Method | Path | 설명 |
 |---|---|---|
-| GET | `/templates` | 템플릿 목록 |
-| GET | `/themes` | 테마 6종 |
-| GET | `/layouts` | 레이아웃 카탈로그(LLM용) |
+| GET | `/templates` | 템플릿 목록(빌트인 113 + 사용자/임포트 병합) |
+| GET | `/templates/:id/sample` | 템플릿 미리보기 샘플 덱(갤러리 썸네일/모달) |
+| POST | `/templates/from-pptx` | 사용자 PPTX 업로드 → 색·폰트 추출해 브랜드 템플릿(P6) |
+| POST | `/templates/from-url` | 브랜드 사이트 URL → 색·폰트 추출해 브랜드 템플릿(P12, SSRF 방어) |
+| DELETE | `/templates/:id` | 사용자/임포트 템플릿 삭제(빌트인 불가) |
+| GET | `/themes` | 테마 113종 |
+| GET | `/layouts` | 레이아웃 카탈로그(LLM용) — 21종(references는 시스템 자동 생성이라 제외, 레지스트리 총 22) |
 | GET | `/presentation-types` | 발표 유형 10종(서사 골격+테마, ADR-010) |
 
 ## Exports
 
 | Method | Path | 설명 |
 |---|---|---|
-| POST | `/decks/:id/export` | `{format:'pptx'|'pdf'}` → `{exportId, filename}` |
+| POST | `/decks/:id/export` | `{format:'pptx'|'pdf'|'png'}` → `{exportId, filename}` (png=슬라이드별 PNG를 zip) |
 | GET | `/exports/:id/download` | 산출물 다운로드(RFC5987 한글 파일명) |
+
+## Images (P8/P12)
+
+| Method | Path | 설명 |
+|---|---|---|
+| POST | `/images/generate` | AI SVG 이미지 생성(claude) → data URI(P8) |
+| GET | `/images/stock?q=&orientation=` | 스톡 사진 검색(Pexels/Unsplash). 키 없으면 `{available:false}`(P12) |
+| POST | `/images/stock/fetch` | `{url}` → data URI(허용 CDN 호스트만, SSRF 방어)(P12) |
 
 ## Settings (동적 설정)
 

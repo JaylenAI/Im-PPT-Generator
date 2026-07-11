@@ -13,6 +13,7 @@ export * from './config/masking.js'
 
 // Pipeline
 export { generateOutline, type OutlineDeps } from './pipeline/outline.js'
+export { alignLayoutsToSequence, layoutSequenceHint, type SequencableSection } from './pipeline/sequence.js'
 export { generateSlide, type SlideDeps } from './pipeline/slide.js'
 export { generatePlans, type PlanDeps } from './pipeline/plan.js'
 export { checkGhostDeck, type GhostDeckReport, type GhostDeckIssue } from './pipeline/ghost-deck.js'

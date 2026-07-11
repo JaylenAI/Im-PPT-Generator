@@ -8,6 +8,17 @@ export interface UserSource {
   title?: string
 }
 
+/** 스톡 이미지 검색 결과(P12) — 웹이 보는 API 응답 형태 */
+export interface StockPhoto {
+  id: string
+  url: string
+  thumbUrl: string
+  alt: string
+  author: string
+  authorUrl: string
+  provider: 'pexels' | 'unsplash'
+}
+
 /** API 클라이언트 — 표준 봉투 {data}/{error} 파싱. 웹은 이 계약만 안다(ADR-007) */
 const BASE = '/api/v1'
 
@@ -196,6 +207,16 @@ export const api = {
       body: JSON.stringify({ concept, width: 400, height: 300, ...(themeId ? { themeId } : {}) }),
     }),
 
+  // 스톡 이미지 검색(P12) — 키 배선 시 실사진(available=false면 키 미설정)
+  searchStock: (q: string, orientation?: 'landscape' | 'portrait' | 'square') =>
+    req<{ available: boolean; provider: string | null; photos: StockPhoto[] }>(
+      `/images/stock?q=${encodeURIComponent(q)}${orientation ? `&orientation=${orientation}` : ''}`,
+    ),
+
+  // 선택 스톡 이미지 → data URI(충실한 임베드)
+  fetchStockDataUri: (url: string) =>
+    req<{ dataUri: string }>('/images/stock/fetch', { method: 'POST', body: JSON.stringify({ url }) }),
+
   regenerateSlide: (deckId: string, slideId: string, instruction: string) =>
     req<{ slide: import('@im-ppt/schema').Slide; deck: Deck; costUsd: number }>(
       `/decks/${deckId}/slides/${slideId}/regenerate`,
@@ -222,16 +243,23 @@ export const api = {
     return body.data
   },
 
+  // 브랜드 사이트 URL → 내 템플릿 생성(P12 브랜드 매칭) — 색+폰트 추출
+  createTemplateFromUrl: (url: string, name?: string) =>
+    req<TemplateMeta>('/templates/from-url', {
+      method: 'POST',
+      body: JSON.stringify({ url, ...(name ? { name } : {}) }),
+    }),
+
   // 커스텀 템플릿 삭제
   deleteTemplate: (id: string) => req<{ removed: boolean }>(`/templates/${id}`, { method: 'DELETE' }),
 
   // 발표 유형 카탈로그(ADR-010) — PT면접/컨설팅/IR/학술/세일즈/일반
   listPresentationTypes: () => req<PresentationType[]>('/presentation-types'),
 
-  createExport: (deckId: string) =>
-    req<{ exportId: string; filename: string }>(`/decks/${deckId}/export`, {
+  createExport: (deckId: string, format: 'pptx' | 'pdf' | 'png' = 'pptx') =>
+    req<{ exportId: string; filename: string; format: string }>(`/decks/${deckId}/export`, {
       method: 'POST',
-      body: JSON.stringify({ format: 'pptx' }),
+      body: JSON.stringify({ format }),
     }),
 
   downloadUrl: (exportId: string) => `${BASE}/exports/${exportId}/download`,

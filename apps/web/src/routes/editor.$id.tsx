@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
-  Sparkles, Send, Download, Play, ChevronLeft, MessageSquare, Search as SearchIcon, Loader2,
-  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Square, Share2, ListChecks, Stethoscope, Shapes,
+  Sparkles, Send, Download, Play, ChevronLeft, ChevronRight, MessageSquare, Search as SearchIcon, Loader2,
+  Pencil, Check as CheckIcon, Undo2, Redo2, Copy, Type as TypeIcon, Image as ImageIcon, Images, Square, Share2, ListChecks, Stethoscope, Shapes, Plus, Trash2,
 } from 'lucide-react'
 import type { Deck, Theme } from '@im-ppt/schema'
 import { CANVAS_SIZES } from '@im-ppt/schema'
@@ -14,9 +14,10 @@ import { GhostDeckView } from '@/components/GhostDeckView'
 import { DeckDoctorView } from '@/components/DeckDoctorView'
 import { AiToolsMenu } from '@/components/AiToolsMenu'
 import { VariantsView } from '@/components/VariantsView'
+import { StockPicker } from '@/components/StockPicker'
 import { useAppStore } from '@/lib/store'
 import { api } from '@/lib/api'
-import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement } from '@/lib/deck-edit'
+import { editText, editListItem, updateFrame, updateTextStyle, deleteElement, addElement, newElement, reorderElement, addSlide, deleteSlide, duplicateSlide, moveSlide } from '@/lib/deck-edit'
 import { makeId, type ChatMessage } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -55,6 +56,7 @@ function EditorPage() {
   const [theme, setTheme] = useState<Theme | undefined>(storeDeck ? themeFor(storeDeck) : undefined)
   const [active, setActive] = useState(0)
   const [downloading, setDownloading] = useState(false)
+  const [dlOpen, setDlOpen] = useState(false)
   const [chat, setChat] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [tab, setTab] = useState<'chat' | 'search'>('chat')
@@ -66,6 +68,7 @@ function EditorPage() {
   const [saving, setSaving] = useState(false)
   const [presenting, setPresenting] = useState(false)
   const [imgGen, setImgGen] = useState(false)
+  const [stockOpen, setStockOpen] = useState(false)
   const [ghostOpen, setGhostOpen] = useState(false)
   const [doctorOpen, setDoctorOpen] = useState(false)
   const [variantsOpen, setVariantsOpen] = useState(false)
@@ -109,10 +112,10 @@ function EditorPage() {
 
   const slide = deck.slides[active] ?? deck.slides[0]
 
-  const download = async () => {
+  const download = async (format: 'pptx' | 'pdf' | 'png' = 'pptx') => {
     setDownloading(true)
     try {
-      const { exportId } = await api.createExport(deck.id)
+      const { exportId } = await api.createExport(deck.id, format)
       window.location.href = api.downloadUrl(exportId)
     } finally {
       setDownloading(false)
@@ -147,6 +150,23 @@ function EditorPage() {
       const stack = [...h.stack.slice(0, h.idx + 1), d]
       return { stack, idx: stack.length - 1 }
     })
+  }
+  // 슬라이드 단위 관리(P12 Phase 2) — commit()으로 undo 추적, active 인덱스 보정
+  const addSlideAt = (i: number) => { if (!deck) return; commit(addSlide(deck, i)); setActive(i + 1); setSelectedId(undefined) }
+  const dupSlideAt = (i: number) => { if (!deck) return; commit(duplicateSlide(deck, i)); setActive(i + 1); setSelectedId(undefined) }
+  const delSlideAt = (i: number) => {
+    if (!deck || deck.slides.length <= 1) return
+    commit(deleteSlide(deck, i))
+    setActive(Math.max(0, Math.min(i, deck.slides.length - 2)))
+    setSelectedId(undefined)
+  }
+  const moveSlideAt = (i: number, dir: 'left' | 'right') => {
+    if (!deck) return
+    const j = dir === 'left' ? i - 1 : i + 1
+    if (j < 0 || j >= deck.slides.length) return
+    commit(moveSlide(deck, i, dir))
+    setActive(j)
+    setSelectedId(undefined)
   }
   const undo = () =>
     setHist((h) => {
@@ -227,6 +247,20 @@ function EditorPage() {
       {presenting && (
         <PresentMode deck={deck} theme={theme} active={active} setActive={setActive} onExit={() => setPresenting(false)} />
       )}
+      {stockOpen && slide && (
+        <StockPicker
+          initialQuery={
+            (slide.elements.find((e) => e.type === 'text' && (e.role === 'title' || e.role === 'display')) as { content?: string } | undefined)?.content?.trim() || deck.title
+          }
+          onInsert={(dataUri, alt) => {
+            const el = newElement('image', { src: dataUri, alt })
+            commit(addElement(deck, slide.id, el))
+            setSelectedId(el.id)
+            setStockOpen(false)
+          }}
+          onClose={() => setStockOpen(false)}
+        />
+      )}
       {ghostOpen && <GhostDeckView deckId={deck.id} onClose={() => setGhostOpen(false)} />}
       {doctorOpen && <DeckDoctorView deckId={deck.id} onClose={() => setDoctorOpen(false)} onFixed={commit} />}
       {variantsOpen && slide && theme && (
@@ -292,13 +326,41 @@ function EditorPage() {
             >
               <Copy className="h-4 w-4" /> 복제
             </button>
-            <button
-              onClick={download}
-              disabled={downloading}
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
-            >
-              {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} PPTX
-            </button>
+            <div className="relative">
+              <button
+                onClick={() => setDlOpen((o) => !o)}
+                disabled={downloading}
+                data-testid="download-btn"
+                aria-haspopup="menu"
+                aria-expanded={dlOpen}
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary disabled:opacity-50"
+              >
+                {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />} 다운로드
+              </button>
+              {dlOpen && (
+                <>
+                  <button className="fixed inset-0 z-10 cursor-default" aria-hidden tabIndex={-1} onClick={() => setDlOpen(false)} />
+                  <div role="menu" className="absolute right-0 z-20 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-card">
+                    {([
+                      ['pptx', 'PPTX', '편집 가능한 파워포인트'],
+                      ['pdf', 'PDF', '인쇄·배포용'],
+                      ['png', 'PNG (zip)', '슬라이드별 이미지'],
+                    ] as const).map(([fmt, label, desc]) => (
+                      <button
+                        key={fmt}
+                        role="menuitem"
+                        data-testid={`download-${fmt}`}
+                        onClick={() => { setDlOpen(false); void download(fmt) }}
+                        className="flex w-full flex-col items-start px-3 py-1.5 text-left hover:bg-secondary"
+                      >
+                        <span className="text-sm font-medium">{label}</span>
+                        <span className="text-[11px] text-muted-foreground">{desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
             <AiToolsMenu deck={deck} onDeckUpdate={commit} />
             <button onClick={() => setGhostOpen(true)} data-testid="ghost-btn"
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium hover:bg-secondary">
@@ -346,6 +408,8 @@ function EditorPage() {
                       } finally { setImgGen(false) }
                     }} className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary disabled:opacity-50">
                       {imgGen ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />} 이미지</button>
+                    <button data-testid="add-stock" onClick={() => setStockOpen(true)}
+                      className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><Images className="h-3.5 w-3.5" /> 스톡</button>
                     <button data-testid="add-shape" onClick={() => { const el = newElement('shape'); commit(addElement(deck, slide.id, el)); setSelectedId(el.id) }}
                       className="flex items-center gap-1 rounded-md border border-border px-2 py-1 text-xs hover:border-primary"><Square className="h-3.5 w-3.5" /> 도형</button>
                   </div>
@@ -381,23 +445,46 @@ function EditorPage() {
               </div>
             </div>
 
-            {/* Thumbnail strip */}
-            <div className="flex shrink-0 gap-3 overflow-x-auto border-t border-border bg-card/60 p-4">
+            {/* Thumbnail strip — 슬라이드 관리(선택/복제/삭제/이동/추가) */}
+            <div className="flex shrink-0 items-stretch gap-3 overflow-x-auto border-t border-border bg-card/60 p-4">
               {deck.slides.map((s, i) => (
-                <button
-                  key={s.id}
-                  onClick={() => setActive(i)}
-                  className={cn(
-                    'relative block w-40 shrink-0 overflow-hidden rounded-lg border-2 transition-all',
-                    i === active ? 'border-primary shadow-brand' : 'border-border hover:border-primary/40',
+                <div key={s.id} data-testid="slide-thumb" className="group relative shrink-0">
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setActive(i)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActive(i) } }}
+                    aria-label={`슬라이드 ${i + 1} 선택`}
+                    className={cn(
+                      'relative block w-40 cursor-pointer overflow-hidden rounded-lg border-2 transition-all',
+                      i === active ? 'border-primary shadow-brand' : 'border-border hover:border-primary/40',
+                    )}
+                  >
+                    <ScaledSlide width={160} aspectRatio={deck.aspectRatio}>
+                      <SlideView slide={s} theme={theme} aspectRatio={deck.aspectRatio} />
+                    </ScaledSlide>
+                    <span className="absolute left-1.5 top-1.5 rounded bg-black/50 px-1.5 font-mono text-[10px] text-white">{i + 1}</span>
+                  </div>
+                  {editMode && (
+                    <div className="absolute right-1 top-1 flex gap-0.5 rounded-md bg-black/70 p-0.5 opacity-0 transition-opacity focus-within:opacity-100 group-hover:opacity-100">
+                      <button data-testid={`slide-left-${i}`} disabled={i === 0} onClick={() => moveSlideAt(i, 'left')} aria-label={`슬라이드 ${i + 1} 왼쪽으로 이동`}
+                        className="rounded p-1 text-white hover:bg-white/25 disabled:opacity-30"><ChevronLeft className="h-3 w-3" /></button>
+                      <button data-testid={`slide-dup-${i}`} onClick={() => dupSlideAt(i)} aria-label={`슬라이드 ${i + 1} 복제`}
+                        className="rounded p-1 text-white hover:bg-white/25"><Copy className="h-3 w-3" /></button>
+                      <button data-testid={`slide-del-${i}`} disabled={deck.slides.length <= 1} onClick={() => delSlideAt(i)} aria-label={`슬라이드 ${i + 1} 삭제`}
+                        className="rounded p-1 text-white hover:bg-white/25 disabled:opacity-30"><Trash2 className="h-3 w-3" /></button>
+                      <button data-testid={`slide-right-${i}`} disabled={i === deck.slides.length - 1} onClick={() => moveSlideAt(i, 'right')} aria-label={`슬라이드 ${i + 1} 오른쪽으로 이동`}
+                        className="rounded p-1 text-white hover:bg-white/25 disabled:opacity-30"><ChevronRight className="h-3 w-3" /></button>
+                    </div>
                   )}
-                >
-                  <ScaledSlide width={160} aspectRatio={deck.aspectRatio}>
-                    <SlideView slide={s} theme={theme} aspectRatio={deck.aspectRatio} />
-                  </ScaledSlide>
-                  <span className="absolute left-1.5 top-1.5 rounded bg-black/50 px-1.5 font-mono text-[10px] text-white">{i + 1}</span>
-                </button>
+                </div>
               ))}
+              {editMode && (
+                <button data-testid="add-slide" onClick={() => addSlideAt(active)} aria-label="슬라이드 추가"
+                  className="flex w-40 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary hover:text-primary">
+                  <Plus className="h-6 w-6" /><span className="text-xs font-medium">슬라이드 추가</span>
+                </button>
+              )}
             </div>
           </div>
 

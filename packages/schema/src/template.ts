@@ -15,8 +15,9 @@ export const templateCategorySchema = z.enum([
  * - builtin: 코드 레지스트리(`packages/templates`) 제공
  * - user: 사용자가 덱 스타일을 저장하거나 갤러리에서 만든 것(DB 저장)
  * - imported_pptx: 사용자 PPTX 업로드에서 추출(P6, DB 저장)
+ * - imported_url: 브랜드 사이트 URL에서 색/폰트 추출(P12 브랜드 매칭, DB 저장)
  */
-export const templateSourceSchema = z.enum(['builtin', 'user', 'imported_pptx'])
+export const templateSourceSchema = z.enum(['builtin', 'user', 'imported_pptx', 'imported_url'])
 
 /** 템플릿 = 테마(토큰) + 지원 레이아웃 변형 세트 — 갤러리 노출 메타 */
 export const templateMetaSchema = z.object({
@@ -25,7 +26,14 @@ export const templateMetaSchema = z.object({
   category: templateCategorySchema,
   themeId: idSchema,
   aspectRatios: z.array(aspectRatioSchema).min(1),
+  /** 지원하는 레이아웃 집합(순서 무관) */
   layoutTypes: z.array(z.string().min(1)).min(1),
+  /**
+   * 템플릿의 설계된 서사 레이아웃 순서(P12) — 있으면 생성이 이 흐름을 따르도록 가이드한다.
+   * 소프트: 아웃라인 프롬프트에 흐름을 주입하고, 콘텐츠 확정 레이아웃(chart/stat 등)은 존중하며
+   * 유연한 슬롯만 이 순서로 정렬(positional, 부족하면 순환). 없으면 LLM이 자유 선택.
+   */
+  layoutOrder: z.array(z.string().min(1)).optional(),
   previewUrl: z.string().optional(),
   source: templateSourceSchema.default('builtin'),
   /** user/imported_pptx만 소유. builtin은 전역 */
@@ -38,10 +46,10 @@ export const templateMetaSchema = z.object({
  * builtin은 코드가 테마를 소유하지만, user/imported는 DB가 테마를 소유해야 하므로 토큰을 함께 저장.
  */
 export const customTemplateSchema = templateMetaSchema.extend({
-  source: z.enum(['user', 'imported_pptx']),
+  source: z.enum(['user', 'imported_pptx', 'imported_url']),
   workspaceId: z.string().min(1),
   themeTokens: themeTokensSchema,
-  /** imported_pptx일 때 원본 파일 참조(추출 재현/디버깅용) */
+  /** imported_pptx는 원본 파일, imported_url은 원본 URL 참조(추출 재현/디버깅용) */
   sourceFileRef: z.string().optional(),
 })
 
