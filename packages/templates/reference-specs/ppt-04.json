@@ -1,0 +1,45 @@
+{
+  "id": "ppt-04",
+  "name": "Olive Pitchbook",
+  "family": "muted-proposal",
+  "category": "minimal",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#6A5532",
+    "secondary": "#5D5E57",
+    "accent": "#6A5532",
+    "background": "#D6D2C8",
+    "surface": "#FFFFFF",
+    "textPrimary": "#201A14",
+    "textSecondary": "#5D5E57",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Archivo",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "editorial-serif",
+  "layoutSequence": [
+    "editorial-cover",
+    "toc-index",
+    "profile-split",
+    "section",
+    "two-col",
+    "timeline",
+    "photo-strip",
+    "closing"
+  ],
+  "measuredAccent": "#6A5532",
+  "accentCorrected": false,
+  "source": "04.jpg"
+}

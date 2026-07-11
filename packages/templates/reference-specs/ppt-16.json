@@ -1,0 +1,45 @@
+{
+  "id": "ppt-16",
+  "name": "Red Press",
+  "family": "red-bold",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#EE362D",
+    "secondary": "#9A9493",
+    "accent": "#EE362D",
+    "background": "#F7F6F7",
+    "surface": "#F7F6F7",
+    "textPrimary": "#191919",
+    "textSecondary": "#9A9493",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Archivo",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 58,
+    "title": 34,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "brutalist-block",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "kpi-grid",
+    "process",
+    "chart",
+    "cards",
+    "comparison",
+    "closing"
+  ],
+  "measuredAccent": "#EE362D",
+  "accentCorrected": false,
+  "source": "16.jpg"
+}

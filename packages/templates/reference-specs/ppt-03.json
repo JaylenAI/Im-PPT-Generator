@@ -1,0 +1,45 @@
+{
+  "id": "ppt-03",
+  "name": "Neon Fitness",
+  "family": "neon-pitch",
+  "category": "creative",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#2E3A40",
+    "secondary": "#6B7A82",
+    "accent": "#C2E812",
+    "background": "#F7F8F8",
+    "surface": "#FFFFFF",
+    "textPrimary": "#17201F",
+    "textSecondary": "#4A575C",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Poppins",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 58,
+    "title": 34,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "vivid-block",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "section",
+    "split-feature",
+    "stat",
+    "metric-bars",
+    "cards",
+    "closing"
+  ],
+  "measuredAccent": "#50361B",
+  "accentCorrected": true,
+  "source": "03.jpg"
+}

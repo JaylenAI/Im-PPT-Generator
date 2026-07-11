@@ -1,0 +1,45 @@
+{
+  "id": "ppt-18",
+  "name": "Mono Proposal",
+  "family": "mono-editorial",
+  "category": "minimal",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#0A0A0A",
+    "secondary": "#9A9A9A",
+    "accent": "#0A0A0A",
+    "background": "#F9F9F9",
+    "surface": "#FFFFFF",
+    "textPrimary": "#0A0A0A",
+    "textSecondary": "#55555A",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Inter",
+    "body": "Georgia",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 80,
+    "title": 40,
+    "subtitle": 22,
+    "body": 15,
+    "caption": 11
+  },
+  "system": "mono-label",
+  "layoutSequence": [
+    "editorial-cover",
+    "toc-index",
+    "profile-split",
+    "section",
+    "two-col",
+    "timeline",
+    "photo-strip",
+    "closing"
+  ],
+  "measuredAccent": "#F9F9F9",
+  "accentCorrected": true,
+  "source": "18.jpg"
+}

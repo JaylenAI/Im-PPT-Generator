@@ -1,0 +1,45 @@
+{
+  "id": "ppt-06",
+  "name": "Soft Data",
+  "family": "blue-report",
+  "category": "business",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#34506B",
+    "secondary": "#8A97A5",
+    "accent": "#7BA7C7",
+    "background": "#F9F9F9",
+    "surface": "#FFFFFF",
+    "textPrimary": "#151516",
+    "textSecondary": "#4C555F",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Lato",
+    "body": "Lato",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "swiss-minimal",
+  "layoutSequence": [
+    "title",
+    "agenda",
+    "stat",
+    "chart",
+    "kpi-grid",
+    "comparison",
+    "cards",
+    "closing"
+  ],
+  "measuredAccent": "#F9F9F9",
+  "accentCorrected": true,
+  "source": "06.jpg"
+}

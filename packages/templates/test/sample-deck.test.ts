@@ -8,7 +8,10 @@ describe('buildSampleDeck (템플릿 미리보기)', () => {
       const deck = buildSampleDeck(t.id)
       const parsed = deckSchema.safeParse(deck)
       expect(parsed.success, `${t.id}: ${JSON.stringify(parsed.error?.issues?.[0])}`).toBe(true)
-      expect(deck.slides.length).toBe(5)
+      // layoutOrder(시그니처 시퀀스)가 있으면 그 흐름대로, 없으면 범용 5슬라이드 폴백.
+      // 모든 시퀀스 키에 샘플 콘텐츠가 있어야 하므로 길이가 정확히 일치해야 한다(누락 키 감지 게이트).
+      const expectedLen = t.layoutOrder && t.layoutOrder.length > 0 ? t.layoutOrder.length : 5
+      expect(deck.slides.length, `${t.id} 슬라이드 수(시퀀스 커버리지)`).toBe(expectedLen)
       expect(deck.themeId).toBe(t.themeId)
       // 테마가 실제 등록돼 있어야 렌더 가능
       expect(() => getTheme(t.themeId)).not.toThrow()

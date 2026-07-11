@@ -1,0 +1,65 @@
+{
+  "id": "ppt-12",
+  "source": "12.jpg",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#6FB975",
+    "secondary": "#B1B1B0",
+    "accent": "#6FB975",
+    "background": "#FAFAFA",
+    "surface": "#FAFAFA",
+    "textPrimary": "#1A1818",
+    "textSecondary": "#B1B1B0"
+  },
+  "accentSat": 0.35,
+  "topColors": [
+    {
+      "hex": "#FAFAFA",
+      "pct": 55.2,
+      "sat": 0,
+      "lum": 0.98
+    },
+    {
+      "hex": "#B1B1B0",
+      "pct": 6.1,
+      "sat": 0.01,
+      "lum": 0.69
+    },
+    {
+      "hex": "#DBE6D9",
+      "pct": 5.9,
+      "sat": 0.21,
+      "lum": 0.89
+    },
+    {
+      "hex": "#D1D1D0",
+      "pct": 5.4,
+      "sat": 0.01,
+      "lum": 0.82
+    },
+    {
+      "hex": "#B2D5B1",
+      "pct": 3,
+      "sat": 0.3,
+      "lum": 0.8
+    },
+    {
+      "hex": "#959595",
+      "pct": 2.9,
+      "sat": 0,
+      "lum": 0.58
+    },
+    {
+      "hex": "#6FB975",
+      "pct": 2.4,
+      "sat": 0.35,
+      "lum": 0.64
+    },
+    {
+      "hex": "#9DA695",
+      "pct": 2.3,
+      "sat": 0.09,
+      "lum": 0.64
+    }
+  ]
+}

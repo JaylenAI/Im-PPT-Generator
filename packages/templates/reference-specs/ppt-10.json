@@ -1,0 +1,45 @@
+{
+  "id": "ppt-10",
+  "name": "Green Modern",
+  "family": "green-startup",
+  "category": "tech",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#52AD47",
+    "secondary": "#969C97",
+    "accent": "#52AD47",
+    "background": "#F8F9F8",
+    "surface": "#F8F9F8",
+    "textPrimary": "#161B1C",
+    "textSecondary": "#969C97",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Poppins",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "neo-startup",
+  "layoutSequence": [
+    "title",
+    "statement",
+    "dashboard-cards",
+    "feature-grid",
+    "stat",
+    "chart",
+    "split-feature",
+    "closing"
+  ],
+  "measuredAccent": "#52AD47",
+  "accentCorrected": false,
+  "source": "10.jpg"
+}

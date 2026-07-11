@@ -49,6 +49,19 @@ describe('alignLayoutsToSequence — 콘텐츠-안전 정렬', () => {
     expect(input[0]!.layoutHint).toBe('bullets')
     expect(out).not.toBe(input)
   })
+
+  it('설계된 표지(hero-cover/editorial-cover)를 첫 장 title 대신 존중', () => {
+    const hero = alignLayoutsToSequence(secs(['title', 'bullets', 'closing']), ['hero-cover', 'agenda', 'closing'])
+    expect(hero.map((s) => s.layoutHint)).toEqual(['hero-cover', 'agenda', 'closing'])
+    const ed = alignLayoutsToSequence(secs(['title', 'bullets']), ['editorial-cover', 'agenda'])
+    expect(ed[0]!.layoutHint).toBe('editorial-cover')
+  })
+
+  it('order[0]가 비표지면 첫 title은 유지(엉뚱한 데이터 표지 방지)', () => {
+    // order[0]='chart'는 표지 계열이 아니므로 첫 장 title 그대로 유지
+    const out = alignLayoutsToSequence(secs(['title', 'bullets']), ['chart', 'agenda'])
+    expect(out[0]!.layoutHint).toBe('title')
+  })
 })
 
 describe('layoutSequenceHint', () => {

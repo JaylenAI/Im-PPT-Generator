@@ -22,6 +22,19 @@ import { featureQuoteLayout } from './layouts/feature-quote.js'
 import { splitFeatureLayout } from './layouts/split-feature.js'
 import { heroImageLayout } from './layouts/hero-image.js'
 import { featureGridLayout } from './layouts/feature-grid.js'
+import { editorialCoverLayout } from './layouts/editorial-cover.js'
+import { tocIndexLayout } from './layouts/toc-index.js'
+import { profileSplitLayout } from './layouts/profile-split.js'
+import { metricBarsLayout } from './layouts/metric-bars.js'
+import { stepsCirclesLayout } from './layouts/steps-circles.js'
+import { photoStripLayout } from './layouts/photo-strip.js'
+import { teamGridLayout } from './layouts/team-grid.js'
+import { dashboardCardsLayout } from './layouts/dashboard-cards.js'
+import { heroCoverLayout } from './layouts/hero-cover.js'
+import { mastheadCoverLayout } from './layouts/masthead-cover.js'
+import { editorialHeadlineLayout } from './layouts/editorial-headline.js'
+import { ringCoverLayout } from './layouts/ring-cover.js'
+import { reportCoverLayout } from './layouts/report-cover.js'
 import { stitchIndigoTheme } from './themes/stitch-indigo.js'
 import { deepNavyTheme } from './themes/deep-navy.js'
 import { forestTheme, coralTheme, slateTheme, royalTheme } from './themes/extra.js'
@@ -29,6 +42,9 @@ import { GALLERY_THEMES } from './themes/gallery.js'
 import { STYLE_PACK_THEMES, STYLE_PACK_CATEGORY } from './themes/packs.js'
 import { DESIGN_DIVERSITY_THEMES, DESIGN_DIVERSITY_CATEGORY } from './themes/design-diversity.js'
 import { COMMUNITY_THEMES, COMMUNITY_CATEGORY } from './themes/design-community.js'
+import { PPT20_THEMES, PPT20_CATEGORY, PPT20_SEQ } from './themes/ppt20.js'
+import { PPT20_EXT_THEMES, PPT20_EXT_CATEGORY, PPT20_EXT_HERO } from './themes/ppt20-ext.js'
+import { FIELD_THEMES, FIELD_CATEGORY, FIELD_SEQ } from './themes/ppt20-fields.js'
 import { withDesignSystem } from './themes/design-systems.js'
 
 /** 레이아웃 레지스트리 — 추가는 이 배열에 1줄 (분기문 증식 금지) */
@@ -55,6 +71,21 @@ const LAYOUT_LIST: LayoutRuntime[] = [
   defineLayout(splitFeatureLayout),
   defineLayout(heroImageLayout),
   defineLayout(featureGridLayout),
+  // R2 PPT 20선 재현 — 에디토리얼/이력서/대시보드 구성(신규 레이아웃 8종)
+  defineLayout(editorialCoverLayout),
+  defineLayout(tocIndexLayout),
+  defineLayout(profileSplitLayout),
+  defineLayout(metricBarsLayout),
+  defineLayout(stepsCirclesLayout),
+  defineLayout(photoStripLayout),
+  defineLayout(teamGridLayout),
+  defineLayout(dashboardCardsLayout),
+  defineLayout(heroCoverLayout),
+  // 시그니처 재현 레이아웃 — 원본 PPT 20선의 고유 구성 복제
+  defineLayout(mastheadCoverLayout), // 01/05 매거진 이력서 표지
+  defineLayout(editorialHeadlineLayout), // 01/05 매거진 내부 장
+  defineLayout(ringCoverLayout), // 08 오렌지 크리에이티브 링 표지
+  defineLayout(reportCoverLayout), // 07 비즈니스 플랜 투톤 표지
   defineLayout(closingLayout),
   defineLayout(referencesLayout), // hidden: LLM 카탈로그 제외, 시스템 자동 생성
 ]
@@ -94,6 +125,9 @@ const THEME_LIST: Theme[] = [
   ...STYLE_PACK_THEMES,
   ...DESIGN_DIVERSITY_THEMES,
   ...COMMUNITY_THEMES,
+  ...PPT20_THEMES, // style 사전 설정 → withDesignSystem이 측정 시스템 보존
+  ...PPT20_EXT_THEMES, // R6 딥서칭 확장 — 팔레트 변형(system 동일)
+  ...FIELD_THEMES, // Phase B 파생 — 다른 분야·컨셉 필드 템플릿(시그니처 시스템 재사용)
 ].map(withDesignSystem)
 const THEMES: ReadonlyMap<string, Theme> = new Map(THEME_LIST.map((t) => [t.id, t]))
 
@@ -181,6 +215,40 @@ const COMMUNITY_TEMPLATES: TemplateMeta[] = COMMUNITY_THEMES.map((t) => ({
   source: 'builtin',
 }))
 
+// PPT 샘플 20선 재현 — 팔레트 실측 테마 + 원본 충실 시그니처 시퀀스(layoutOrder, 표지 포함)
+// ext 변형: 첫 장만 hero-cover(풀블리드 컬러 표지)로 교체해 브랜드컬러 강조, 본문은 베이스 시퀀스 상속
+function withHeroCover(seq: string[] | undefined, isHero: boolean): string[] | undefined {
+  if (!seq || seq.length === 0 || !isHero) return seq
+  return ['hero-cover', ...seq.slice(1)] // 첫 장(표지)만 교체, 본문 시퀀스 보존
+}
+// 변형 id(ppt-01-sage, ppt-15-aurora-blue 등) → 베이스 id(ppt-01, ppt-15)
+const ppt20BaseOf = (id: string): string => id.match(/^(ppt-\d+)/)?.[1] ?? id
+function ppt20Template(id: string, name: string, category: string | undefined, seq: string[] | undefined): TemplateMeta {
+  return {
+    id: `template-${id}`,
+    name,
+    category: (category ?? 'business') as TemplateMeta['category'],
+    themeId: id,
+    aspectRatios: [...AR],
+    layoutTypes: ALL,
+    ...(seq ? { layoutOrder: seq } : {}),
+    source: 'builtin',
+  }
+}
+// 표지를 시퀀스 seq[0]에 직접 지정(masthead/ring/report/hero/editorial-cover) → withHeroCover 오버라이드 불필요
+const PPT20_TEMPLATES: TemplateMeta[] = PPT20_THEMES.map((t) =>
+  ppt20Template(t.id, t.name, PPT20_CATEGORY[t.id], PPT20_SEQ[t.id]),
+)
+// R6 딥서칭 확장 — 20 스타일의 팔레트 변형 형제. 본문 시퀀스는 베이스의 충실 시그니처를 상속,
+// hero 지정 변형만 표지를 풀블리드 컬러(hero-cover)로 교체해 브랜드컬러를 강조한다.
+const PPT20_EXT_TEMPLATES: TemplateMeta[] = PPT20_EXT_THEMES.map((t) =>
+  ppt20Template(t.id, t.name, PPT20_EXT_CATEGORY[t.id], withHeroCover(PPT20_SEQ[ppt20BaseOf(t.id)], PPT20_EXT_HERO.has(t.id))),
+)
+// Phase B 파생 — 다른 분야·컨셉 필드 템플릿(각자 완결된 시그니처 시퀀스 보유)
+const FIELD_TEMPLATES: TemplateMeta[] = FIELD_THEMES.map((t) =>
+  ppt20Template(t.id, t.name, FIELD_CATEGORY[t.id], FIELD_SEQ[t.id]),
+)
+
 export const TEMPLATES: TemplateMeta[] = [
   {
     id: 'corporate-indigo',
@@ -205,4 +273,7 @@ export const TEMPLATES: TemplateMeta[] = [
   ...STYLE_PACK_TEMPLATES,
   ...DESIGN_DIVERSITY_TEMPLATES,
   ...COMMUNITY_TEMPLATES,
+  ...PPT20_TEMPLATES,
+  ...PPT20_EXT_TEMPLATES,
+  ...FIELD_TEMPLATES,
 ]

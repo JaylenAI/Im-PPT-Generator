@@ -1,0 +1,45 @@
+{
+  "id": "ppt-15",
+  "name": "Keen Gradient",
+  "family": "green-startup",
+  "category": "tech",
+  "darkTheme": false,
+  "colors": {
+    "primary": "#23CF9E",
+    "secondary": "#767171",
+    "accent": "#23CF9E",
+    "background": "#EDEEEE",
+    "surface": "#EDEEEE",
+    "textPrimary": "#1B2020",
+    "textSecondary": "#767171",
+    "success": "#2F9E68",
+    "warning": "#D08700",
+    "error": "#D64545"
+  },
+  "fonts": {
+    "heading": "Poppins",
+    "body": "Inter",
+    "mono": "Courier New"
+  },
+  "fontSizes": {
+    "display": 46,
+    "title": 31,
+    "subtitle": 21,
+    "body": 16,
+    "caption": 12
+  },
+  "system": "glass-gradient",
+  "layoutSequence": [
+    "title",
+    "statement",
+    "dashboard-cards",
+    "feature-grid",
+    "stat",
+    "chart",
+    "split-feature",
+    "closing"
+  ],
+  "measuredAccent": "#23CF9E",
+  "accentCorrected": false,
+  "source": "15.jpg"
+}
