@@ -24,3 +24,7 @@ test-results/
 .idea/
 .vscode/*
 !.vscode/extensions.json
+
+# 데모/QA 산출물 (대용량 바이너리 — 저장소에 커밋하지 않음)
+/PPT복제_20종/
+PPT20_재현_QA/
